@@ -17,6 +17,9 @@ python-dotenv>=1.0.0
 # CORS支持
 python-multipart>=0.0.9
 
+# 数据库
+sqlalchemy>=2.0.0
+
 # 日志
 loguru>=0.7.0
 

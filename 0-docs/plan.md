@@ -1,6 +1,6 @@
 # Fitness Planner — 任务流程文档
 
-> 基于 `design.md` 整理，按实施顺序逐步执行。
+> 基于 `design.md` 整理，按实施顺序逐步执行。且边完成边把[ ] 改成 [x]
 > 所有改造基于 `helloagents-trip-planner/` 原项目进行。
 
 ---
@@ -9,14 +9,14 @@
 
 ### 任务 1.1：复制原项目，建立新目录结构
 
-- [ ] 在 `fitness-plan/` 下创建 `backend/` 和 `frontend/` 目录（从原项目复制）
-- [ ] 复制 `helloagents-trip-planner/backend/` → `fitness-plan/backend/`
-- [ ] 复制 `helloagents-trip-planner/frontend/` → `fitness-plan/frontend/`
-- [ ] 删除所有旅行相关残留（trip、attraction、hotel 相关文件名和代码）
+- [x] 在 `fitness-plan/` 下创建 `backend/` 和 `frontend/` 目录（从原项目复制）
+- [x] 复制 `helloagents-trip-planner/backend/` → `fitness-plan/backend/`
+- [x] 复制 `helloagents-trip-planner/frontend/` → `fitness-plan/frontend/`
+- [x] 删除所有旅行相关残留（trip、attraction、hotel 相关文件名和代码）— 后端已清除，前端残留留待 Phase 3
 
 ### 任务 1.2：后端依赖更新
 
-- [ ] 打开 `backend/requirements.txt`，确认以下包存在（没有则添加）：
+- [x] 打开 `backend/requirements.txt`，确认以下包存在（没有则添加）：
   ```
   hello-agents[protocols]>=0.2.4,<=0.2.9
   fastapi>=0.115.0
@@ -29,11 +29,11 @@
   fastmcp>=2.0.0
   loguru>=0.7.0
   ```
-- [ ] 运行 `pip install -r requirements.txt` 确认安装成功
+- [x] 运行 `pip install -r requirements.txt` 确认安装成功
 
 ### 任务 1.3：配置环境变量
 
-- [ ] 编辑 `backend/.env`，确保包含：
+- [x] 编辑 `backend/.env`，确保包含：
   ```
   # LLM 配置（从原项目复制）
   LLM_API_KEY=your_key
@@ -43,19 +43,19 @@
   # 高德地图 API Key（从原项目复制）
   AMAP_API_KEY=your_amap_key
   ```
-- [ ] 确认 `backend/app/config.py` 能读取上述变量
+- [x] 确认 `backend/app/config.py` 能读取上述变量
 
 ### 任务 1.4：数据库模型建立
 
-- [ ] 新建 `backend/app/models/orm_models.py`，实现三张表：
+- [x] 新建 `backend/app/models/orm_models.py`，实现三张表：
   - `User`（用户资料：身高/体重/年龄/性别/目标/经验）
   - `FitnessPlan`（训练计划：目标快照/周数/天数/地点/饮食偏好/计划内容 JSON）
   - `WorkoutRecord`（训练记录：计划ID/日期/动作名/组数次数重量/难度评分）
-- [ ] 在 `backend/app/database.py` 中配置 SQLite 连接和 `Base.metadata.create_all()`
+- [x] 在 `backend/app/database.py` 中配置 SQLite 连接和 `Base.metadata.create_all()`
 
 ### 任务 1.5：Pydantic API Schema 定义
 
-- [ ] 新建或重写 `backend/app/models/schemas.py`，实现以下模型：
+- [x] 新建或重写 `backend/app/models/schemas.py`，实现以下模型：
   - `UserProfile`（用户创建/更新）
   - `PlanRequest`（生成计划请求：目标/经验/地点/天数/周数/饮食/备注）
   - `ExerciseItem`（单个训练动作）
@@ -66,23 +66,47 @@
 
 ### 任务 1.6：API 路由骨架建立
 
-- [ ] 新建 `backend/app/api/routes/user.py`，注册以下路由（先返回空数据）：
+- [x] 新建 `backend/app/api/routes/user.py`，注册以下路由（已关联数据库）：
   - `POST /api/user/profile`
   - `GET /api/user/profile`
-- [ ] 新建 `backend/app/api/routes/fitness.py`，注册以下路由（先返回占位数据）：
+- [x] 新建 `backend/app/api/routes/fitness.py`，注册以下路由（先返回占位数据）：
   - `POST /api/fitness/generate`
   - `GET /api/fitness/plans`
   - `GET /api/fitness/plan/{id}`
-- [ ] 新建 `backend/app/api/routes/record.py`，注册以下路由：
+- [x] 新建 `backend/app/api/routes/record.py`，注册以下路由：
   - `POST /api/fitness/record`
   - `GET /api/fitness/records`
-- [ ] 更新 `backend/app/api/main.py`，挂载所有路由，配置 CORS
+- [x] 更新 `backend/app/api/main.py`，挂载所有路由，配置 CORS
 
 ### 任务 1.7：验证后端可启动
 
-- [ ] 运行 `uvicorn app.api.main:app --reload`
-- [ ] 打开 `http://localhost:8000/docs`，确认所有路由出现在 Swagger UI 中
-- [ ] 访问 `POST /api/user/profile`，确认接口可调通（返回占位响应即可）
+- [x] 运行 `uvicorn app.api.main:app --reload`
+- [x] 打开 `http://localhost:8000/docs`，确认所有路由出现在 Swagger UI 中
+- [x] 访问 `POST /api/user/profile`，确认接口可调通（返回占位响应即可）
+
+### ✅ Phase 1 可视化验收
+
+**验收方式：浏览器 + 终端输出**
+
+1. **终端启动日志** — 运行 `uvicorn` 后终端应出现：
+   ```
+   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+   INFO:     Started reloader process
+   INFO:     Application startup complete.
+   ```
+   无 `ImportError` / `ModuleNotFoundError`。
+
+2. **Swagger UI 截图验收** — 打开 `http://localhost:8000/docs`，页面应显示：
+   - 标题：`Fitness Planner API`（或类似名称）
+   - 至少 6 个路由分组可见：`/api/user/profile`（GET/POST）、`/api/fitness/generate`、`/api/fitness/plans`、`/api/fitness/plan/{id}`、`/api/fitness/record`、`/api/fitness/records`
+
+3. **在线测试接口** — 在 Swagger UI 中展开 `POST /api/user/profile`，点击「Try it out」，输入：
+   ```json
+   {"height": 170, "weight": 65, "age": 25, "gender": "male", "goal": "减脂", "experience": "新手"}
+   ```
+   响应状态码为 `200`，返回任意 JSON（占位数据即可）。
+
+4. **数据库文件检查** — 在 `backend/` 目录下应出现 `fitness.db`（SQLite 文件），大小 > 0 字节。
 
 **Phase 1 完成标志：** 后端可启动，所有 API 路由存在，数据库文件自动创建。
 
@@ -90,86 +114,82 @@
 
 ## Phase 2：Agent 改造 & MCP 集成（Day 3-4）
 
-### 任务 2.1：自建 Wger MCP Server
+### 任务 2.1：自建 Wger MCP Server ✅
 
-- [ ] 新建 `backend/app/mcp_servers/wger_mcp_server.py`
-- [ ] 使用 `fastmcp` 实现以下工具（所有工具只读，无需 API Key）：
-  - `list_categories` — 列出所有动作分类
-  - `list_muscles` — 列出所有肌群（含图片 URL）
-  - `list_equipment` — 列出所有器材类型
-  - `search_exercises` — 按肌群/器材/关键词/分类搜索动作（参数：query/muscle/equipment/category/limit/offset）
-  - `get_exercise_details` — 获取单个动作完整详情（参数：exercise_id）
-  - `get_exercise_images` — 获取动作教学图片列表（参数：exercise_id）
-  - `get_exercise_videos` — 获取动作演示视频列表（参数：exercise_id）
-- [ ] 所有工具底层用 `httpx` 请求 `https://wger.de/api/v2/`
-- [ ] 注意字段映射：API 返回 `variation_group`（UUID），不是 `variations`（number）
-- [ ] 本地测试：`python backend/app/mcp_servers/wger_mcp_server.py` 能启动，无报错
+- [x] 新建 `backend/app/mcp_servers/wger_mcp_server.py`
+- [x] 使用 `mcp` 官方 Python SDK 实现 7 个只读工具（无需 API Key）：
+  - `wger_list_categories` — 列出所有动作分类
+  - `wger_list_muscles` — 列出所有肌群（含图片 URL）
+  - `wger_list_equipment` — 列出所有器材类型
+  - `wger_search_exercises` — 按肌群/器材/关键词/分类搜索动作（参数：query/muscle/equipment/category/limit/offset）
+  - `wger_get_exercise_details` — 获取单个动作完整详情（参数：exercise_id）
+  - `wger_get_exercise_images` — 获取动作教学图片列表（参数：exercise_id）
+  - `wger_get_exercise_videos` — 获取动作演示视频列表（参数：exercise_id）
+- [x] 使用 `httpx` 异步 HTTP 客户端请求 `https://wger.de/api/v2/`，已处理 301 跳转
+- [x] 字段映射已处理：API 返回 `variation_group`（UUID），不是 `variations`；肌群过滤参数为 `muscles`（复数）
+- [x] 使用 `exerciseinfo` 端点（含完整数据：名称/描述/肌群/图片），无需分别请求多个端点
+- [x] 验证通过：`list_categories` → 8 个分类；`search_exercises(muscle=4)` → 99 个胸部动作，含教学图片
 
-### 任务 2.2：实现 ExerciseAgent（ReActAgent + Wger MCP）
+### 任务 2.2：实现 ExerciseAgent（ReActAgent + Wger 工具）✅
 
 > ⚠️ 注意：必须用 **ReActAgent**，SimpleAgent 无法调用工具
 
-- [ ] 新建 `backend/app/agents/exercise_agent.py`
-- [ ] 使用 `ReActAgent` + `ToolRegistry` 注册 Wger 工具
-- [ ] 封装一个 `WgerSearchTool(Tool)` 类，内部调用 Wger MCP Server 或直接调 wger REST API
-- [ ] 编写 `EXERCISE_AGENT_PROMPT`，告知 Agent 可用工具和返回格式要求
-- [ ] Agent 输出格式：JSON 数组，每项包含 `name / target_muscle / category / sets / reps / rest_seconds / weight_suggestion / description / image_url`
+- [x] 新建 `backend/app/agents/exercise_agent.py`
+- [x] 封装 3 个 Tool 类：`WgerSearchTool`、`WgerListCategoriesTool`、`WgerListMusclesTool`
+  - 注意：不使用 MCPTool（hello_agents v1.0.0 没有此模块），而是直接继承 `Tool` 基类调 REST API
+- [x] 使用 `ReActAgent` + `ToolRegistry` 注册 Wger 工具
+- [x] 编写 `EXERCISE_AGENT_PROMPT`，明确告知可用工具、组次策略（新手→高级）和 JSON 格式
+- [x] Agent 输出 JSON 数组，每项包含：name / target_muscle / category / sets / reps / rest_seconds / weight_suggestion / description / image_url
 
-### 任务 2.3：实现 DietAgent（SimpleAgent）
+### 任务 2.3：实现 DietAgent（SimpleAgent）✅
 
-- [ ] 新建 `backend/app/agents/diet_agent.py`
-- [ ] 使用 `SimpleAgent`，纯 LLM 知识生成饮食建议（无需工具）
-- [ ] 输入：目标（减脂/增肌/塑形）+ 饮食偏好（普通/素食/高蛋白/低碳水）
-- [ ] 输出：JSON，包含每日热量目标、三餐建议、营养比例
+- [x] 新建 `backend/app/agents/diet_agent.py`
+- [x] 使用 `SimpleAgent`，纯 LLM 知识生成饮食建议
+- [x] 输入：目标 + 饮食偏好；输出：JSON（daily_calories / meals / tips）
+- [x] 内置热量策略：减脂 1500-1800、增肌 2200-2800、塑形 1800-2200
 
-### 任务 2.4：实现 ScheduleAgent（ReActAgent + 高德天气）
+### 任务 2.4：实现 ScheduleAgent（ReActAgent + 高德天气）✅
 
 > ⚠️ 注意：必须用 **ReActAgent**，需要调用天气工具
 
-- [ ] 新建 `backend/app/agents/schedule_agent.py`
-- [ ] 将高德天气查询封装为 `WeatherTool(Tool)`（参考原项目 `amap_service.py` 的调用方式）
-- [ ] 使用 `ReActAgent` + `ToolRegistry` 注册 WeatherTool
-- [ ] Agent 职责：查询城市天气 → 根据天气决定室内/户外 → 编排每周日程
-- [ ] 输出：JSON，包含每周每天的训练重点和地点建议
+- [x] 新建 `backend/app/agents/schedule_agent.py`
+- [x] 封装 `WeatherTool(Tool)`，直接通过 httpx 调高德天气 API（因原 `amap_service.py` 已在 Phase 1 删除）
+  - 查询区域码 → 获取天气预报（5 天）
+  - 自动判断：雨/雪/霾/极端天气 → 室内；好天气 → 户外
+- [x] 无 API Key 时降级给出备选建议，不阻塞流程
+- [x] Agent 输出 JSON：schedule（每日 focus/location）+ weather_summary
 
-### 任务 2.5：实现 TrainerAgent（SimpleAgent）
+### 任务 2.5：实现 TrainerAgent（SimpleAgent）✅
 
-- [ ] 新建 `backend/app/agents/trainer_agent.py`
-- [ ] 使用 `SimpleAgent`，职责是汇总所有子 Agent 的结果，输出完整训练计划
-- [ ] 输入：ExerciseAgent 结果 + DietAgent 结果 + ScheduleAgent 结果 + 用户信息
-- [ ] 输出：符合 `FitnessPlanSummary` 结构的 JSON
+- [x] 新建 `backend/app/agents/trainer_agent.py`
+- [x] 使用 `SimpleAgent`，汇总 ExerciseAgent + DietAgent + ScheduleAgent + 用户信息
+- [x] 输出 JSON：weekly_plans（含 warmup/main/cooldown/calories）+ diet
 
-### 任务 2.6：实现 PlanReviewAgent（ReflectionAgent）
+### 任务 2.6：实现 PlanReviewAgent（ReflectionAgent）✅
 
-- [ ] 新建 `backend/app/agents/plan_review_agent.py`
-- [ ] 使用 `ReflectionAgent`（不需要工具，只做内容审查）
-- [ ] 实现三段 Prompt：
-  - `initial`：检查计划完整性和格式
-  - `reflect`：检查肌群间隔/大肌群顺序/休息日/天气匹配/饮食目标一致性
-  - `refine`：根据反思意见修正计划
-- [ ] 最多迭代 2 轮，超过则直接输出当前版本
+- [x] 新建 `backend/app/agents/plan_review_agent.py`
+- [x] 使用 `ReflectionAgent`，三段 Prompt：
+  - `initial`：检查完整性和格式
+  - `reflect`：肌群间隔/大肌群顺序/休息日/天气匹配/饮食一致性
+  - `refine`：根据反馈修正
+- [x] 最多迭代 2 轮，超限直接输出当前版本
 
-### 任务 2.7：实现 FitnessPlanService（核心编排层）
+### 任务 2.7：实现 FitnessPlanService（核心编排层）✅
 
-- [ ] 新建 `backend/app/services/plan_service.py`
-- [ ] 实现 `FitnessPlanService.generate_plan(user_input: PlanRequest)` 方法
-- [ ] 串行编排顺序：
-  1. `ExerciseAgent.run()` — 获取真实训练动作
-  2. `DietAgent.run()` — 生成饮食建议
-  3. `ScheduleAgent.run()` — 查天气 + 编排日程
-  4. `TrainerAgent.run()` — 汇总为完整计划
-  5. `PlanReviewAgent.run()` — 自我审查修正
-- [ ] 将最终计划序列化存入 `FitnessPlan` 表
+- [x] 新建 `backend/app/services/plan_service.py`
+- [x] 实现 `FitnessPlanService.generate_plan()` 方法，串行编排 5 个 Agent
+- [x] 编排顺序：ExerciseAgent → DietAgent → ScheduleAgent → TrainerAgent → PlanReviewAgent
+- [x] 每步有 try/except 捕获异常，单个 Agent 失败不阻塞整体流程
+- [x] 内置 `_extract_json()` 函数处理 Agent 输出（代码块/多余文字）
+- [x] 最终计划序列化为 JSON 存入 `FitnessPlan.plan_content` 字段
 
-### 任务 2.8：接通 API 路由
+### 任务 2.8：接通 API 路由 ✅
 
-- [ ] 更新 `backend/app/api/routes/fitness.py`：
-  - `POST /api/fitness/generate` 调用 `FitnessPlanService.generate_plan()`
-  - `GET /api/fitness/plans` 查询数据库返回历史计划列表
-  - `GET /api/fitness/plan/{id}` 查询单个计划详情
-- [ ] 更新 `backend/app/api/routes/user.py`：
-  - `POST /api/user/profile` 写入 User 表
-  - `GET /api/user/profile` 读取 User 表
+- [x] 更新 `backend/app/api/routes/fitness.py`：
+  - `POST /api/fitness/generate` → 调用 `FitnessPlanService.generate_plan()`
+  - `GET /api/fitness/plans` → 查询数据库返回列表
+  - `GET /api/fitness/plan/{id}` → 查询详情，JSON 解析后展开
+- [x] user.py 路由已在 Phase 1 实现写入/读取逻辑
 
 ### 任务 2.9：端到端后端测试
 
@@ -186,6 +206,73 @@
   ```
 - [ ] 确认返回的 JSON 包含 `weekly_plans`、真实动作数据（有 `image_url`）、饮食建议
 - [ ] 确认计划已写入 SQLite 数据库
+
+### ✅ Phase 2 可视化验收
+
+**验收方式：终端日志 + curl/Swagger 响应 + DB Browser**
+
+1. **MCP Server 独立启动** — 单独运行：
+   ```bash
+   python backend/app/mcp_servers/wger_mcp_server.py
+   ```
+   终端应显示 `Wger MCP Server running` 类似消息，无报错退出。
+
+2. **Agent 调用日志** — 调用 `POST /api/fitness/generate` 时，后端终端应按顺序打印：
+   ```
+   [ExerciseAgent] 开始搜索训练动作...
+   [DietAgent] 生成饮食建议...
+   [ScheduleAgent] 查询天气，编排日程...
+   [TrainerAgent] 汇总完整计划...
+   [PlanReviewAgent] 第 1 轮审查...
+   [PlanReviewAgent] 审查完成，计划已修正
+   ```
+   （日志内容可以调整，但必须能看到 5 个 Agent 依次执行。）
+
+3. **返回 JSON 结构验收** — 响应 JSON 必须包含：
+   ```json
+   {
+     "id": 1,
+     "goal": "减脂",
+     "weekly_plans": [
+       {
+         "week": 1,
+         "days": [
+           {
+             "day": "周一",
+             "focus": "胸部",
+             "warmup": [...],
+             "main": [
+               {
+                 "name": "卧推",
+                 "image_url": "https://wger.de/...",
+                 "sets": 3,
+                 "reps": 12
+               }
+             ],
+             "cooldown": [...]
+           }
+         ]
+       }
+     ],
+     "diet": {
+       "daily_calories": 1800,
+       "meals": {...}
+     }
+   }
+   ```
+   **关键验收点：** `image_url` 字段不为空，且以 `https://wger.de/` 开头（证明是真实数据而非 Mock）。
+
+4. **数据库写入验收** — 用 [DB Browser for SQLite](https://sqlitebrowser.org/) 或命令行打开 `backend/fitness.db`：
+   ```bash
+   sqlite3 backend/fitness.db "SELECT id, goal, created_at FROM fitness_plan;"
+   ```
+   应看到刚才生成的记录一行，`goal` 为 `减脂`。
+
+5. **Wger 真实数据验证** — 单独测试 `search_exercises` 工具：
+   ```bash
+   curl "https://wger.de/api/v2/exercise/?format=json&language=2&limit=3"
+   ```
+   返回有内容的 JSON（证明外部 API 可达）。
 
 **Phase 2 完成标志：** 输入目标 → 后端 5 个 Agent 协作 → 返回含真实动作数据的完整训练计划。
 
@@ -323,6 +410,33 @@
 - [ ] 确认动作教学图片正常展示
 - [ ] 确认加载状态（AI 生成中）正常显示
 
+### ✅ Phase 3 可视化验收
+
+**验收方式：浏览器截图（每页至少看一眼）**
+
+1. **首页（`/`）个人设定页** — 浏览器打开 `http://localhost:5173`，应看到：
+   - 页面顶部有导航栏，包含「个人设定 / 训练计划 / 训练记录」
+   - 表单包含：身高、体重、年龄、性别、目标（下拉）、经验等级（下拉）、训练地点（下拉）、每周天数、计划周数、饮食偏好
+   - 底部有「生成计划」按钮，颜色明显
+
+2. **生成中加载状态** — 点击「生成计划」后，按钮区域应出现加载动画（Spinner 或进度条），文字变为「AI 生成中…」或类似提示，期间按钮不可重复点击。
+
+3. **计划展示页（`/plan`）** — 生成完成后自动跳转，页面应包含：
+   - 顶部：计划概览卡片，显示「目标：减脂 | 周期：4 周 | 每周 3 天」
+   - 周次切换 Tab：「Week 1」「Week 2」「Week 3」「Week 4」
+   - 每日训练卡片（PlanCard），包含：
+     - 训练焦点标签（如「胸部 + 三头」）
+     - 热身区：2-3 个动作列表
+     - 主训练区：3-5 个动作，每个动作显示名称 + 组数×次数
+     - **动作教学图片**（来自 wger.de 的真实图片，非占位图）
+   - 底部：当日饮食建议（热量目标 + 三餐推荐）
+
+4. **训练记录页（`/record`）** — 点击导航「训练记录」，应看到：
+   - 上方：记录表单（计划下拉 + 日期 + 动作名 + 组数次数重量 + 难度评分）
+   - 下方：历史记录列表（初始为空，提示「暂无记录」）
+
+5. **无计划时的提示** — 清空数据库后访问 `/plan`，页面显示「还没有计划，去个人设定生成」，并有跳转按钮。
+
 **Phase 3 完成标志：** 前端完整可交互，用户可以填表生成计划并查看。
 
 ---
@@ -350,6 +464,32 @@
 - [ ] 在 Record.vue 页面完整测试：提交记录 → 数据库写入 → 列表刷新
 - [ ] 确认历史记录按日期倒序展示
 - [ ] 确认难度评分（1-5）正确存储和展示
+
+### ✅ Phase 4 可视化验收
+
+**验收方式：浏览器操作 + 终端日志 + DB 查询**
+
+1. **PlanReviewAgent 修正日志** — 调用生成接口时，终端应出现：
+   ```
+   [PlanReviewAgent] 第 1 轮反思：发现问题 - 周二/周三连续训练背部
+   [PlanReviewAgent] 修正中...
+   [PlanReviewAgent] 第 2 轮反思：无新问题，输出最终计划
+   ```
+   如果首次计划没有问题，则显示「第 1 轮反思：计划符合规则，无需修正」。
+
+2. **训练记录提交验收** — 在记录页填写并提交：
+   - 选择已生成的计划
+   - 日期选今天
+   - 动作名：「卧推」，实际组数：3，实际次数：12，重量：60kg，难度：4 星
+   - 点击提交后，下方历史列表立即出现刚才的记录（无需刷新页面）
+
+3. **数据库记录验证** — 执行：
+   ```bash
+   sqlite3 backend/fitness.db "SELECT exercise_name, actual_sets, actual_reps, weight, difficulty FROM workout_record ORDER BY date DESC LIMIT 5;"
+   ```
+   应看到「卧推 | 3 | 12 | 60.0 | 4」一行。
+
+4. **难度评分显示验收** — 历史记录列表中，难度 4 星应显示为「★★★★☆」或数字「4/5」，而非原始数字。
 
 **Phase 4 完成标志：** 训练完可记录，数据持久化，ReflectionAgent 能发现并修正计划逻辑问题。
 
@@ -405,6 +545,53 @@
   5. 查看历史记录列表
 - [ ] 确认整个流程无报错，UI 无明显异常
 
+### ✅ Phase 5 可视化验收（最终验收）
+
+**验收方式：全流程录屏或逐页截图**
+
+1. **pytest 全绿截图** — 运行 `pytest backend/tests/ -v` 后终端应显示：
+   ```
+   test_create_user_profile PASSED
+   test_generate_fitness_plan PASSED
+   test_save_workout_record PASSED
+   test_get_workout_records PASSED
+
+   4 passed in X.XXs
+   ```
+   无 FAILED / ERROR。
+
+2. **从零启动验证** — 在新终端按以下步骤执行，全程无报错：
+   ```bash
+   # 终端 1
+   cd backend && pip install -r requirements.txt
+   uvicorn app.api.main:app --reload
+   # 出现 "Application startup complete." 即可
+
+   # 终端 2
+   cd frontend && npm install && npm run dev
+   # 出现 "Local: http://localhost:5173/" 即可
+   ```
+
+3. **完整演示流程截图清单**（每步截图留存）：
+   | 步骤 | 截图内容 | 验收标准 |
+   |------|----------|----------|
+   | ① 首页填表 | 表单已填写，目标=减脂，地点=健身房 | 所有字段有值，按钮可点击 |
+   | ② 生成中 | 加载动画 + 「AI 生成中」文字 | Spinner 可见，按钮灰色不可点 |
+   | ③ 计划页总览 | 4 个 Week Tab，第1周日程卡片 | Tab 切换正常，卡片有真实动作名 |
+   | ④ 动作详情 | 卧推/深蹲等动作，含教学图片 | 图片来自 wger.de，非占位图 |
+   | ⑤ 记录页提交 | 填完表单，点提交，列表更新 | 新记录出现在列表顶部 |
+   | ⑥ 历史记录 | 含日期、动作名、难度星级 | 按日期倒序，难度显示正确 |
+
+4. **代码干净度检查** — 运行：
+   ```bash
+   grep -r "trip\|hotel\|attraction\|travel\|unsplash" backend/ frontend/src/
+   ```
+   **期望输出：无任何匹配行**（旅行残留代码已全部清除）。
+
+5. **README 验收** — 打开 `README.md`，应包含：
+   - 项目截图（至少首页 + 计划页）
+   - 快速启动命令可以直接复制粘贴执行
+
 **Phase 5 完成标志：** 项目可演示，README 完整，代码干净无旅行残留。
 
 ---
@@ -426,8 +613,8 @@
 
 | Phase | 状态 |
 |-------|------|
-| Phase 1：后端骨架 | ⬜ 未开始 |
-| Phase 2：Agent + MCP | ⬜ 未开始 |
+| Phase 1：后端骨架 | ✅ 已完成 |
+| Phase 2：Agent + MCP | ✅ 代码已实现（待端到端测试） |
 | Phase 3：前端改造 | ⬜ 未开始 |
 | Phase 4：调优 + 记录功能 | ⬜ 未开始 |
 | Phase 5：测试 + 收尾 | ⬜ 未开始 |
