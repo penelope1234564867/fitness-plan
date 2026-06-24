@@ -75,7 +75,7 @@ class WgerSearchTool(Tool):
             name = ""
             desc = ""
             for t in ex.get("translations", []):
-                if t.get("language") == 2 or t.get("language", {}).get("id") == 2:
+                if t.get("language") == 2:
                     name = t.get("name", "")
                     desc = t.get("description", "")
                     break

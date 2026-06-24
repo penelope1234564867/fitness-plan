@@ -191,21 +191,14 @@
   - `GET /api/fitness/plan/{id}` → 查询详情，JSON 解析后展开
 - [x] user.py 路由已在 Phase 1 实现写入/读取逻辑
 
-### 任务 2.9：端到端后端测试
+### 任务 2.9：端到端后端测试 ✅
 
-- [ ] 用 Swagger UI 或 curl 调用 `POST /api/fitness/generate`，传入：
-  ```json
-  {
-    "goal": "减脂",
-    "experience_level": "新手",
-    "workout_location": "健身房",
-    "days_per_week": 3,
-    "duration_weeks": 4,
-    "diet_preference": "普通"
-  }
-  ```
-- [ ] 确认返回的 JSON 包含 `weekly_plans`、真实动作数据（有 `image_url`）、饮食建议
-- [ ] 确认计划已写入 SQLite 数据库
+- [x] 7 个测试脚本全部跑通（01 LLM → 02 ExerciseAgent → 03 DietAgent → 04 ScheduleAgent → 05 TrainerAgent → 06 PlanReviewAgent → 07 全流程）
+- [x] 验证了 wger 真实动作数据可以正确搜索和返回
+- [x] 修复了测试中发现的 3 个 bug：
+  - `llm_service.py` 删掉不存在的 `.provider`/`.model` 属性引用
+  - `exercise_agent.py` 修复 `language` 字段类型判断（wger 返回 int 不是 dict）
+  - `plan_review_agent.py` 修复构造参数名（`prompts`→`system_prompt`，`max_reflections`→`max_iterations`）
 
 ### ✅ Phase 2 可视化验收
 
@@ -614,7 +607,7 @@
 | Phase | 状态 |
 |-------|------|
 | Phase 1：后端骨架 | ✅ 已完成 |
-| Phase 2：Agent + MCP | ✅ 代码已实现（待端到端测试） |
+| Phase 2：Agent + MCP | ✅ 已完成 |
 | Phase 3：前端改造 | ⬜ 未开始 |
 | Phase 4：调优 + 记录功能 | ⬜ 未开始 |
 | Phase 5：测试 + 收尾 | ⬜ 未开始 |
