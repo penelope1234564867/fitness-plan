@@ -1,17 +1,17 @@
 # Fitness Plan 🏋️
 
-AI-powered fitness plan generator with multi-agent architecture and wger MCP integration.
+基于多智能体架构和 wger MCP 集成的 AI 健身计划生成器。
 
-Generates personalized training plans based on user goals, experience level, and preferences using a collaborative AI agent system.
+多 AI Agent 协作，根据用户目标、经验水平和偏好生成个性化训练计划。
 
-## Architecture
+## 架构
 
-- **ExerciseAgent** (ReActAgent) — Searches real exercises from wger database
-- **DietAgent** (SimpleAgent) — Generates dietary recommendations
-- **ScheduleAgent** (ReActAgent) — Checks weather and schedules workouts
-- **TrainerAgent** (SimpleAgent) — Synthesizes all outputs into a complete plan
-- **PlanReviewAgent** (ReflectionAgent) — Self-critiques and refines the plan
+- **ExerciseAgent** (ReActAgent) — 从 wger 数据库搜索真实训练动作
+- **DietAgent** (SimpleAgent) — 生成饮食建议
+- **ScheduleAgent** (ReActAgent) — 查询天气并编排训练日程
+- **TrainerAgent** (SimpleAgent) — 汇总所有输出为完整计划
+- **PlanReviewAgent** (ReflectionAgent) — 自我审查并优化计划
 
-## Status
+## 状态
 
-🚧 Project under active development. See [docs/plan.md](docs/plan.md) for current progress.
+🚧 项目正在积极开发中。参见 [docs/plan.md](docs/plan.md) 了解当前进度。
