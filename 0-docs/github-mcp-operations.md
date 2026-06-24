@@ -30,7 +30,7 @@ fitness-plan/
 │   │   ├── services/                  # API 调用
 │   │   └── types/                     # 类型定义
 │   └── package.json
-├── docs/                              # 项目文档
+├── 0-docs/                            # 项目文档
 │   ├── plan.md                        # 开发计划
 │   ├── design.md                      # 架构设计
 │   ├── wger-mcp.md                    # Wger 集成文档

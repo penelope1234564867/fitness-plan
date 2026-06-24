@@ -14,4 +14,4 @@
 
 ## 状态
 
-🚧 项目正在积极开发中。参见 [docs/plan.md](docs/plan.md) 了解当前进度。
+🚧 项目正在积极开发中。参见 [0-docs/plan.md](0-docs/plan.md) 了解当前进度。

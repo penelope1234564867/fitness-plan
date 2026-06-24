@@ -282,5 +282,5 @@ MCP Server 调用 httpx.get("https://wger.de/api/v2/exerciseinfo/?muscles=4")
 | `backend/app/mcp_servers/wger_mcp_server.py` | MCP Server 实现代码 |
 | `backend/app/services/mcp_client.py` | MCP 客户端封装（连接 MCP Server） |
 | `backend/app/services/exercise_service.py` | 动作数据服务层（供 Agent 调用） |
-| `docs/wger-mcp.md` | Wger MCP 使用文档 |
-| `docs/design.md` | 项目设计文档（含 MCP 集成方案） |
+| `0-docs/wger-mcp.md` | Wger MCP 使用文档 |
+| `0-docs/design.md` | 项目设计文档（含 MCP 集成方案） |

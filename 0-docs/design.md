@@ -374,7 +374,7 @@ class RecordRequest(BaseModel):
 
 ### 6.1 Wger MCP（自建 Python MCP Server）
 
-> 对应的 MCP 使用文档见 [`docs/wger-mcp.md`](wger-mcp.md)
+> 对应的 MCP 使用文档见 [`0-docs/wger-mcp.md`](wger-mcp.md)
 
 **为什么自建而不是用社区的？**
 
