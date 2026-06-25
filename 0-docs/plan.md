@@ -275,15 +275,15 @@
 
 ### 任务 3.1：更新前端依赖
 
-- [ ] 编辑 `frontend/package.json`，添加：
+- [x] 编辑 `frontend/package.json`，添加：
   - `pinia`（状态管理）
   - `echarts`（进度图表，可选）
   - `vue-echarts`（ECharts Vue 封装，可选）
-- [ ] 运行 `npm install`
+- [x] 运行 `npm install`
 
 ### 任务 3.2：重写 TypeScript 类型定义
 
-- [ ] 重写 `frontend/src/types/index.ts`，删除所有旅行类型，新增：
+- [x] 重写 `frontend/src/types/index.ts`，删除所有旅行类型，新增：
   - `UserProfile`
   - `PlanRequest`
   - `ExerciseItem`
@@ -294,7 +294,7 @@
 
 ### 任务 3.3：改造 API 服务层
 
-- [ ] 改造 `frontend/src/services/api.ts`，替换所有旅行 API 调用，实现：
+- [x] 改造 `frontend/src/services/api.ts`，替换所有旅行 API 调用，实现：
   - `generatePlan(data: PlanRequest): Promise<FitnessPlanResponse>`
   - `getPlanHistory(): Promise<FitnessPlan[]>`
   - `getPlanDetail(id: number): Promise<FitnessPlan>`
@@ -305,15 +305,15 @@
 
 ### 任务 3.4：新增 Pinia Store
 
-- [ ] 新建 `frontend/src/stores/user.ts`，管理用户资料状态
-- [ ] 新建 `frontend/src/stores/plan.ts`，管理训练计划状态（含 `isGenerating` / `generationProgress`）
-- [ ] 新建 `frontend/src/stores/record.ts`，管理训练记录状态
-- [ ] 在 `frontend/src/main.ts` 中挂载 Pinia
+- [x] 新建 `frontend/src/stores/user.ts`，管理用户资料状态
+- [x] 新建 `frontend/src/stores/plan.ts`，管理训练计划状态（含 `isGenerating` / `generationProgress`）
+- [x] 新建 `frontend/src/stores/record.ts`，管理训练记录状态
+- [x] 在 `frontend/src/main.ts` 中挂载 Pinia
 
 ### 任务 3.5：改造 App.vue + 路由配置
 
-- [ ] 改造 `frontend/src/App.vue`：删除登录逻辑，加入 `NavBar.vue` 导航栏
-- [ ] 改造 `frontend/src/router/index.ts`，配置路由：
+- [x] 改造 `frontend/src/App.vue`：删除登录逻辑，加入 `NavBar.vue` 导航栏
+- [x] 改造 `frontend/src/main.ts` 配置路由：
   - `/` → `Home.vue`（个人设定）
   - `/plan` → `Plan.vue`（训练计划）
   - `/plan/:id` → `Plan.vue`（历史计划详情）
@@ -322,13 +322,13 @@
 
 ### 任务 3.6：新建 NavBar.vue 组件
 
-- [ ] 新建 `frontend/src/components/NavBar.vue`
-- [ ] 包含四个导航项：个人设定 / 训练计划 / 训练记录 / 进度
-- [ ] 高亮当前激活路由
+- [x] 新建 `frontend/src/components/NavBar.vue`
+- [x] 包含四个导航项：个人设定 / 训练计划 / 训练记录 / 进度
+- [x] 高亮当前激活路由
 
 ### 任务 3.7：改造 Home.vue（个人设定页）
 
-- [ ] 大改 `frontend/src/views/Home.vue`，替换旅行表单为健身目标表单：
+- [x] 大改 `frontend/src/views/Home.vue`，替换旅行表单为健身目标表单：
   - 身高 / 体重 / 年龄 / 性别
   - 健身目标（减脂/增肌/塑形/保持健康）
   - 经验等级（新手/中级/高级）
@@ -336,17 +336,17 @@
   - 每周训练天数（2-6）+ 计划周数（4-12）
   - 饮食偏好（普通/素食/高蛋白/低碳水）
   - 健康备注（文本输入）
-- [ ] 点击「生成计划」→ 调用 `generatePlan()` → 显示加载状态 → 跳转 `/plan`
+- [x] 点击「生成计划」→ 调用 `generatePlan()` → 显示加载状态 → 跳转 `/plan`
 
 ### 任务 3.8：新建 ExerciseItem.vue 组件
 
-- [ ] 新建 `frontend/src/components/ExerciseItem.vue`
-- [ ] 展示单个动作：名称 / 目标肌群 / 组数×次数 / 重量建议 / 训练说明 / 教学图片
+- [x] 新建 `frontend/src/components/ExerciseItem.vue`
+- [x] 展示单个动作：名称 / 目标肌群 / 组数×次数 / 重量建议 / 训练说明 / 教学图片
 
 ### 任务 3.9：新建 PlanCard.vue 组件
 
-- [ ] 新建 `frontend/src/components/PlanCard.vue`
-- [ ] 展示单日训练卡片：
+- [x] 新建 `frontend/src/components/PlanCard.vue`
+- [x] 展示单日训练卡片：
   - 训练焦点（胸/背/腿/肩/手臂/有氧）
   - 热身区（ExerciseItem 列表）
   - 主训练区（ExerciseItem 列表）
@@ -355,30 +355,30 @@
 
 ### 任务 3.10：新建 DietTips.vue 组件
 
-- [ ] 新建 `frontend/src/components/DietTips.vue`
-- [ ] 展示当日饮食建议：热量目标 / 三餐推荐 / 营养建议
+- [x] 新建 `frontend/src/components/DietTips.vue`
+- [x] 展示当日饮食建议：热量目标 / 三餐推荐 / 营养建议
 
 ### 任务 3.11：改造 Plan.vue（训练计划展示页）
 
-- [ ] 改造（原 `Result.vue`）为 `frontend/src/views/Plan.vue`
-- [ ] 布局：
+- [x] 改造（原 `Result.vue`）为 `frontend/src/views/Plan.vue`
+- [x] 布局：
   - 顶部：计划概览卡片（目标/周期/每周天数）
   - 中部：周切换 Tab（Week 1 / Week 2 / ...）
   - 主体：当周每日 PlanCard 列表
   - 底部：DietTips 当日饮食建议
-- [ ] 无计划时显示「还没有计划，去个人设定生成」跳转按钮
+- [x] 无计划时显示「还没有计划，去个人设定生成」跳转按钮
 
 ### 任务 3.12：新建 Record.vue（训练记录页）
 
-- [ ] 新建 `frontend/src/views/Record.vue`
-- [ ] 包含两部分：
+- [x] 新建 `frontend/src/views/Record.vue`
+- [x] 包含两部分：
   - 上方：RecordForm 记录表单
   - 下方：历史记录列表（按日期倒序）
 
 ### 任务 3.13：新建 RecordForm.vue 组件
 
-- [ ] 新建 `frontend/src/components/RecordForm.vue`
-- [ ] 表单字段：
+- [x] 新建 `frontend/src/components/RecordForm.vue`
+- [x] 表单字段：
   - 选择计划（下拉，从历史计划中选）
   - 选择日期
   - 动作名称
@@ -386,19 +386,19 @@
   - 计划组数/次数 vs 实际组数/次数/重量
   - 难度评分（1-5 星）
   - 备注
-- [ ] 提交后调用 `saveRecord()`，刷新历史记录列表
+- [x] 提交后调用 `saveRecord()`，刷新历史记录列表
 
 ### 任务 3.14：新建 Progress.vue（进度图表页，可选）
 
-- [ ] 新建 `frontend/src/views/Progress.vue`
-- [ ] 使用 ECharts 展示：
+- [x] 新建 `frontend/src/views/Progress.vue`
+- [x] 使用 ECharts 展示：
   - 每周训练次数趋势折线图
   - 重量变化曲线（按动作筛选）
   - 训练部位分布饼图
 
 ### 任务 3.15：前端联调验证
 
-- [ ] 启动前端 `npm run dev`
+- [x] 启动前端 `npm run dev`
 - [ ] 完整走通主流程：填写信息 → 生成计划 → 查看计划 → 记录训练
 - [ ] 确认动作教学图片正常展示
 - [ ] 确认加载状态（AI 生成中）正常显示
@@ -608,6 +608,6 @@
 |-------|------|
 | Phase 1：后端骨架 | ✅ 已完成 |
 | Phase 2：Agent + MCP | ✅ 已完成 |
-| Phase 3：前端改造 | ⬜ 未开始 |
-| Phase 4：调优 + 记录功能 | ⬜ 未开始 |
+| Phase 3：前端改造 | ✅ 已完成 |
+| Phase 4：调优 + 记录功能 | 🔄 进行中 |
 | Phase 5：测试 + 收尾 | ⬜ 未开始 |
