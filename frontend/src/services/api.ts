@@ -97,4 +97,24 @@ export async function getStats(): Promise<any> {
   return res.data
 }
 
+// ── 新增：动作状态同步 ────────────────────────────────────
+
+/** 更新动作完成状态 */
+export async function updateExerciseStatus(
+  exerciseId: number,
+  data: { completed: boolean; date: string },
+): Promise<any> {
+  const res = await apiClient.put(`/api/fitness/exercise/${exerciseId}/status`, data)
+  return res.data
+}
+
+/** 记录「太重了」反馈 */
+export async function markExerciseTooHeavy(
+  exerciseId: number,
+  data: { date: string; weight?: string },
+): Promise<any> {
+  const res = await apiClient.put(`/api/fitness/exercise/${exerciseId}/weight`, data)
+  return res.data
+}
+
 export default apiClient

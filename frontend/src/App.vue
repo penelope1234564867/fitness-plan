@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <a-layout style="min-height: 100vh">
-      <NavBar />
-      <a-layout-content style="padding: 24px; background: #f5f7fa;">
+      <NavBar v-if="showNav" />
+      <a-layout-content :style="contentStyle">
         <router-view />
       </a-layout-content>
     </a-layout>
@@ -10,7 +10,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
+
+const route = useRoute()
+const showNav = computed(() => route.path !== '/')
+const contentStyle = computed(() => ({
+  padding: showNav.value ? '24px' : '0',
+  background: showNav.value ? '#f5f7fa' : 'transparent',
+  minHeight: showNav.value ? 'auto' : 'calc(100vh - 64px)',
+}))
 </script>
 
 <style>

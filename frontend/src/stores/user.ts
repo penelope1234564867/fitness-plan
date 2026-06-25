@@ -1,11 +1,40 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { createOrUpdateProfile, getProfile } from '@/services/api'
 import type { UserProfile, UserProfileResponse } from '@/types'
 
 export const useUserStore = defineStore('user', () => {
   const profile = ref<UserProfileResponse | null>(null)
   const loading = ref(false)
+
+  // 是否首次使用（控制三步引导显示）
+  const isFirstVisit = ref(localStorage.getItem('fitness_first_visit') !== 'false')
+
+  // 统计数据
+  const stats = ref({
+    totalWorkoutDays: 0,
+    currentStreak: 0,
+    monthlyDone: 0,
+    monthlyTotal: 0,
+  })
+
+  const fullName = computed(() => {
+    if (!profile.value) return ''
+    const p = profile.value
+    return `${p.gender === 'male' ? '♂' : '♀'} ${p.height || '?'}cm ${p.weight || '?'}kg`
+  })
+
+  /** 标记首次引导已完成 */
+  function markOnboardingDone() {
+    isFirstVisit.value = false
+    localStorage.setItem('fitness_first_visit', 'false')
+  }
+
+  /** 重置引导状态（允许重新走引导） */
+  function resetOnboarding() {
+    isFirstVisit.value = true
+    localStorage.setItem('fitness_first_visit', 'true')
+  }
 
   /** 加载用户资料 */
   async function fetchProfile() {
@@ -31,5 +60,15 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { profile, loading, fetchProfile, saveProfile }
+  return {
+    profile,
+    loading,
+    isFirstVisit,
+    stats,
+    fullName,
+    markOnboardingDone,
+    resetOnboarding,
+    fetchProfile,
+    saveProfile,
+  }
 })

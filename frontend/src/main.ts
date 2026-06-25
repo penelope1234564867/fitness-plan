@@ -5,19 +5,18 @@ import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 import App from './App.vue'
 
-import Home from './views/Home.vue'
-import Plan from './views/Plan.vue'
-import Record from './views/Record.vue'
-import Progress from './views/Progress.vue'
+import OnboardingGuide from './views/OnboardingGuide.vue'
+import CalendarView from './views/CalendarView.vue'
+import WorkoutChecklist from './views/WorkoutChecklist.vue'
+import ProfilePage from './views/ProfilePage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'Home', component: Home },
-    { path: '/plan', name: 'Plan', component: Plan },
-    { path: '/plan/:id', name: 'PlanDetail', component: Plan },
-    { path: '/record', name: 'Record', component: Record },
-    { path: '/progress', name: 'Progress', component: Progress },
+    { path: '/', name: 'Onboarding', component: OnboardingGuide },
+    { path: '/calendar', name: 'Calendar', component: CalendarView },
+    { path: '/checklist', name: 'WorkoutChecklist', component: WorkoutChecklist },
+    { path: '/profile', name: 'Profile', component: ProfilePage },
   ],
 })
 
