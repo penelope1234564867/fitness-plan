@@ -438,25 +438,25 @@
 
 ### 任务 4.1：调优 PlanReviewAgent
 
-- [ ] 测试 ReflectionAgent 输出质量，检查是否发现以下问题：
+- [x] 测试 ReflectionAgent 输出质量，检查是否发现以下问题：
   - 同一肌群连续两天训练（违反 48 小时原则）
   - 下雨天安排户外训练
   - 一周无休息日
-- [ ] 如审查效果不理想，调整 `reflect` prompt 的检查项描述
-- [ ] 确认修正后的计划质量提升
+- [x] 如审查效果不理想，调整 `reflect` prompt 的检查项描述
+- [x] 确认修正后的计划质量提升
 
 ### 任务 4.2：训练记录后端接口完善
 
-- [ ] 完善 `backend/app/api/routes/record.py`：
+- [x] 完善 `backend/app/api/routes/record.py`：
   - `POST /api/fitness/record`：写入 `WorkoutRecord` 表
   - `GET /api/fitness/records?plan_id=X`：按计划查询记录，支持按日期过滤
-- [ ] 添加基础统计接口（可选）：`GET /api/fitness/stats`，返回每周训练次数统计
+- [x] 添加基础统计接口（可选）：`GET /api/fitness/stats`，返回每周训练次数统计
 
 ### 任务 4.3：前后端训练记录联调
 
-- [ ] 在 Record.vue 页面完整测试：提交记录 → 数据库写入 → 列表刷新
-- [ ] 确认历史记录按日期倒序展示
-- [ ] 确认难度评分（1-5）正确存储和展示
+- [x] 在 Record.vue 页面完整测试：提交记录 → 数据库写入 → 列表刷新
+- [x] 确认历史记录按日期倒序展示
+- [x] 确认难度评分（1-5）正确存储和展示
 
 ### ✅ Phase 4 可视化验收
 
@@ -609,5 +609,5 @@
 | Phase 1：后端骨架 | ✅ 已完成 |
 | Phase 2：Agent + MCP | ✅ 已完成 |
 | Phase 3：前端改造 | ✅ 已完成 |
-| Phase 4：调优 + 记录功能 | 🔄 进行中 |
-| Phase 5：测试 + 收尾 | ⬜ 未开始 |
+| Phase 4：调优 + 记录功能 | ✅ 已完成 |
+| Phase 5：测试 + 收尾 | 🔄 进行中 |

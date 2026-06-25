@@ -46,13 +46,13 @@ apiClient.interceptors.response.use(
 export async function createOrUpdateProfile(
   profile: UserProfile,
 ): Promise<UserProfileResponse> {
-  const res = await apiClient.post<UserProfileResponse>('/user/profile', profile)
+  const res = await apiClient.post<UserProfileResponse>('/api/user/profile', profile)
   return res.data
 }
 
 /** 获取用户资料 */
 export async function getProfile(): Promise<UserProfileResponse> {
-  const res = await apiClient.get<UserProfileResponse>('/user/profile')
+  const res = await apiClient.get<UserProfileResponse>('/api/user/profile')
   return res.data
 }
 
@@ -60,19 +60,19 @@ export async function getProfile(): Promise<UserProfileResponse> {
 
 /** 生成训练计划 */
 export async function generatePlan(request: PlanRequest): Promise<any> {
-  const res = await apiClient.post('/fitness/generate', request)
+  const res = await apiClient.post('/api/fitness/generate', request)
   return res.data
 }
 
 /** 获取计划列表 */
 export async function getPlans(): Promise<FitnessPlanSummary[]> {
-  const res = await apiClient.get<FitnessPlanSummary[]>('/fitness/plans')
+  const res = await apiClient.get<FitnessPlanSummary[]>('/api/fitness/plans')
   return res.data
 }
 
 /** 获取单个计划详情 */
 export async function getPlan(planId: number): Promise<FitnessPlan> {
-  const res = await apiClient.get<FitnessPlan>(`/fitness/plan/${planId}`)
+  const res = await apiClient.get<FitnessPlan>(`/api/fitness/plan/${planId}`)
   return res.data
 }
 
@@ -80,20 +80,20 @@ export async function getPlan(planId: number): Promise<FitnessPlan> {
 
 /** 保存训练记录 */
 export async function saveRecord(record: RecordRequest): Promise<{ id: number; message: string }> {
-  const res = await apiClient.post('/fitness/record', record)
+  const res = await apiClient.post('/api/fitness/record', record)
   return res.data
 }
 
 /** 获取训练记录列表 */
 export async function getRecords(planId?: number): Promise<RecordResponse[]> {
   const params = planId ? { plan_id: planId } : {}
-  const res = await apiClient.get<RecordResponse[]>('/fitness/records', { params })
+  const res = await apiClient.get<RecordResponse[]>('/api/fitness/records', { params })
   return res.data
 }
 
 /** 获取训练统计 */
 export async function getStats(): Promise<any> {
-  const res = await apiClient.get('/fitness/stats')
+  const res = await apiClient.get('/api/fitness/stats')
   return res.data
 }
 
