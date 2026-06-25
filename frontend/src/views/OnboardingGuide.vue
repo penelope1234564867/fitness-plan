@@ -25,7 +25,7 @@
         <StepCardSchedule
           v-else-if="currentIndex === 2"
           key="step3"
-          :data="{ days: formData.days, location: formData.location }"
+          :data="{ days: formData.days, locations: formData.locations }"
           @prev="currentIndex--"
           @next="onGenerate"
         />
@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { useUserStore } from '@/stores/user'
@@ -67,7 +67,7 @@ const formData = reactive({
   gender: undefined as string | undefined,
   goal: '',
   days: 3,
-  location: '',
+  locations: [] as string[],
 })
 
 function onStep1Next(data: any) {
@@ -82,7 +82,7 @@ function onStep2Next(goal: string) {
 
 async function onGenerate(data: any) {
   formData.days = data.days
-  formData.location = data.location
+  formData.locations = data.locations
   currentIndex.value = 3
 
   progressTimer = window.setInterval(() => {
@@ -99,7 +99,7 @@ async function onGenerate(data: any) {
     await workoutStore.createPlan({
       goal: formData.goal,
       experience_level: formData.gender === 'male' ? '中级' : '新手',
-      workout_location: formData.location || '健身房',
+      workout_location: formData.locations.join('、') || '健身房',
       days_per_week: formData.days || 3,
       duration_weeks: 4,
       diet_preference: '普通',
@@ -114,13 +114,20 @@ async function onGenerate(data: any) {
     clearInterval(progressTimer!)
     generatingProgress.value = 100
     generatingStatus.value = '✅ 计划生成成功！'
-    setTimeout(() => router.push('/calendar'), 800)
+    setTimeout(() => router.push('/home'), 800)
   } catch (e: any) {
     clearInterval(progressTimer!)
     message.error(e.message || '生成失败，请重试')
     currentIndex.value = 2
   }
 }
+
+onMounted(() => {
+  // 已完成 onboarding 的用户直接跳转主页
+  if (!userStore.isFirstVisit) {
+    router.replace('/home')
+  }
+})
 
 onUnmounted(() => {
   if (progressTimer) clearInterval(progressTimer)

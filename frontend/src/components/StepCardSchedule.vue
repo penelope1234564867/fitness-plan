@@ -13,18 +13,25 @@
     </div>
 
     <div class="form-row">
-      <label class="form-label">锻炼地点</label>
+      <label class="form-label">锻炼地点 <span class="multi-hint">（可多选）</span></label>
       <div class="location-options">
-        <div v-for="loc in locations" :key="loc.value" class="location-card" :class="{ active: localData.location === loc.value }" @click="localData.location = loc.value">
+        <div
+          v-for="loc in locations"
+          :key="loc.value"
+          class="location-card"
+          :class="{ active: localData.locations.includes(loc.value) }"
+          @click="toggleLocation(loc.value)"
+        >
           <span class="loc-icon">{{ loc.icon }}</span>
           <span class="loc-label">{{ loc.label }}</span>
+          <span class="check-mark" v-if="localData.locations.includes(loc.value)">✓</span>
         </div>
       </div>
     </div>
 
     <div class="step-actions">
       <a-button size="large" class="back-btn" @click="$emit('prev')">← 上一步</a-button>
-      <a-button type="primary" size="large" class="generate-btn" :disabled="!localData.days || !localData.location" @click="$emit('next', localData)">
+      <a-button type="primary" size="large" class="generate-btn" :disabled="!localData.days || localData.locations.length === 0" @click="$emit('next', localData)">
         🚀 生成计划
       </a-button>
     </div>
@@ -34,16 +41,25 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-interface ScheduleData { days: number; location: string }
+interface ScheduleData { days: number; locations: string[] }
 
 const props = defineProps<{ data: ScheduleData }>()
 const emit = defineEmits<{ prev: []; next: [data: ScheduleData] }>()
-const localData = reactive<ScheduleData>({ ...props.data })
+const localData = reactive<ScheduleData>({ ...props.data, locations: props.data.locations || [] })
 const locations = [
   { value: '健身房', icon: '🏋️', label: '健身房' },
   { value: '居家', icon: '🏠', label: '居家' },
   { value: '户外', icon: '🌳', label: '户外' },
 ]
+
+function toggleLocation(value: string) {
+  const idx = localData.locations.indexOf(value)
+  if (idx >= 0) {
+    localData.locations.splice(idx, 1)
+  } else {
+    localData.locations.push(value)
+  }
+}
 </script>
 
 <style scoped>
@@ -58,8 +74,16 @@ const locations = [
 .location-card { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 18px 12px; border: 1.5px solid #e8e8e8; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; background: #fff; }
 .location-card:hover { border-color: #f97316; }
 .location-card.active { border-color: #f97316; background: #fff7ed; box-shadow: 0 2px 8px rgba(249,115,22,0.12); }
+.multi-hint { font-size: 12px; color: #aaa; font-weight: 400; }
 .loc-icon { font-size: 28px; margin-bottom: 4px; }
 .loc-label { font-size: 14px; font-weight: 600; color: #333; }
+.check-mark {
+  position: absolute; top: 6px; right: 6px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #f97316; color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.location-card { position: relative; }
 .step-actions { display: flex; gap: 12px; margin-top: 24px; }
 .back-btn { flex: 1; height: 48px; border-radius: 12px; font-size: 15px; }
 .generate-btn { flex: 1; height: 48px; border-radius: 12px; font-size: 16px; font-weight: 600; background: #22c55e; border: none; }

@@ -6,17 +6,18 @@ import 'ant-design-vue/dist/reset.css'
 import App from './App.vue'
 
 import OnboardingGuide from './views/OnboardingGuide.vue'
-import CalendarView from './views/CalendarView.vue'
-import WorkoutChecklist from './views/WorkoutChecklist.vue'
+import MainPage from './views/MainPage.vue'
 import ProfilePage from './views/ProfilePage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'Onboarding', component: OnboardingGuide },
-    { path: '/calendar', name: 'Calendar', component: CalendarView },
-    { path: '/checklist', name: 'WorkoutChecklist', component: WorkoutChecklist },
+    { path: '/home', name: 'Home', component: MainPage },
     { path: '/profile', name: 'Profile', component: ProfilePage },
+    // 旧路由重定向
+    { path: '/calendar', redirect: '/home' },
+    { path: '/checklist', redirect: '/home' },
   ],
 })
 

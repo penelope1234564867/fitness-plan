@@ -1,116 +1,113 @@
 <template>
-  <div class="profile-container">
-    <div class="profile-card">
-      <div class="profile-avatar">
-        <span class="avatar-icon">{{ userStore.profile?.gender === 'male' ? '♂' : '♀' }}</span>
+  <div class="profile-card">
+    <div class="profile-avatar">
+      <span class="avatar-icon">{{ userStore.profile?.gender === 'male' ? '♂' : '♀' }}</span>
+    </div>
+    <h2 class="profile-name">
+      {{ userStore.profile?.height || '?' }}cm · {{ userStore.profile?.weight || '?' }}kg
+    </h2>
+    <p class="profile-goal">{{ userStore.profile?.goal || '未设置' }}</p>
+
+    <a-divider />
+
+    <!-- 信息列表 -->
+    <div v-if="!editing" class="info-list">
+      <div class="info-row">
+        <span class="info-label">身高</span>
+        <span class="info-value">{{ profileData.height || '-' }} cm</span>
       </div>
-      <h2 class="profile-name">
-        {{ userStore.profile?.height || '?' }}cm · {{ userStore.profile?.weight || '?' }}kg
-      </h2>
-      <p class="profile-goal">{{ userStore.profile?.goal || '未设置' }}</p>
-
-      <a-divider />
-
-      <!-- 信息列表 -->
-      <div v-if="!editing" class="info-list">
-        <div class="info-row">
-          <span class="info-label">身高</span>
-          <span class="info-value">{{ profileData.height || '-' }} cm</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">体重</span>
-          <span class="info-value">{{ profileData.weight || '-' }} kg</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">年龄</span>
-          <span class="info-value">{{ profileData.age || '-' }} 岁</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">性别</span>
-          <span class="info-value">{{ profileData.gender === 'male' ? '男' : profileData.gender === 'female' ? '女' : '-' }}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">目标</span>
-          <span class="info-value">{{ profileData.goal || '-' }}</span>
-        </div>
+      <div class="info-row">
+        <span class="info-label">体重</span>
+        <span class="info-value">{{ profileData.weight || '-' }} kg</span>
       </div>
-
-      <!-- 编辑模式 -->
-      <a-form v-else layout="vertical" class="edit-form">
-        <a-row :gutter="12">
-          <a-col :span="12">
-            <a-form-item label="身高 (cm)">
-              <a-input-number v-model:value="editData.height" :min="100" :max="250" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="体重 (kg)">
-              <a-input-number v-model:value="editData.weight" :min="30" :max="250" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-row :gutter="12">
-          <a-col :span="12">
-            <a-form-item label="年龄">
-              <a-input-number v-model:value="editData.age" :min="10" :max="100" style="width: 100%" />
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item label="性别">
-              <a-select v-model:value="editData.gender" style="width: 100%">
-                <a-select-option value="male">男</a-select-option>
-                <a-select-option value="female">女</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-form-item label="目标">
-          <a-select v-model:value="editData.goal" style="width: 100%">
-            <a-select-option value="减脂">🔥 减脂</a-select-option>
-            <a-select-option value="增肌">💪 增肌</a-select-option>
-            <a-select-option value="塑形">✨ 塑形</a-select-option>
-            <a-select-option value="保持健康">🌿 保持健康</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-
-      <div class="profile-actions">
-        <a-button v-if="!editing" type="primary" block size="large" @click="startEdit">
-          ✏️ 编辑资料
-        </a-button>
-        <template v-else>
-          <a-button type="primary" block size="large" :loading="saving" @click="saveEdit">
-            💾 保存
-          </a-button>
-          <a-button block size="large" style="margin-top: 8px;" @click="cancelEdit">
-            取消
-          </a-button>
-        </template>
+      <div class="info-row">
+        <span class="info-label">年龄</span>
+        <span class="info-value">{{ profileData.age || '-' }} 岁</span>
       </div>
+      <div class="info-row">
+        <span class="info-label">性别</span>
+        <span class="info-value">{{ profileData.gender === 'male' ? '男' : profileData.gender === 'female' ? '女' : '-' }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">目标</span>
+        <span class="info-value">{{ profileData.goal || '-' }}</span>
+      </div>
+    </div>
 
-      <a-divider />
+    <!-- 编辑模式 -->
+    <a-form v-else layout="vertical" class="edit-form">
+      <a-row :gutter="12">
+        <a-col :span="12">
+          <a-form-item label="身高 (cm)">
+            <a-input-number v-model:value="editData.height" :min="100" :max="250" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="体重 (kg)">
+            <a-input-number v-model:value="editData.weight" :min="30" :max="250" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row :gutter="12">
+        <a-col :span="12">
+          <a-form-item label="年龄">
+            <a-input-number v-model:value="editData.age" :min="10" :max="100" style="width: 100%" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label="性别">
+            <a-select v-model:value="editData.gender" style="width: 100%">
+              <a-select-option value="male">男</a-select-option>
+              <a-select-option value="female">女</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-form-item label="目标">
+        <a-select v-model:value="editData.goal" style="width: 100%">
+          <a-select-option value="减脂">🔥 减脂</a-select-option>
+          <a-select-option value="增肌">💪 增肌</a-select-option>
+          <a-select-option value="塑形">✨ 塑形</a-select-option>
+          <a-select-option value="保持健康">🌿 保持健康</a-select-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
 
-      <a-button block size="large" class="regenerate-btn" :loading="regenerating" @click="onRegenerate">
-        🔄 重新生成计划
+    <div class="profile-actions">
+      <a-button v-if="!editing" type="primary" block size="large" @click="startEdit">
+        ✏️ 编辑资料
       </a-button>
+      <template v-else>
+        <a-button type="primary" block size="large" :loading="saving" @click="saveEdit">
+          💾 保存
+        </a-button>
+        <a-button block size="large" style="margin-top: 8px;" @click="cancelEdit">
+          取消
+        </a-button>
+      </template>
+    </div>
 
-      <!-- 统计数据 -->
-      <div v-if="hasStats" class="stats-section">
-        <a-divider />
-        <h3 class="stats-title">📊 训练统计</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value">{{ userStore.stats.totalWorkoutDays }}</span>
-            <span class="stat-label">总训练天数</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ userStore.stats.currentStreak }}</span>
-            <span class="stat-label">连续天数</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">{{ userStore.stats.monthlyDone }}/{{ userStore.stats.monthlyTotal }}</span>
-            <span class="stat-label">本月完成</span>
-          </div>
+    <a-divider />
+
+    <a-button block size="large" class="regenerate-btn" :loading="regenerating" @click="onRegenerate">
+      🔄 重新生成计划
+    </a-button>
+
+    <div v-if="hasStats" class="stats-section">
+      <a-divider />
+      <h3 class="stats-title">📊 训练统计</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value">{{ userStore.stats.totalWorkoutDays }}</span>
+          <span class="stat-label">总训练天数</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ userStore.stats.currentStreak }}</span>
+          <span class="stat-label">连续天数</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ userStore.stats.monthlyDone }}/{{ userStore.stats.monthlyTotal }}</span>
+          <span class="stat-label">本月完成</span>
         </div>
       </div>
     </div>
@@ -211,7 +208,7 @@ function onRegenerate() {
           diet_preference: '普通',
         })
         message.success('新计划已生成！')
-        setTimeout(() => router.push('/calendar'), 500)
+        setTimeout(() => router.push('/home'), 500)
       } catch (e: any) {
         message.error(e.message || '生成失败')
       } finally {
@@ -223,10 +220,11 @@ function onRegenerate() {
 </script>
 
 <style scoped>
-.profile-container { max-width: 520px; margin: 0 auto; }
 .profile-card {
   background: #fff; border-radius: 20px; padding: 32px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  max-width: 520px;
+  margin: 0 auto;
 }
 .profile-avatar { text-align: center; margin-bottom: 12px; }
 .avatar-icon {

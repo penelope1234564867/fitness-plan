@@ -5,8 +5,8 @@
     @click="$emit('click', date)"
   >
     <span class="day-number">{{ day }}</span>
-    <span v-if="focusIcon && status !== 'rest'" class="day-icon">{{ focusIcon }}</span>
-    <span v-else-if="status === 'rest'" class="day-icon rest-icon">☕</span>
+    <span v-if="focusIcon && status !== 'rest'" class="day-icon" :title="focusLabel">{{ focusIcon }}</span>
+    <span v-else-if="status === 'rest'" class="day-icon rest-icon" title="休息日">☕</span>
   </div>
 </template>
 
@@ -15,6 +15,7 @@ defineProps<{
   day: number
   date: string
   focusIcon?: string
+  focusLabel?: string
   isToday: boolean
   status: 'rest' | 'pending' | 'partial' | 'completed' | 'missed' | 'future'
 }>()
