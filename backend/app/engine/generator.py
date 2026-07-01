@@ -523,13 +523,35 @@ def _write_slots(
         )
         db.add(slot)
 
-    # 2. 无氧主项（直接存 wger_id + name，不缓存到 Exercise 表）
+    # 2. 无氧主项（缓存到 Exercise 表，便于获取 target_muscle 等详情）
     main_list = day_plan.get("main", [])
     for ex in main_list:
         sort_order += 1
+        wger_id = ex.get("wger_id") or ex.get("id")
+        exercise_id = None
+        if wger_id:
+            cached = db.query(Exercise).filter(Exercise.wger_id == wger_id).first()
+            if cached:
+                exercise_id = cached.id
+            else:
+                cached = Exercise(
+                    wger_id=wger_id,
+                    name=ex.get("name", ""),
+                    target_muscle=ex.get("target_muscle", ""),
+                    muscle_group=ex.get("muscle_group", ""),
+                    movement_pattern=ex.get("movement_pattern", ""),
+                    equipment=ex.get("equipment", ""),
+                    description=ex.get("description", ""),
+                    image_url=ex.get("image_url", ""),
+                    difficulty=ex.get("difficulty", 1),
+                )
+                db.add(cached)
+                db.flush()
+                exercise_id = cached.id
         slot = ExerciseSlot(
             day_id=day_id,
-            wger_id=ex.get("wger_id") or ex.get("id"),
+            exercise_id=exercise_id,
+            wger_id=wger_id,
             exercise_name=ex.get("name", ""),
             phase_type="main",
             sort_order=sort_order,

@@ -207,7 +207,14 @@ export async function markExerciseTooHeavy(
 }
 
 /** @deprecated 外部 wger 动作详情缓存查询 */
-export async function fetchExerciseDetail(wgerId: number): Promise<{ images: string[]; description: string }> {
+export async function fetchExerciseDetail(wgerId: number): Promise<{
+  images: string[];
+  description: string;
+  primary_muscles?: {id: number; name_en: string; name_cn: string}[];
+  secondary_muscles?: {id: number; name_en: string; name_cn: string}[];
+  equipment_list?: string[];
+  muscle_group?: string;
+}> {
   const res = await apiClient.get(`/api/wger/exercise/${wgerId}`)
   return res.data
 }

@@ -11,9 +11,11 @@ export interface ExerciseInfo {
   name: string
   target_muscle: string
   muscle_group: string
+  movement_pattern: string
   equipment: string
   image_url: string
   description: string
+  difficulty: number
 }
 
 // ═════════════════════════════════════════════════════════

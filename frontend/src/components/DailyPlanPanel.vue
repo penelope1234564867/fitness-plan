@@ -109,8 +109,10 @@
     <ExerciseDrawer
       v-if="drawerExercise"
       :visible="drawerVisible"
-      :exercise="drawerExercise as any"
+      :exercise="drawerExercise"
       @close="drawerVisible = false"
+      @toggle="workoutStore.toggleExercise(drawerExercise!.id)"
+      @too-heavy="handleTooHeavy"
     />
   </div>
 </template>
@@ -144,7 +146,14 @@ const isRestDay = computed(() => {
   if (!dd) return false
   return !dd.has_plan
 })
-const isFuture = computed(() => !!props.dateStr && props.dateStr > todayStr)
+const isFuture = computed(() => {
+  if (!props.dateStr) return false
+  if (props.dateStr <= todayStr) return false
+  // 有训练数据的未来日期正常展示，不显示"未来"占位
+  const dd = dayDetail.value
+  if (dd?.has_plan) return false
+  return true
+})
 
 const dateTitle = computed(() => {
   if (!props.dateStr) return ''
@@ -169,14 +178,22 @@ async function handleCheckin() {
 }
 
 function openDrawer(ex: ExerciseSlot) {
-  drawerExercise.value = ex
+  // 从完整 slots 中找对应项（含嵌套 exercise 详情）
+  const full = dayPlan.value?.slots.find(s => s.id === ex.id)
+  drawerExercise.value = full || ex
   drawerVisible.value = true
+}
+
+function handleTooHeavy() {
+  if (!drawerExercise.value) return
+  workoutStore.setRPEQuick(drawerExercise.value.id, 'hard')
 }
 </script>
 
 <style scoped>
 .daily-plan-panel {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -186,6 +203,9 @@ function openDrawer(ex: ExerciseSlot) {
   padding: 20px;
   overflow-y: auto;
 }
+.daily-plan-panel::-webkit-scrollbar { width: 4px; }
+.daily-plan-panel::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+.daily-plan-panel::-webkit-scrollbar-thumb:hover { background: #bbb; }
 
 .empty-state {
   flex: 1;

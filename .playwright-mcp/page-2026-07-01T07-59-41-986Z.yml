@@ -1,0 +1,105 @@
+- generic [ref=f1e4]:
+  - heading "💪 肌肉分布组件对比测试" [level=1] [ref=f1e5]
+  - generic [ref=f1e6]:
+    - heading "1️⃣ body-highlighter（框架无关）" [level=2] [ref=f1e7]
+    - generic [ref=f1e8]:
+      - generic [ref=f1e9]:
+        - heading "正面 (anterior)" [level=3] [ref=f1e10]
+        - img [ref=f1e13]
+        - generic [ref=f1e47]:
+          - strong [ref=f1e48]: 激活肌肉：
+          - text: 胸肌、肱二头肌、三角肌前束
+      - generic [ref=f1e49]:
+        - heading "背面 (posterior)" [level=3] [ref=f1e50]
+        - img [ref=f1e53]
+        - generic [ref=f1e87]:
+          - strong [ref=f1e88]: 激活肌肉：
+          - text: 背阔肌、斜方肌、肱三头肌
+  - generic [ref=f1e89]:
+    - heading "2️⃣ @lucawahlen/vue-human-muscle-anatomy（Vue 3 原生）" [level=2] [ref=f1e90]
+    - generic [ref=f1e91]:
+      - generic [ref=f1e92]:
+        - heading "男性 + 正面" [level=3] [ref=f1e93]
+        - img [ref=f1e94]
+      - generic [ref=f1e120]:
+        - heading "女性 + 背面" [level=3] [ref=f1e121]
+        - img [ref=f1e122]
+    - generic [ref=f1e166]:
+      - generic [ref=f1e167]:
+        - heading "所有肌群名称对照" [level=3] [ref=f1e168]
+        - generic [ref=f1e169]:
+          - code [ref=f1e170]: chest
+          - code [ref=f1e171]: lats
+          - code [ref=f1e172]: traps
+          - code [ref=f1e173]: rotatorCuffs
+          - code [ref=f1e174]: lowerBack
+          - code [ref=f1e175]: frontDelts
+          - code [ref=f1e176]: sideDelts
+          - code [ref=f1e177]: rearDelts
+          - code [ref=f1e178]: triceps
+          - code [ref=f1e179]: biceps
+          - code [ref=f1e180]: forearms
+          - code [ref=f1e181]: abs
+          - code [ref=f1e182]: obliques
+          - code [ref=f1e183]: glutes
+          - code [ref=f1e184]: quads
+          - code [ref=f1e185]: hamstrings
+          - code [ref=f1e186]: adductors
+          - code [ref=f1e187]: abductors
+          - code [ref=f1e188]: calves
+          - code [ref=f1e189]: neck
+      - generic [ref=f1e190]:
+        - heading "wger ID → 肌群映射" [level=3] [ref=f1e191]
+        - generic [ref=f1e192]:
+          - generic [ref=f1e193]:
+            - generic [ref=f1e194]: "#1"
+            - generic [ref=f1e195]: 肱二头肌
+            - code [ref=f1e196]: biceps
+          - generic [ref=f1e197]:
+            - generic [ref=f1e198]: "#2"
+            - generic [ref=f1e199]: 三角肌（前/后）
+            - code [ref=f1e200]: frontDelts / rearDelts
+          - generic [ref=f1e201]:
+            - generic [ref=f1e202]: "#3"
+            - generic [ref=f1e203]: 竖脊肌
+            - code [ref=f1e204]: lowerBack
+          - generic [ref=f1e205]:
+            - generic [ref=f1e206]: "#4"
+            - generic [ref=f1e207]: 胸大肌
+            - code [ref=f1e208]: chest
+          - generic [ref=f1e209]:
+            - generic [ref=f1e210]: "#5"
+            - generic [ref=f1e211]: 肱三头肌
+            - code [ref=f1e212]: triceps
+          - generic [ref=f1e213]:
+            - generic [ref=f1e214]: "#6"
+            - generic [ref=f1e215]: 腹肌
+            - code [ref=f1e216]: abs
+          - generic [ref=f1e217]:
+            - generic [ref=f1e218]: "#8"
+            - generic [ref=f1e219]: 臀大肌
+            - code [ref=f1e220]: glutes
+          - generic [ref=f1e221]:
+            - generic [ref=f1e222]: "#9"
+            - generic [ref=f1e223]: 斜方肌
+            - code [ref=f1e224]: traps
+          - generic [ref=f1e225]:
+            - generic [ref=f1e226]: "#10"
+            - generic [ref=f1e227]: 股四头肌
+            - code [ref=f1e228]: quads
+          - generic [ref=f1e229]:
+            - generic [ref=f1e230]: "#11"
+            - generic [ref=f1e231]: 腘绳肌
+            - code [ref=f1e232]: hamstrings
+          - generic [ref=f1e233]:
+            - generic [ref=f1e234]: "#12"
+            - generic [ref=f1e235]: 背阔肌
+            - code [ref=f1e236]: lats
+          - generic [ref=f1e237]:
+            - generic [ref=f1e238]: "#13"
+            - generic [ref=f1e239]: 小腿
+            - code [ref=f1e240]: calves
+          - generic [ref=f1e241]:
+            - generic [ref=f1e242]: "#14"
+            - generic [ref=f1e243]: 前臂
+            - code [ref=f1e244]: forearms

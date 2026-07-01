@@ -1,76 +1,105 @@
 <template>
   <a-drawer
     :open="visible"
-    :title="exercise?.name || '动作详情'"
+    :title="exerciseName"
     placement="right"
-    :width="380"
+    :width="500"
+    :closable="true"
+    :mask-closable="true"
+    :keyboard="true"
     @close="$emit('close')"
+    class="exercise-drawer"
   >
-    <div v-if="exercise" class="drawer-content">
-      <!-- 图片区：骨架屏或真实图片 -->
-      <div class="drawer-image">
-        <a-skeleton v-if="loadingImage" active :paragraph="{ rows: 1 }" :title="false">
-          <div class="skeleton-image-block"></div>
+    <div v-if="exercise" class="drawer-body">
+      <!-- ═══ 图片区 ═══ -->
+      <div class="image-area">
+        <!-- 骨架屏（仅首次无图时显示） -->
+        <a-skeleton v-if="loadingLocal && displayImages.length === 0" active :paragraph="{ rows: 1 }" :title="false">
+          <div class="skeleton-block"></div>
         </a-skeleton>
-        <template v-else>
-          <img
-            v-if="displayImages.length > 0"
-            :src="displayImages[0]"
-            :alt="exercise.name"
-          />
-          <div v-else-if="exercise.imageUrl" class="drawer-image-fit">
-            <img :src="exercise.imageUrl" :alt="exercise.name" />
+
+        <!-- 轮播（多图） -->
+        <a-carousel v-else-if="displayImages.length > 1">
+          <div v-for="(img, i) in displayImages" :key="i" class="carousel-slide">
+            <img :src="img" :alt="`${exerciseName} - ${i + 1}`" />
           </div>
-          <div v-else class="drawer-image-placeholder">
-            <span>{{ exercise.name.charAt(0) }}</span>
+        </a-carousel>
+
+        <!-- 单图 -->
+        <img v-else-if="displayImages.length === 1" :src="displayImages[0]" :alt="exerciseName" class="single-img" />
+
+        <!-- 无图占位 -->
+        <div v-else class="no-image-placeholder">
+          <span>{{ exerciseName.charAt(0) }}</span>
+        </div>
+      </div>
+
+      <!-- ═══ 标签行 ═══ -->
+      <div class="tags-row">
+        <a-tag v-if="wgerMuscleGroup" color="blue">{{ wgerMuscleGroup }}</a-tag>
+        <a-tag v-for="eq in wgerEquipmentList" :key="eq" color="orange">{{ eq }}</a-tag>
+        <a-tag v-if="exercise.exercise?.difficulty" color="green">
+          {{ '★'.repeat(exercise.exercise.difficulty) }}
+        </a-tag>
+      </div>
+
+      <!-- ═══ 主动肌 ═══ -->
+      <div v-if="wgerPrimaryMuscles.length > 0" class="muscle-section">
+        <div class="muscle-section-label">🎯 主动肌</div>
+        <div class="muscle-list">
+          <div v-for="m in wgerPrimaryMuscles" :key="m.id" class="muscle-item">
+            <span class="muscle-en">{{ m.name_en }}</span>
+            <span v-if="m.name_cn" class="muscle-cn">{{ m.name_cn }}</span>
           </div>
-        </template>
-      </div>
-
-      <!-- 第二张图片（如果有） -->
-      <div v-if="displayImages.length > 1" class="drawer-image-secondary">
-        <img :src="displayImages[1]" :alt="`${exercise.name} 侧视图`" />
-      </div>
-
-      <div class="drawer-info">
-        <div class="drawer-info-row">
-          <span class="drawer-info-label">🎯 目标肌群</span>
-          <span class="drawer-info-value">{{ exercise.targetMuscle || '全身' }}</span>
-        </div>
-        <div class="drawer-info-row">
-          <span class="drawer-info-label">⚙️ 训练量</span>
-          <span class="drawer-info-value">
-            <template v-if="exercise.duration">{{ exercise.duration }}秒</template>
-            <template v-else>{{ exercise.sets }}组 × {{ exercise.reps }}次</template>
-            <template v-if="exercise.weight"> · {{ exercise.weight }}</template>
-          </span>
-        </div>
-        <div class="drawer-info-row">
-          <span class="drawer-info-label">📌 状态</span>
-          <span class="drawer-info-value" :class="exercise.completed ? 'status-done' : ''">
-            {{ exercise.completed ? '✅ 已完成' : '⏳ 未完成' }}
-          </span>
-        </div>
-
-        <div class="drawer-desc-section">
-          <span class="drawer-info-label">📝 动作描述</span>
-          <a-skeleton v-if="loadingImage" active :paragraph="{ rows: 3 }" :title="false" />
-          <p v-else class="drawer-desc">{{ displayDescription || exercise.description || '暂无描述' }}</p>
         </div>
       </div>
 
-      <div class="drawer-actions">
+      <!-- ═══ 辅助肌 ═══ -->
+      <div v-if="wgerSecondaryMuscles.length > 0" class="muscle-section">
+        <div class="muscle-section-label">🤝 辅助肌</div>
+        <div class="muscle-list">
+          <div v-for="m in wgerSecondaryMuscles" :key="m.id" class="muscle-item">
+            <span class="muscle-en">{{ m.name_en }}</span>
+            <span v-if="m.name_cn" class="muscle-cn">{{ m.name_cn }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 训练参数 ═══ -->
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">⚙️ 训练量</span>
+          <span class="info-value">{{ volumeText }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">🏋️ 重量</span>
+          <span class="info-value">{{ weightText }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">⏱️ 组间休息</span>
+          <span class="info-value">{{ exercise.rest_seconds ? `${exercise.rest_seconds}秒` : '—' }}</span>
+        </div>
+      </div>
+
+      <!-- ═══ 动作描述 ═══ -->
+      <div v-if="displayDescription" class="desc-section">
+        <div class="desc-label">📝 动作描述</div>
+        <p class="desc-text">{{ displayDescription }}</p>
+      </div>
+
+      <!-- ═══ 操作按钮 ═══ -->
+      <div class="action-buttons">
         <a-button
           type="primary"
           block
           size="large"
-          :class="exercise.completed ? 'btn-undo' : 'btn-done'"
+          :class="exercise._completed ? 'btn-undo' : 'btn-done'"
           @click="$emit('toggle')"
         >
-          {{ exercise.completed ? '↩ 取消完成' : '✅ 标记完成' }}
+          {{ exercise._completed ? '↩ 取消完成' : '✅ 标记完成' }}
         </a-button>
         <a-button
-          v-if="!exercise.completed && !exercise.tooHeavy"
+          v-if="!exercise._completed"
           block
           size="large"
           class="btn-heavy"
@@ -78,22 +107,20 @@
         >
           😰 太重了，下次减轻
         </a-button>
-        <div v-if="exercise.tooHeavy" class="too-heavy-note">
-          已记录「太重了」，下次将调整重量
-        </div>
       </div>
     </div>
   </a-drawer>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type { ExerciseState } from '@/types'
+import { ref, computed, watch } from 'vue'
+import type { ExerciseSlot } from '@/types'
 import { fetchExerciseDetail } from '@/services/api'
+import { useWorkoutStore } from '@/stores/workout'
 
 const props = defineProps<{
   visible: boolean
-  exercise: ExerciseState | null
+  exercise: ExerciseSlot | null
 }>()
 
 defineEmits<{
@@ -102,81 +129,346 @@ defineEmits<{
   tooHeavy: []
 }>()
 
-const loadingImage = ref(false)
+const workoutStore = useWorkoutStore()
+
+const loadingLocal = ref(false)
 const displayImages = ref<string[]>([])
 const displayDescription = ref('')
+const wgerPrimaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
+const wgerSecondaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
+const wgerEquipmentList = ref<string[]>([])
+const wgerMuscleGroup = ref('')
+
+const exerciseName = computed(() => props.exercise?.exercise_name || '动作详情')
+
+const volumeText = computed(() => {
+  if (!props.exercise) return '—'
+  const e = props.exercise
+  if (e.phase_type === 'warmup' || e.phase_type === 'stretch') {
+    return `${e.target_reps}秒`
+  }
+  return `${e.target_sets}组 × ${e.target_reps}次`
+})
+
+const weightText = computed(() => {
+  if (!props.exercise) return '—'
+  const e = props.exercise
+  if (e.weight_suggestion) return e.weight_suggestion
+  if (e.weight_kg > 0) return `${e.weight_kg}kg`
+  return '—'
+})
 
 watch(
   () => props.visible,
   async (isOpen) => {
     if (!isOpen || !props.exercise) return
 
-    // 先清空旧数据
+    // 重置
     displayImages.value = []
     displayDescription.value = ''
+    wgerPrimaryMuscles.value = []
+    wgerSecondaryMuscles.value = []
+    wgerEquipmentList.value = []
+    wgerMuscleGroup.value = ''
+    loadingLocal.value = false
 
-    // 如果有 wgerId，异步加载真实图片和描述
-    if (props.exercise.wgerId) {
-      loadingImage.value = true
+    // 第一步：从本地 exercise 数据的 image_url 提取，立即显示
+    const localImages = props.exercise.exercise?.image_url
+      ? props.exercise.exercise.image_url.split(',').map(s => s.trim()).filter(Boolean)
+      : []
+    if (localImages.length > 0) {
+      displayImages.value = localImages
+    }
+
+    // 本地已有数据（降级用）
+    if (props.exercise.exercise?.description) {
+      displayDescription.value = props.exercise.exercise.description
+    }
+    wgerMuscleGroup.value = props.exercise.exercise?.muscle_group || ''
+    const localEq = props.exercise.exercise?.equipment
+    if (localEq) {
+      wgerEquipmentList.value = localEq.split(',').map(s => s.trim()).filter(Boolean)
+    }
+
+    // 第二步：有 wgerId 时，异步获取 wger 高清图 + 全部肌肉/器材详情
+    if (props.exercise.wger_id) {
+      loadingLocal.value = true
       try {
-        const detail = await fetchExerciseDetail(props.exercise.wgerId)
-        displayImages.value = detail.images || []
-        displayDescription.value = detail.description || ''
+        const detail = await fetchExerciseDetail(props.exercise.wger_id)
+        if (detail.images && detail.images.length > 0) {
+          displayImages.value = detail.images
+        }
+        if (detail.description) {
+          displayDescription.value = detail.description
+        }
+        // 用 wger API 返回的详细数据覆盖本地
+        if (detail.primary_muscles) {
+          wgerPrimaryMuscles.value = detail.primary_muscles
+          workoutStore.activePrimaryMuscles = detail.primary_muscles
+        }
+        if (detail.secondary_muscles) {
+          wgerSecondaryMuscles.value = detail.secondary_muscles
+          workoutStore.activeSecondaryMuscles = detail.secondary_muscles
+        }
+        if (detail.equipment_list) wgerEquipmentList.value = detail.equipment_list
+        if (detail.muscle_group) wgerMuscleGroup.value = detail.muscle_group
       } catch {
-        // 失败时 fallback 到已有字段，不报错
-        displayImages.value = []
-        displayDescription.value = ''
+        // wger 请求失败，保留本地数据不报错
       } finally {
-        loadingImage.value = false
+        loadingLocal.value = false
       }
-    } else if (props.exercise.imageUrl) {
-      // 没有 wgerId 但有 imageUrl，直接用
-      displayImages.value = [props.exercise.imageUrl]
     }
   },
 )
 
-// 关闭时重置状态
+// 关闭时重置
 watch(
   () => props.visible,
   (isOpen) => {
     if (!isOpen) {
       displayImages.value = []
       displayDescription.value = ''
-      loadingImage.value = false
+      wgerPrimaryMuscles.value = []
+      wgerSecondaryMuscles.value = []
+      wgerEquipmentList.value = []
+      wgerMuscleGroup.value = ''
+      workoutStore.activePrimaryMuscles = []
+      workoutStore.activeSecondaryMuscles = []
+      loadingLocal.value = false
+      document.body.style.overflow = ''
     }
   },
 )
 </script>
 
 <style scoped>
-.drawer-image { margin-bottom: 16px; border-radius: 12px; overflow: hidden; background: #f5f5f5; }
-.drawer-image img,
-.drawer-image-fit img { width: 100%; height: 220px; object-fit: cover; display: block; }
-.drawer-image-secondary {
-  margin-bottom: 16px; border-radius: 12px; overflow: hidden; background: #f5f5f5;
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-.drawer-image-secondary img { width: 100%; height: 140px; object-fit: cover; display: block; }
-.drawer-image-placeholder {
-  width: 100%; height: 220px; display: flex; align-items: center; justify-content: center;
+
+/* ══════════════════════════════════════════
+   图片区
+   ══════════════════════════════════════════ */
+.image-area {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f5f5f5;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* — a-carousel 轮播 — */
+.carousel-slide {
+  height: 280px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+.carousel-slide img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* — 单张图 — */
+.single-img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  display: block;
+  background: #f5f5f5;
+}
+
+/* — 无图占位 — */
+.no-image-placeholder {
+  width: 100%;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: linear-gradient(135deg, #f97316, #fb923c);
-  font-size: 64px; font-weight: 700; color: rgba(255,255,255,0.3);
+  font-size: 64px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
 }
-.skeleton-image-block {
-  width: 100%; height: 220px; background: #f0f0f0; border-radius: 12px;
+
+/* — 骨架屏 — */
+.skeleton-block {
+  width: 100%;
+  height: 260px;
+  background: #f0f0f0;
+  border-radius: 12px;
 }
-.drawer-info { display: flex; flex-direction: column; gap: 16px; }
-.drawer-info-row { display: flex; flex-direction: column; gap: 4px; }
-.drawer-info-label { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-.drawer-info-value { font-size: 16px; font-weight: 600; color: #1a1a1a; }
-.drawer-info-value.status-done { color: #22c55e; }
-.drawer-desc-section { margin-top: 8px; }
-.drawer-desc { font-size: 14px; line-height: 1.7; color: #555; margin: 8px 0 0 0; }
-.drawer-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
-.btn-done { background: #22c55e; border: none; border-radius: 12px; height: 48px; font-size: 16px; font-weight: 600; }
-.btn-done:hover { background: #16a34a; }
-.btn-undo { background: #666; border: none; border-radius: 12px; height: 48px; font-size: 16px; font-weight: 600; }
-.btn-heavy { border-color: #f97316; color: #f97316; border-radius: 12px; height: 44px; font-size: 14px; }
-.btn-heavy:hover { background: #fff7ed; border-color: #f97316; color: #f97316; }
-.too-heavy-note { text-align: center; font-size: 13px; color: #f97316; background: #fff7ed; padding: 10px; border-radius: 10px; }
+
+/* ══════════════════════════════════════════
+   标签行
+   ══════════════════════════════════════════ */
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ══════════════════════════════════════════
+   肌群展示
+   ══════════════════════════════════════════ */
+.muscle-section {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.muscle-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.muscle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.muscle-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.muscle-en {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.muscle-cn {
+  font-size: 13px;
+  color: #999;
+}
+
+/* ══════════════════════════════════════════
+   训练参数卡片
+   ══════════════════════════════════════════ */
+.info-card {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.info-divider {
+  height: 1px;
+  background: #e8e8e8;
+  margin: 2px 0;
+}
+
+/* ══════════════════════════════════════════
+   动作描述
+   ══════════════════════════════════════════ */
+.desc-section {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.desc-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.desc-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════
+   操作按钮
+   ══════════════════════════════════════════ */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-done {
+  background: #22c55e;
+  border: none;
+  border-radius: 12px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.btn-done:hover {
+  background: #16a34a;
+}
+
+.btn-undo {
+  background: #666;
+  border: none;
+  border-radius: 12px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.btn-heavy {
+  border-color: #f97316;
+  color: #f97316;
+  border-radius: 12px;
+  height: 44px;
+  font-size: 14px;
+}
+.btn-heavy:hover {
+  background: #fff7ed;
+  border-color: #f97316;
+  color: #f97316;
+}
+
+/* ══════════════════════════════════════════
+   覆盖 a-drawer 标题字体
+   ══════════════════════════════════════════ */
+:deep(.ant-drawer-header-title) {
+  font-weight: 700;
+  font-size: 18px;
+}
 </style>

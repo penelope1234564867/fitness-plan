@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import orm_models, schemas
 from app.engine.generator import generate_init_week, generate_next_week, _sse_event
+from app.engine.exercise_cache import get_or_fetch_exercise
 from typing import Optional
 import asyncio
 
@@ -316,10 +317,17 @@ async def get_current_state(db: Session = Depends(get_db)):
 @router.put("/current-state")
 async def update_current_state(data: schemas.UserCurrentStateUpdate,
                                 db: Session = Depends(get_db)):
-    """更新用户当前状态（经验/地点/天数）。"""
+    """更新（或创建）用户当前状态（经验/地点/天数）。"""
     ucs = db.query(orm_models.UserCurrentState).first()
     if not ucs:
-        raise HTTPException(status_code=404, detail="还没有用户状态，请先 init-plan")
+        # 首次使用时自动创建
+        ucs = orm_models.UserCurrentState(
+            experience_level=data.experience_level or "新手",
+            workout_location=data.workout_location or "居家",
+            days_per_week=data.days_per_week or 3,
+            preferred_days=data.preferred_days or "1,3,5",
+        )
+        db.add(ucs)
 
     if data.experience_level is not None:
         ucs.experience_level = data.experience_level
@@ -704,6 +712,17 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
             ex = db.query(orm_models.Exercise).filter(
                 orm_models.Exercise.id == slot.exercise_id
             ).first()
+        # 降级：exercise_id 为空时按 wger_id 查
+        if not ex and slot.wger_id:
+            ex = db.query(orm_models.Exercise).filter(
+                orm_models.Exercise.wger_id == slot.wger_id
+            ).first()
+        # 再降级：本地还没缓存，从 wger 拉取并缓存（针对已有计划）
+        if not ex and slot.wger_id:
+            try:
+                ex = get_or_fetch_exercise(slot.wger_id, db)
+            except Exception:
+                pass
         slot_dict = {
             "id": slot.id,
             "phase_type": slot.phase_type,
@@ -726,18 +745,22 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
                 "name": ex.name if ex else (slot.wger_id and f"wger:{slot.wger_id}" or "未知"),
                 "target_muscle": ex.target_muscle if ex else "",
                 "muscle_group": ex.muscle_group if ex else "",
+                "movement_pattern": ex.movement_pattern if ex else "",
                 "equipment": ex.equipment if ex else "",
                 "image_url": ex.image_url if ex else "",
                 "description": ex.description if ex else "",
+                "difficulty": ex.difficulty if ex else 1,
                 "instruction": slot.weight_suggestion or "",
             } if ex else ({
                 "id": None,
                 "name": slot.exercise_name or (f"wger:{slot.wger_id}" if slot.wger_id else "未知"),
                 "target_muscle": "",
                 "muscle_group": "",
+                "movement_pattern": "",
                 "equipment": "",
                 "image_url": "",
                 "description": "",
+                "difficulty": 1,
                 "instruction": slot.weight_suggestion or "",
             }),
         }
@@ -745,16 +768,25 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
 
     def _to_exercise_item(s: dict) -> dict:
         ex = s.get("exercise") or {}
-        return {
+        base = {
+            "id": s.get("id"),
+            "phase_type": s.get("phase_type", ""),
             "name": ex.get("name", ""),
+            "exercise_name": ex.get("name", ""),
             "target_muscle": ex.get("target_muscle", ""),
             "sets": s.get("target_sets", 0),
+            "target_sets": s.get("target_sets", 0),
             "reps": s.get("target_reps", 0),
+            "target_reps": s.get("target_reps", 0),
+            "target_reps_max": s.get("target_reps_max", 0),
+            "weight_kg": s.get("weight_kg", 0),
             "weight_suggestion": s.get("weight_suggestion", ""),
+            "rest_seconds": s.get("rest_seconds", 60),
             "instruction": ex.get("instruction", ""),
             "duration_minutes": s.get("target_reps", 15) if s["phase_type"] == "cardio" else None,
             "suggestion": s.get("weight_suggestion", ""),
         }
+        return base
 
     day_status = "completed" if day.is_completed else "pending"
 
