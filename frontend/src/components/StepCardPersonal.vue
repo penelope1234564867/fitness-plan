@@ -31,6 +31,14 @@
           </a-form-item>
         </a-col>
       </a-row>
+
+      <a-form-item label="🏋️ 训练经验" name="experience">
+        <a-radio-group v-model:value="localData.experience" size="large">
+          <a-radio-button value="新手">🌱 新手</a-radio-button>
+          <a-radio-button value="中级">💪 中级</a-radio-button>
+          <a-radio-button value="高级">🔥 高级</a-radio-button>
+        </a-radio-group>
+      </a-form-item>
     </a-form>
 
     <div class="step-actions">
@@ -44,11 +52,17 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-interface PersonalData { height: number | undefined; weight: number | undefined; age: number | undefined; gender: string | undefined }
+interface PersonalData {
+  height: number | undefined
+  weight: number | undefined
+  age: number | undefined
+  gender: string | undefined
+  experience: string
+}
 
 const props = defineProps<{ data: PersonalData }>()
-const emit = defineEmits<{ next: [data: PersonalData] }>()
-const localData = reactive<PersonalData>({ ...props.data })
+defineEmits<{ next: [data: PersonalData] }>()
+const localData = reactive<PersonalData>({ ...props.data, experience: props.data.experience || '新手' })
 </script>
 
 <style scoped>

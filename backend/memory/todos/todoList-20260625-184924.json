@@ -1,0 +1,48 @@
+{
+  "summary": "为新手减脂、居家训练用户设计3天训练计划",
+  "todos": [
+    {
+      "content": "查询wger分类和肌群信息",
+      "status": "in_progress",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    },
+    {
+      "content": "搜索适合居家减脂的训练动作（自重、哑铃）",
+      "status": "pending",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    },
+    {
+      "content": "设计第1天训练计划（全身/上肢为主）",
+      "status": "pending",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    },
+    {
+      "content": "设计第2天训练计划（下肢+核心）",
+      "status": "pending",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    },
+    {
+      "content": "设计第3天训练计划（全身综合+有氧）",
+      "status": "pending",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    },
+    {
+      "content": "输出完整JSON训练方案",
+      "status": "pending",
+      "created_at": "2026-06-25T18:49:24.430699",
+      "updated_at": "2026-06-25T18:49:24.430699"
+    }
+  ],
+  "created_at": "2026-06-25T18:49:24.430699",
+  "stats": {
+    "total": 6,
+    "completed": 0,
+    "in_progress": 1,
+    "pending": 5
+  }
+}

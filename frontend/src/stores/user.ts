@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { createOrUpdateProfile, getProfile } from '@/services/api'
-import type { UserProfile, UserProfileResponse } from '@/types'
+import { createOrUpdateProfile, getProfile, fetchCurrentState as apiFetchState, updateCurrentState as apiUpdateState } from '@/services/api'
+import type { UserProfile, UserProfileResponse, UserCurrentState, UserCurrentStateUpdate } from '@/types'
 
 export const useUserStore = defineStore('user', () => {
   const profile = ref<UserProfileResponse | null>(null)
+  const currentState = ref<UserCurrentState | null>(null)
   const loading = ref(false)
 
   // 是否首次使用（控制三步引导显示）
@@ -24,19 +25,39 @@ export const useUserStore = defineStore('user', () => {
     return `${p.gender === 'male' ? '♂' : '♀'} ${p.height || '?'}cm ${p.weight || '?'}kg`
   })
 
-  /** 标记首次引导已完成 */
+  // ── 引导状态 ──
+
   function markOnboardingDone() {
     isFirstVisit.value = false
     localStorage.setItem('fitness_first_visit', 'false')
   }
 
-  /** 重置引导状态（允许重新走引导） */
   function resetOnboarding() {
     isFirstVisit.value = true
     localStorage.setItem('fitness_first_visit', 'true')
   }
 
-  /** 加载用户资料 */
+  // ── 用户状态（新引擎）──
+
+  async function fetchCurrentState() {
+    try {
+      currentState.value = await apiFetchState()
+      return currentState.value
+    } catch {
+      /* 首次可能没有状态 */
+      return null
+    }
+  }
+
+  async function saveCurrentState(data: UserCurrentStateUpdate) {
+    await apiUpdateState(data)
+    if (currentState.value) {
+      Object.assign(currentState.value, data)
+    }
+  }
+
+  // ── 用户资料（旧引擎，过渡用）──
+
   async function fetchProfile() {
     loading.value = true
     try {
@@ -48,7 +69,6 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  /** 创建或更新用户资料 */
   async function saveProfile(data: UserProfile) {
     loading.value = true
     try {
@@ -62,12 +82,15 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     profile,
+    currentState,
     loading,
     isFirstVisit,
     stats,
     fullName,
     markOnboardingDone,
     resetOnboarding,
+    fetchCurrentState,
+    saveCurrentState,
     fetchProfile,
     saveProfile,
   }

@@ -1,0 +1,36 @@
+{
+  "summary": "",
+  "todos": [
+    {
+      "content": "查询 wger 分类和肌群信息",
+      "status": "completed",
+      "created_at": "2026-06-25T22:41:41.141061",
+      "updated_at": "2026-06-25T22:41:41.141061"
+    },
+    {
+      "content": "搜索全身各肌群的自重/居家训练动作",
+      "status": "in_progress",
+      "created_at": "2026-06-25T22:41:41.141061",
+      "updated_at": "2026-06-25T22:41:41.141061"
+    },
+    {
+      "content": "设计3天训练计划（每天4-6个动作）",
+      "status": "pending",
+      "created_at": "2026-06-25T22:41:41.141061",
+      "updated_at": "2026-06-25T22:41:41.141061"
+    },
+    {
+      "content": "输出最终JSON结果",
+      "status": "pending",
+      "created_at": "2026-06-25T22:41:41.141061",
+      "updated_at": "2026-06-25T22:41:41.141061"
+    }
+  ],
+  "created_at": "2026-06-25T22:41:41.141061",
+  "stats": {
+    "total": 4,
+    "completed": 1,
+    "in_progress": 1,
+    "pending": 2
+  }
+}

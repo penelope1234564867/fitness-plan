@@ -1,0 +1,359 @@
+- generic [ref=e3]:
+  - generic:
+    - img
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - heading "Fitness Planner API 1.0.0 OAS 3.1" [level=1] [ref=e9]:
+          - text: Fitness Planner API
+          - generic [ref=e10]:
+            - generic [ref=e12]: 1.0.0
+            - generic [ref=e14]: OAS 3.1
+        - link "/openapi.json" [ref=e15] [cursor=pointer]:
+          - /url: /openapi.json
+          - generic [ref=e16]: /openapi.json
+      - paragraph [ref=e19]: 基于 HelloAgents 框架的 AI 健身计划助手
+    - generic [ref=e22]:
+      - generic [ref=e24]:
+        - heading "用户资料 Collapse operation" [level=3] [ref=e25] [cursor=pointer]:
+          - link "用户资料" [ref=e26]:
+            - /url: "#/用户资料"
+          - button "Collapse operation" [expanded] [ref=e27]:
+            - img [ref=e28]
+        - generic [ref=e31]:
+          - generic [ref=e34] [cursor=pointer]:
+            - button "GET /api/user/profile Get Profile" [ref=e35]:
+              - generic [ref=e36]: GET
+              - generic [ref=e37]:
+                - link "/api/user/profile" [ref=e39]:
+                  - /url: "#/用户资料/get_profile_api_user_profile_get"
+                  - generic [ref=e40]:
+                    - text: /api
+                    - text: /user
+                    - text: /profile
+                - generic [ref=e41]: Get Profile
+            - generic "Copy to clipboard"
+            - button "get /api/user/profile" [ref=e44]:
+              - img [ref=e45]
+          - generic [ref=e49] [cursor=pointer]:
+            - button "POST /api/user/profile Create Or Update Profile" [ref=e50]:
+              - generic [ref=e51]: POST
+              - generic [ref=e52]:
+                - link "/api/user/profile" [ref=e54]:
+                  - /url: "#/用户资料/create_or_update_profile_api_user_profile_post"
+                  - generic [ref=e55]:
+                    - text: /api
+                    - text: /user
+                    - text: /profile
+                - generic [ref=e56]: Create Or Update Profile
+            - generic "Copy to clipboard"
+            - button "post /api/user/profile" [ref=e59]:
+              - img [ref=e60]
+      - generic [ref=e63]:
+        - heading "健身计划 Collapse operation" [level=3] [ref=e64] [cursor=pointer]:
+          - link "健身计划" [ref=e65]:
+            - /url: "#/健身计划"
+          - button "Collapse operation" [expanded] [ref=e66]:
+            - img [ref=e67]
+        - generic [ref=e70]:
+          - generic [ref=e72]:
+            - generic [ref=e73] [cursor=pointer]:
+              - button "POST /api/fitness/init-plan Init Plan" [expanded] [ref=e74]:
+                - generic [ref=e75]: POST
+                - generic [ref=e76]:
+                  - link "/api/fitness/init-plan" [ref=e78]:
+                    - /url: "#/健身计划/init_plan_api_fitness_init_plan_post"
+                    - generic [ref=e79]:
+                      - text: /api
+                      - text: /fitness
+                      - text: /init-plan
+                  - generic [ref=e80]: Init Plan
+              - generic "Copy to clipboard"
+              - button "post /api/fitness/init-plan" [expanded] [ref=e83]:
+                - img [ref=e373]
+            - generic [ref=e376]:
+              - paragraph [ref=e380]: 首次初始化：创建大周期 → 中周期 → 生成第 1 周（SSE 流式）。
+              - generic [ref=e381]:
+                - generic [ref=e382]:
+                  - heading "Parameters" [level=4] [ref=e385] [cursor=pointer]
+                  - button "Cancel" [active] [ref=e447] [cursor=pointer]
+                - paragraph [ref=e390]: No parameters
+                - generic [ref=e391]:
+                  - generic [ref=e392]:
+                    - heading "Request bodyrequired" [level=4] [ref=e393]
+                    - combobox "Request content type" [ref=e396]:
+                      - option "application/json" [selected]
+                  - generic [ref=e399]:
+                    - tablist [ref=e400]:
+                      - tab "Edit Value" [selected] [ref=e448] [cursor=pointer]
+                      - tab "Schema" [ref=e402] [cursor=pointer]
+                    - tabpanel "Edit Value" [ref=e449]:
+                      - textbox [ref=e451]: "{ \"goal\": \"string\", \"experience_level\": \"string\", \"workout_location\": \"string\", \"days_per_week\": 3, \"city\": \"string\" }"
+              - button "Execute" [ref=e452] [cursor=pointer]
+              - generic [ref=e408]:
+                - heading "Responses" [level=4] [ref=e410]
+                - region [ref=e412]:
+                  - rowgroup [ref=e413]:
+                    - row "Code Description Links" [ref=e414]:
+                      - cell "Code" [ref=e415]
+                      - cell "Description" [ref=e416]
+                      - cell "Links" [ref=e417]
+                  - rowgroup [ref=e418]:
+                    - row "200 Successful Response No links" [ref=e419]:
+                      - cell "200" [ref=e420]
+                      - cell "Successful Response" [ref=e421]:
+                        - paragraph [ref=e424]: Successful Response
+                      - cell "No links" [ref=e425]
+                    - row "422 Validation Error Media type application/json Example Value No links" [ref=e426]:
+                      - cell "422" [ref=e427]
+                      - cell "Validation Error Media type application/json Example Value" [ref=e428]:
+                        - paragraph [ref=e431]: Validation Error
+                        - generic [ref=e433]:
+                          - generic [ref=e434]: Media type
+                          - combobox "Media Type" [ref=e436]:
+                            - option "application/json" [selected]
+                        - generic [ref=e437]:
+                          - tablist [ref=e438]:
+                            - tab "Example Value" [selected] [ref=e439] [cursor=pointer]
+                            - tab "Schema" [ref=e440] [cursor=pointer]
+                          - tabpanel "Example Value" [ref=e441]:
+                            - code [ref=e445]: "{ \"detail\": [ { \"loc\": [ \"string\", 0 ], \"msg\": \"string\", \"type\": \"string\", \"input\": \"string\", \"ctx\": {} } ] }"
+                      - cell "No links" [ref=e446]
+          - generic [ref=e88] [cursor=pointer]:
+            - button "POST /api/fitness/generate-next Generate Next" [ref=e89]:
+              - generic [ref=e90]: POST
+              - generic [ref=e91]:
+                - link "/api/fitness/generate-next" [ref=e93]:
+                  - /url: "#/健身计划/generate_next_api_fitness_generate_next_post"
+                  - generic [ref=e94]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /generate-next
+                - generic [ref=e95]: Generate Next
+            - generic "Copy to clipboard"
+            - button "post /api/fitness/generate-next" [ref=e98]:
+              - img [ref=e99]
+          - generic [ref=e103] [cursor=pointer]:
+            - button "GET /api/fitness/current-week Get Current Week" [ref=e104]:
+              - generic [ref=e105]: GET
+              - generic [ref=e106]:
+                - link "/api/fitness/current-week" [ref=e108]:
+                  - /url: "#/健身计划/get_current_week_api_fitness_current_week_get"
+                  - generic [ref=e109]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /current-week
+                - generic [ref=e110]: Get Current Week
+            - generic "Copy to clipboard"
+            - button "get /api/fitness/current-week" [ref=e113]:
+              - img [ref=e114]
+          - generic [ref=e118] [cursor=pointer]:
+            - button "GET /api/fitness/macrocycles List Macrocycles" [ref=e119]:
+              - generic [ref=e120]: GET
+              - generic [ref=e121]:
+                - link "/api/fitness/macrocycles" [ref=e123]:
+                  - /url: "#/健身计划/list_macrocycles_api_fitness_macrocycles_get"
+                  - generic [ref=e124]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /macrocycles
+                - generic [ref=e125]: List Macrocycles
+            - generic "Copy to clipboard"
+            - button "get /api/fitness/macrocycles" [ref=e128]:
+              - img [ref=e129]
+          - generic [ref=e133] [cursor=pointer]:
+            - 'button "GET /api/fitness/macrocycle/{macrocycle_id} Get Macrocycle" [ref=e134]':
+              - generic [ref=e135]: GET
+              - generic [ref=e136]:
+                - 'link "/api/fitness/macrocycle/{macrocycle_id}" [ref=e138]':
+                  - /url: "#/健身计划/get_macrocycle_api_fitness_macrocycle__macrocycle_id__get"
+                  - generic [ref=e139]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /macrocycle
+                    - text: "/{macrocycle_id}"
+                - generic [ref=e140]: Get Macrocycle
+            - generic "Copy to clipboard"
+            - 'button "get /api/fitness/macrocycle/{macrocycle_id}" [ref=e143]':
+              - img [ref=e144]
+          - generic [ref=e148] [cursor=pointer]:
+            - button "POST /api/fitness/checkin Checkin" [ref=e149]:
+              - generic [ref=e150]: POST
+              - generic [ref=e151]:
+                - link "/api/fitness/checkin" [ref=e153]:
+                  - /url: "#/健身计划/checkin_api_fitness_checkin_post"
+                  - generic [ref=e154]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /checkin
+                - generic [ref=e155]: Checkin
+            - generic "Copy to clipboard"
+            - button "post /api/fitness/checkin" [ref=e158]:
+              - img [ref=e159]
+          - generic [ref=e163] [cursor=pointer]:
+            - button "GET /api/fitness/current-state Get Current State" [ref=e164]:
+              - generic [ref=e165]: GET
+              - generic [ref=e166]:
+                - link "/api/fitness/current-state" [ref=e168]:
+                  - /url: "#/健身计划/get_current_state_api_fitness_current_state_get"
+                  - generic [ref=e169]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /current-state
+                - generic [ref=e170]: Get Current State
+            - generic "Copy to clipboard"
+            - button "get /api/fitness/current-state" [ref=e173]:
+              - img [ref=e174]
+          - generic [ref=e178] [cursor=pointer]:
+            - button "PUT /api/fitness/current-state Update Current State" [ref=e179]:
+              - generic [ref=e180]: PUT
+              - generic [ref=e181]:
+                - link "/api/fitness/current-state" [ref=e183]:
+                  - /url: "#/健身计划/update_current_state_api_fitness_current_state_put"
+                  - generic [ref=e184]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /current-state
+                - generic [ref=e185]: Update Current State
+            - generic "Copy to clipboard"
+            - button "put /api/fitness/current-state" [ref=e188]:
+              - img [ref=e189]
+          - generic [ref=e193] [cursor=pointer]:
+            - button "GET /api/fitness/plans Get Plans" [ref=e194]:
+              - generic [ref=e195]: GET
+              - generic [ref=e196]:
+                - link "/api/fitness/plans" [ref=e198]:
+                  - /url: "#/健身计划/get_plans_api_fitness_plans_get"
+                  - generic [ref=e199]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /plans
+                - generic [ref=e200]: Get Plans
+            - generic "Copy to clipboard"
+            - button "get /api/fitness/plans" [ref=e203]:
+              - img [ref=e204]
+          - generic [ref=e208] [cursor=pointer]:
+            - 'button "GET /api/fitness/plan/{plan_id} Get Plan" [ref=e209]':
+              - generic [ref=e210]: GET
+              - generic [ref=e211]:
+                - 'link "/api/fitness/plan/{plan_id}" [ref=e213]':
+                  - /url: "#/健身计划/get_plan_api_fitness_plan__plan_id__get"
+                  - generic [ref=e214]:
+                    - text: /api
+                    - text: /fitness
+                    - text: /plan
+                    - text: "/{plan_id}"
+                - generic [ref=e215]: Get Plan
+            - generic "Copy to clipboard"
+            - 'button "get /api/fitness/plan/{plan_id}" [ref=e218]':
+              - img [ref=e219]
+      - generic [ref=e222]:
+        - heading "wger 代理 Collapse operation" [level=3] [ref=e223] [cursor=pointer]:
+          - link "wger 代理" [ref=e224]:
+            - /url: "#/wger%20代理"
+          - button "Collapse operation" [expanded] [ref=e225]:
+            - img [ref=e226]
+        - generic [ref=e232] [cursor=pointer]:
+          - 'button "GET /api/wger/exercise/{wger_id} Get Exercise Detail" [ref=e233]':
+            - generic [ref=e234]: GET
+            - generic [ref=e235]:
+              - 'link "/api/wger/exercise/{wger_id}" [ref=e237]':
+                - /url: "#/wger%20代理/get_exercise_detail_api_wger_exercise__wger_id__get"
+                - generic [ref=e238]:
+                  - text: /api
+                  - text: /wger
+                  - text: /exercise
+                  - text: "/{wger_id}"
+              - generic [ref=e239]: Get Exercise Detail
+          - generic "Copy to clipboard"
+          - 'button "get /api/wger/exercise/{wger_id}" [ref=e242]':
+            - img [ref=e243]
+      - generic [ref=e246]:
+        - heading "default Collapse operation" [level=3] [ref=e247] [cursor=pointer]:
+          - link "default" [ref=e248]:
+            - /url: "#/default"
+          - button "Collapse operation" [expanded] [ref=e249]:
+            - img [ref=e250]
+        - generic [ref=e253]:
+          - generic [ref=e256] [cursor=pointer]:
+            - button "GET / Root" [ref=e257]:
+              - generic [ref=e258]: GET
+              - generic [ref=e259]:
+                - link / [ref=e261]:
+                  - /url: "#/default/root__get"
+                - generic [ref=e262]: Root
+            - generic "Copy to clipboard"
+            - button "get /" [ref=e265]:
+              - img [ref=e266]
+          - generic [ref=e270] [cursor=pointer]:
+            - button "GET /health Health" [ref=e271]:
+              - generic [ref=e272]: GET
+              - generic [ref=e273]:
+                - link "/health" [ref=e275]:
+                  - /url: "#/default/health_health_get"
+                - generic [ref=e276]: Health
+            - generic "Copy to clipboard"
+            - button "get /health" [ref=e279]:
+              - img [ref=e280]
+    - generic [ref=e284]:
+      - heading "Schemas" [level=4] [ref=e285] [cursor=pointer]:
+        - button "Schemas" [expanded] [ref=e286]:
+          - generic [ref=e287]: Schemas
+          - img [ref=e288]
+      - generic [ref=e290]:
+        - article [ref=e291]:
+          - generic [ref=e292]:
+            - button "DayCheckin" [ref=e293] [cursor=pointer]:
+              - generic [ref=e295]: DayCheckin
+              - img [ref=e297]
+            - button "Expand all" [ref=e299] [cursor=pointer]
+            - strong [ref=e300]: object
+        - article [ref=e301]:
+          - generic [ref=e302]:
+            - button "ExerciseSlotCheckin" [ref=e303] [cursor=pointer]:
+              - generic [ref=e305]: ExerciseSlotCheckin
+              - img [ref=e307]
+            - button "Expand all" [ref=e309] [cursor=pointer]
+            - strong [ref=e310]: object
+        - article [ref=e311]:
+          - generic [ref=e312]:
+            - button "HTTPValidationError" [ref=e313] [cursor=pointer]:
+              - generic [ref=e315]: HTTPValidationError
+              - img [ref=e317]
+            - button "Expand all" [ref=e319] [cursor=pointer]
+            - strong [ref=e320]: object
+        - article [ref=e321]:
+          - generic [ref=e322]:
+            - button "InitPlanRequest" [ref=e323] [cursor=pointer]:
+              - generic [ref=e325]: InitPlanRequest
+              - img [ref=e327]
+            - button "Expand all" [ref=e329] [cursor=pointer]
+            - strong [ref=e330]: object
+        - article [ref=e331]:
+          - generic [ref=e332]:
+            - button "UserCurrentStateUpdate" [ref=e333] [cursor=pointer]:
+              - generic [ref=e335]: UserCurrentStateUpdate
+              - img [ref=e337]
+            - button "Expand all" [ref=e339] [cursor=pointer]
+            - strong [ref=e340]: object
+        - article [ref=e341]:
+          - generic [ref=e342]:
+            - button "UserProfile" [ref=e343] [cursor=pointer]:
+              - generic [ref=e345]: UserProfile
+              - img [ref=e347]
+            - button "Expand all" [ref=e349] [cursor=pointer]
+            - strong [ref=e350]: object
+        - article [ref=e351]:
+          - generic [ref=e352]:
+            - button "UserProfileResponse" [ref=e353] [cursor=pointer]:
+              - generic [ref=e355]: UserProfileResponse
+              - img [ref=e357]
+            - button "Expand all" [ref=e359] [cursor=pointer]
+            - strong [ref=e360]: object
+        - article [ref=e361]:
+          - generic [ref=e362]:
+            - button "ValidationError" [ref=e363] [cursor=pointer]:
+              - generic [ref=e365]: ValidationError
+              - img [ref=e367]
+            - button "Expand all" [ref=e369] [cursor=pointer]
+            - strong [ref=e370]: object

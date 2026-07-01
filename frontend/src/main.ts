@@ -5,16 +5,18 @@ import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 import App from './App.vue'
 
-import OnboardingGuide from './views/OnboardingGuide.vue'
+import SetupWizard from './views/SetupWizard.vue'
 import MainPage from './views/MainPage.vue'
 import ProfilePage from './views/ProfilePage.vue'
+import GeneratingPlan from './views/GeneratingPlan.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'Onboarding', component: OnboardingGuide },
+    { path: '/', name: 'Setup', component: SetupWizard },
     { path: '/home', name: 'Home', component: MainPage },
     { path: '/profile', name: 'Profile', component: ProfilePage },
+    { path: '/generating', name: 'Generating', component: GeneratingPlan },
     // 旧路由重定向
     { path: '/calendar', redirect: '/home' },
     { path: '/checklist', redirect: '/home' },

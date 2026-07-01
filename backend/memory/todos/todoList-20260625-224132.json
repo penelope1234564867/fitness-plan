@@ -1,0 +1,36 @@
+{
+  "summary": "为新手减脂居家用户设计3天训练计划",
+  "todos": [
+    {
+      "content": "查询 wger 分类和肌群信息",
+      "status": "in_progress",
+      "created_at": "2026-06-25T22:41:32.341143",
+      "updated_at": "2026-06-25T22:41:32.341143"
+    },
+    {
+      "content": "搜索全身各肌群的自重/居家训练动作",
+      "status": "pending",
+      "created_at": "2026-06-25T22:41:32.341143",
+      "updated_at": "2026-06-25T22:41:32.341143"
+    },
+    {
+      "content": "设计3天训练计划（每天4-6个动作）",
+      "status": "pending",
+      "created_at": "2026-06-25T22:41:32.341143",
+      "updated_at": "2026-06-25T22:41:32.341143"
+    },
+    {
+      "content": "输出最终JSON结果",
+      "status": "pending",
+      "created_at": "2026-06-25T22:41:32.341143",
+      "updated_at": "2026-06-25T22:41:32.341143"
+    }
+  ],
+  "created_at": "2026-06-25T22:41:32.341143",
+  "stats": {
+    "total": 4,
+    "completed": 0,
+    "in_progress": 1,
+    "pending": 3
+  }
+}

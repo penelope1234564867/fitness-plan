@@ -1,17 +1,34 @@
 # Fitness Plan 🏋️
 
-基于多智能体架构和 wger MCP 集成的 AI 健身计划生成器。
+AI 健身计划生成器 — 基于 HelloAgents 框架 + wger MCP 集成 + Vue 3 前端。
 
-多 AI Agent 协作，根据用户目标、经验水平和偏好生成个性化训练计划。
+多 Agent 协作，根据用户目标、经验水平和偏好生成个性化训练计划。
 
-## 架构
+## 技术栈
 
-- **ExerciseAgent** (ReActAgent) — 从 wger 数据库搜索真实训练动作
-- **DietAgent** (SimpleAgent) — 生成饮食建议
-- **ScheduleAgent** (ReActAgent) — 查询天气并编排训练日程
-- **TrainerAgent** (SimpleAgent) — 汇总所有输出为完整计划
-- **PlanReviewAgent** (ReflectionAgent) — 自我审查并优化计划
+| 层 | 技术 |
+|---|---|
+| 后端 | Python FastAPI + HelloAgents + SQLAlchemy/SQLite |
+| 前端 | Vue 3 + TypeScript + Pinia + Vite + Ant Design Vue |
+| 健身数据 | wger (开源健身数据库 MCP 服务) |
+| LLM | OpenAI 兼容 API |
+
+## 快速开始
+
+```bash
+# 后端
+cd backend && python run.py
+# → http://localhost:8000 （Swagger: /docs）
+
+# 前端（另开终端）
+cd frontend && npm run dev
+# → http://localhost:5173
+```
+
+## 项目结构
+
+详见 [CLAUDE.md](CLAUDE.md)（项目级上下文，Claude Code 启动时自动加载）
 
 ## 状态
 
-🚧 项目正在积极开发中。参见 [0-docs/plan.md](0-docs/plan.md) 了解当前进度。
+🚧 开发中。当前基于健身科学引擎（渐进超负荷/动作轮换/中周期管理）+ 单界面日历模式。

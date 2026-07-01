@@ -1,0 +1,48 @@
+{
+  "summary": "",
+  "todos": [
+    {
+      "content": "查询wger数据库的肌群和分类信息",
+      "status": "completed",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    },
+    {
+      "content": "Day 1: 胸+三头 - 搜索相关动作",
+      "status": "completed",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    },
+    {
+      "content": "Day 2: 背+二头 - 搜索相关动作",
+      "status": "completed",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    },
+    {
+      "content": "Day 3: 腿+肩 - 搜索相关动作",
+      "status": "in_progress",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    },
+    {
+      "content": "Day 4: 全身循环+核心 - 搜索相关动作",
+      "status": "pending",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    },
+    {
+      "content": "整合最终JSON结果",
+      "status": "pending",
+      "created_at": "2026-06-25T22:51:39.499056",
+      "updated_at": "2026-06-25T22:51:39.499056"
+    }
+  ],
+  "created_at": "2026-06-25T22:51:39.499056",
+  "stats": {
+    "total": 6,
+    "completed": 3,
+    "in_progress": 1,
+    "pending": 2
+  }
+}
