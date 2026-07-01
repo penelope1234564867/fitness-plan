@@ -63,8 +63,15 @@ function attachHoverListeners() {
     ;(path as any)._muscleHoverAttached = true
 
     path.style.cursor = 'pointer'
+    // 保存原始 fill/opacity，mouseleave 时恢复
+    ;(path as any)._originalFill = path.style.fill
+    ;(path as any)._originalOpacity = path.style.opacity || '1'
+
     path.addEventListener('mouseenter', () => {
       hoveredMuscle.value = MUSCLE_NAME_CN[id]
+      // 高亮为淡紫色，全不透明
+      path.style.fill = '#e1bee7'
+      path.style.opacity = '1'
     })
     path.addEventListener('mousemove', (e: MouseEvent) => {
       const rect = container.getBoundingClientRect()
@@ -73,6 +80,9 @@ function attachHoverListeners() {
     })
     path.addEventListener('mouseleave', () => {
       hoveredMuscle.value = ''
+      // 恢复原始颜色
+      path.style.fill = (path as any)._originalFill
+      path.style.opacity = (path as any)._originalOpacity
     })
   })
 }
