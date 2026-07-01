@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <!-- 未 onboarding 时：全屏三步走 -->
+    <!-- 全屏模式（向导页/生成页） -->
     <router-view v-if="!showLayout" />
 
     <!-- 已 onboarding：固定 header + 内容切换 -->

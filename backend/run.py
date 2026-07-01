@@ -11,6 +11,7 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=True,
+        reload_excludes=["**/__pycache__/**", "**/memory/**", "*.db", "*.log"],
         log_level=settings.log_level.lower()
     )
 

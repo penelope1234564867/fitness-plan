@@ -2,10 +2,10 @@
   <div class="calendar-panel">
     <!-- 月份导航 -->
     <div class="month-nav">
-      <a-button class="nav-btn" @click="workoutStore.prevMonth()">‹</a-button>
-      <h3 class="month-title">{{ workoutStore.monthLabel }}</h3>
-      <a-button class="nav-btn" @click="workoutStore.nextMonth()">›</a-button>
-      <a-button class="today-btn" size="small" @click="goToToday">今天</a-button>
+      <button class="nav-btn" @click="prevMonth">‹</button>
+      <h3 class="month-title">{{ monthLabel }}</h3>
+      <button class="nav-btn" @click="nextMonth">›</button>
+      <button class="today-btn" @click="goToToday">今天</button>
     </div>
 
     <!-- 星期头 -->
@@ -15,14 +15,14 @@
 
     <!-- 日历格 -->
     <div class="calendar-grid">
-      <div v-for="i in workoutStore.firstDayOfWeek" :key="'empty-' + i" class="day-placeholder"></div>
+      <div v-for="i in firstDayOfWeek" :key="'empty-' + i" class="day-placeholder"></div>
       <DayCell
-        v-for="d in workoutStore.daysInMonth"
+        v-for="d in daysInMonth"
         :key="d"
         :day="d"
         :date="formatDate(d)"
         :is-today="formatDate(d) === todayStr"
-        :status="getDayStatus(formatDate(d))"
+        :status="getCellStatus(formatDate(d))"
         :focus-icon="getFocusIcon(formatDate(d))"
         :focus-label="getFocusLabel(formatDate(d))"
         @click="onDayClick"
@@ -32,16 +32,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useWorkoutStore } from '@/stores/workout'
+import { ref, computed, watch } from 'vue'
+import { useCycleStore } from '@/stores/cycle'
 import DayCell from './DayCell.vue'
 import dayjs from 'dayjs'
+import type { DayStatus } from '@/types'
 
 const emit = defineEmits<{ select: [date: string] }>()
-const workoutStore = useWorkoutStore()
+const cycleStore = useCycleStore()
 
 const weekdays = ['日', '一', '二', '三', '四', '五', '六']
 const todayStr = dayjs().format('YYYY-MM-DD')
+
+const currentMonth = ref(dayjs().format('YYYY-MM'))
 
 const focusIcons: Record<string, string> = {
   '胸部': '🏋️', '背部': '🏋️', '腿部': '🦵', '肩部': '🏋️',
@@ -49,38 +52,60 @@ const focusIcons: Record<string, string> = {
   '上肢': '💪', '下肢': '🦵', '核心': '🔥',
 }
 
-function formatDate(day: number) {
-  return `${workoutStore.currentMonth}-${String(day).padStart(2, '0')}`
+const monthLabel = computed(() => dayjs(currentMonth.value).format('YYYY年M月'))
+const daysInMonth = computed(() => dayjs(currentMonth.value).daysInMonth())
+const firstDayOfWeek = computed(() => dayjs(currentMonth.value + '-01').day())
+
+// 翻月时自动获取日历数据
+watch(currentMonth, (month) => {
+  const monthStart = dayjs(month + '-01').format('YYYY-MM-DD')
+  const monthEnd = dayjs(month + '-01').endOf('month').format('YYYY-MM-DD')
+  cycleStore.fetchCalendarData(monthStart, monthEnd)
+}, { immediate: true })
+
+/** 从 calendarEntries 找该日期对应的 CalendarEntry */
+function getEntry(date: string) {
+  return cycleStore.calendarEntries.get(date) ?? null
 }
 
-function getDayStatus(date: string) {
-  return workoutStore.getDayStatus(date)
+function formatDate(day: number) {
+  return `${currentMonth.value}-${String(day).padStart(2, '0')}`
+}
+
+function getCellStatus(date: string): DayStatus {
+  const entry = getEntry(date)
+  if (!entry || !entry.has_plan) return 'pending'
+  if (date > todayStr && entry.day_status !== 'completed') return 'future'
+  if (entry.day_status === 'completed') return 'completed'
+  return 'pending'
 }
 
 function getFocusIcon(date: string): string | undefined {
-  const plan = workoutStore.getDayPlan(date)
-  if (!plan || plan.isRestDay) return undefined
+  const entry = getEntry(date)
+  if (!entry || !entry.has_plan || !entry.focus) return undefined
   for (const [key, icon] of Object.entries(focusIcons)) {
-    if (plan.focusArea.includes(key)) return icon
+    if (entry.focus.includes(key)) return icon
   }
   return '💪'
 }
 
 function getFocusLabel(date: string): string | undefined {
-  const plan = workoutStore.getDayPlan(date)
-  if (!plan || plan.isRestDay) return undefined
-  return plan.focusArea
+  return getEntry(date)?.focus || undefined
 }
 
 function onDayClick(date: string) {
-  const plan = workoutStore.getDayPlan(date)
-  if (plan) {
-    emit('select', date)
-  }
+  const entry = getEntry(date)
+  if (entry?.has_plan) emit('select', date)
 }
 
+function prevMonth() {
+  currentMonth.value = dayjs(currentMonth.value).subtract(1, 'month').format('YYYY-MM')
+}
+function nextMonth() {
+  currentMonth.value = dayjs(currentMonth.value).add(1, 'month').format('YYYY-MM')
+}
 function goToToday() {
-  workoutStore.goToToday()
+  currentMonth.value = dayjs().format('YYYY-MM')
   emit('select', todayStr)
 }
 </script>
@@ -106,11 +131,12 @@ function goToToday() {
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%; font-size: 16px; font-weight: 700;
   border: 1px solid #e8e8e8; background: #fff;
-  cursor: pointer; transition: all 0.2s; padding: 0;
+  cursor: pointer; transition: all 0.2s; padding: 0; line-height: 1;
 }
 .nav-btn:hover { border-color: #f97316; color: #f97316; }
 .month-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0; min-width: 100px; text-align: center; }
-.today-btn { margin-left: 4px; border-radius: 10px; font-size: 12px; height: 26px; padding: 0 10px; }
+.today-btn { margin-left: 4px; border-radius: 10px; font-size: 12px; height: 26px; padding: 0 10px; border: 1px solid #e8e8e8; background: #fff; cursor: pointer; }
+.today-btn:hover { border-color: #f97316; color: #f97316; }
 
 .weekday-header {
   display: grid;

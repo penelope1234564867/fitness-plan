@@ -1,0 +1,42 @@
+{
+  "summary": "",
+  "todos": [
+    {
+      "content": "查询wger分类和肌群信息",
+      "status": "in_progress",
+      "created_at": "2026-06-25T22:32:04.551878",
+      "updated_at": "2026-06-25T22:32:04.551878"
+    },
+    {
+      "content": "Day1: 胸+三头+核心 - 搜索动作",
+      "status": "pending",
+      "created_at": "2026-06-25T22:32:04.551878",
+      "updated_at": "2026-06-25T22:32:04.551878"
+    },
+    {
+      "content": "Day2: 腿+肩 - 搜索动作",
+      "status": "pending",
+      "created_at": "2026-06-25T22:32:04.551878",
+      "updated_at": "2026-06-25T22:32:04.551878"
+    },
+    {
+      "content": "Day3: 背+二头+核心 - 搜索动作",
+      "status": "pending",
+      "created_at": "2026-06-25T22:32:04.551878",
+      "updated_at": "2026-06-25T22:32:04.551878"
+    },
+    {
+      "content": "整理并输出完整训练计划JSON",
+      "status": "pending",
+      "created_at": "2026-06-25T22:32:04.551878",
+      "updated_at": "2026-06-25T22:32:04.551878"
+    }
+  ],
+  "created_at": "2026-06-25T22:32:04.551878",
+  "stats": {
+    "total": 5,
+    "completed": 0,
+    "in_progress": 1,
+    "pending": 4
+  }
+}

@@ -7,19 +7,13 @@
     </div>
 
     <!-- 没有计划 -->
-    <div v-else-if="!plan && !loading" class="empty-state">
+    <div v-else-if="!dayPlan" class="empty-state">
       <span class="empty-icon">📭</span>
       <p>{{ dateStr }} 没有训练计划</p>
     </div>
 
-    <!-- 加载中 -->
-    <div v-else-if="loading" class="loading-state">
-      <a-spin size="large" />
-      <p>加载中...</p>
-    </div>
-
     <!-- 休息日 -->
-    <div v-else-if="plan?.isRestDay" class="rest-day">
+    <div v-else-if="isRestDay" class="rest-day">
       <span class="rest-icon">🎉</span>
       <h2>休息日</h2>
       <p>好好恢复，下次训练效果更好</p>
@@ -33,85 +27,124 @@
     </div>
 
     <!-- 计划内容 -->
-    <div v-else-if="plan" class="plan-content">
+    <div v-else class="plan-content">
       <!-- 日期头部 -->
       <div class="plan-header">
         <h2 class="date-title">{{ dateTitle }}</h2>
-        <span class="focus-tag">{{ plan.focusArea }}</span>
-      </div>
-
-      <!-- 进度条 -->
-      <div class="progress-section">
-        <a-progress
-          :percent="progressPercent"
-          :stroke-color="progressPercent >= 100 ? '#22c55e' : '#f97316'"
-          :stroke-width="8"
-          :format="() => `${doneCount}/${totalCount}`"
-        />
-        <p v-if="progressPercent >= 100" class="complete-text">🎉 全部完成！</p>
+        <span class="focus-tag">{{ dayPlan.focus }}</span>
       </div>
 
       <!-- 训练区块 -->
-      <div v-for="(section, si) in plan.sections" :key="si" class="section-block">
-        <h3 class="section-title">{{ section.label }}</h3>
+      <div v-if="dayPlan.warmup.length" class="section-block">
+        <h3 class="section-title">🔥 热身</h3>
         <div class="exercise-list">
           <ExerciseRow
-            v-for="(ex, ei) in section.exercises"
-            :key="ei"
+            v-for="(ex) in dayPlan.warmup"
+            :key="ex.id"
             :exercise="ex"
-            @toggle="handleToggle(si, ei)"
-            @too-heavy="handleTooHeavy(si, ei)"
-            @show-detail="openDrawer(si, ei)"
+            @toggle="workoutStore.toggleExercise(ex.id)"
           />
         </div>
       </div>
+
+      <div v-if="dayPlan.main.length" class="section-block">
+        <h3 class="section-title">💪 主训练</h3>
+        <div class="exercise-list">
+          <ExerciseRow
+            v-for="(ex) in dayPlan.main"
+            :key="ex.id"
+            :exercise="ex"
+            @toggle="workoutStore.toggleExercise(ex.id)"
+            @set-rpe-quick="(v) => workoutStore.setRPEQuick(ex.id, v)"
+            @show-detail="openDrawer(ex)"
+          />
+        </div>
+      </div>
+
+      <div v-if="dayPlan.cardio" class="section-block">
+        <h3 class="section-title">🏃 有氧收尾</h3>
+        <div class="exercise-list">
+          <ExerciseRow :exercise="dayPlan.cardio" @toggle="workoutStore.toggleExercise(dayPlan.cardio!.id)" />
+        </div>
+      </div>
+
+      <div v-if="dayPlan.stretch.length" class="section-block">
+        <h3 class="section-title">🧘 拉伸</h3>
+        <div class="exercise-list">
+          <ExerciseRow
+            v-for="(ex) in dayPlan.stretch"
+            :key="ex.id"
+            :exercise="ex"
+            @toggle="workoutStore.toggleExercise(ex.id)"
+          />
+        </div>
+      </div>
+
+      <!-- RPE 说明 -->
+      <div class="rpe-hint">
+        <span class="rpe-hint-icon">ℹ️</span>
+        <span class="rpe-hint-text">
+          😊 太轻松 → 加重量 &nbsp;|&nbsp; ✔ 正常完成 → 加次数 &nbsp;|&nbsp; 😰 太重了 → 减量
+        </span>
+      </div>
+
+      <!-- 提交打卡 -->
+      <button
+        class="checkin-btn"
+        :disabled="checkinLoading || noFeedback"
+        @click="handleCheckin"
+      >
+        {{ checkinLoading ? '⏳ 提交中...' : '📝 提交打卡' }}
+      </button>
+
+      <p v-if="noFeedback && !checkinLoading" class="checkin-hint">
+        请至少完成一个动作再提交
+      </p>
     </div>
 
-    <!-- 动作详情 Drawer -->
+    <!-- 错误提示 -->
+    <div v-if="error" class="error-msg">{{ error }}</div>
+
+    <!-- 动作详情抽屉（精细调整用） -->
     <ExerciseDrawer
+      v-if="drawerExercise"
       :visible="drawerVisible"
-      :exercise="drawerExercise"
+      :exercise="drawerExercise as any"
       @close="drawerVisible = false"
-      @toggle="handleDrawerToggle"
-      @too-heavy="handleDrawerTooHeavy"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Modal } from 'ant-design-vue'
 import { useWorkoutStore } from '@/stores/workout'
 import ExerciseRow from './ExerciseRow.vue'
 import ExerciseDrawer from './ExerciseDrawer.vue'
-import type { ExerciseState } from '@/types'
+import type { ExerciseSlot } from '@/types'
 import dayjs from 'dayjs'
 
 const props = defineProps<{ dateStr: string | null }>()
 const workoutStore = useWorkoutStore()
 const todayStr = dayjs().format('YYYY-MM-DD')
 
-// Drawer state
 const drawerVisible = ref(false)
-const drawerExercise = ref<ExerciseState | null>(null)
-const drawerSectionIdx = ref(-1)
-const drawerExerciseIdx = ref(-1)
+const drawerExercise = ref<ExerciseSlot | null>(null)
+const error = ref<string | null>(null)
 
-const loading = ref(false)
+// 设置 selectedDate 以驱动 workoutStore 通过 dayDetail API 获取数据
+watch(() => props.dateStr, (val) => {
+  workoutStore.selectedDate = val
+}, { immediate: true })
 
-const plan = computed(() => {
-  if (!props.dateStr) return undefined
-  const p = workoutStore.getDayPlan(props.dateStr)
-  if (p) {
-    workoutStore.restoreLocalState(props.dateStr)
-  }
-  return p
+const dayPlan = computed(() => workoutStore.currentDay)
+const dayDetail = computed(() => workoutStore.dayDetail)
+
+const isRestDay = computed(() => {
+  const dd = dayDetail.value
+  if (!dd) return false
+  return !dd.has_plan
 })
-
-const isFuture = computed(() => {
-  if (!props.dateStr) return false
-  return props.dateStr > todayStr
-})
+const isFuture = computed(() => !!props.dateStr && props.dateStr > todayStr)
 
 const dateTitle = computed(() => {
   if (!props.dateStr) return ''
@@ -120,86 +153,25 @@ const dateTitle = computed(() => {
   return `${d.format('M月D日')} ${weekdays[d.day()]}`
 })
 
-const totalCount = computed(() => {
-  if (!plan.value) return 0
-  return plan.value.sections.reduce((s, sec) => s + sec.exercises.length, 0)
+const checkinLoading = computed(() => workoutStore.checkinLoading)
+const noFeedback = computed(() => {
+  if (!dayPlan.value) return true
+  return !dayPlan.value.slots.some(s => s._completed || s._rpeQuick)
 })
 
-const doneCount = computed(() => {
-  if (!plan.value) return 0
-  return plan.value.sections.reduce((s, sec) => s + sec.exercises.filter(e => e.completed).length, 0)
-})
-
-const progressPercent = computed(() => {
-  if (totalCount.value === 0) return 0
-  return Math.round((doneCount.value / totalCount.value) * 100)
-})
-
-// 日期变化时关掉 drawer
-watch(() => props.dateStr, () => {
-  drawerVisible.value = false
-})
-
-function handleToggle(sectionIdx: number, exerciseIdx: number) {
-  if (!props.dateStr) return
-  workoutStore.toggleExercise(props.dateStr, sectionIdx, exerciseIdx)
-}
-
-function handleTooHeavy(sectionIdx: number, exerciseIdx: number) {
-  if (!props.dateStr) return
-  Modal.confirm({
-    title: '记录反馈',
-    content: '下次训练时减轻这个动作的重量？',
-    okText: '好的，下次减轻',
-    cancelText: '取消',
-    onOk: () => {
-      workoutStore.markTooHeavy(props.dateStr!, sectionIdx, exerciseIdx)
-    },
-  })
-}
-
-function openDrawer(sectionIdx: number, exerciseIdx: number) {
-  if (!plan.value) return
-  const ex = plan.value.sections[sectionIdx]?.exercises[exerciseIdx]
-  if (ex) {
-    drawerExercise.value = ex
-    drawerSectionIdx.value = sectionIdx
-    drawerExerciseIdx.value = exerciseIdx
-    drawerVisible.value = true
+async function handleCheckin() {
+  try {
+    error.value = null
+    await workoutStore.submitCheckin()
+  } catch (e: any) {
+    error.value = e.message || '打卡失败'
   }
 }
 
-function handleDrawerToggle() {
-  if (!props.dateStr) return
-  workoutStore.toggleExercise(props.dateStr, drawerSectionIdx.value, drawerExerciseIdx.value)
-  // 更新当前 exercise 引用
-  const ex = plan.value?.sections[drawerSectionIdx.value]?.exercises[drawerExerciseIdx.value]
-  if (ex) drawerExercise.value = { ...ex }
+function openDrawer(ex: ExerciseSlot) {
+  drawerExercise.value = ex
+  drawerVisible.value = true
 }
-
-function handleDrawerTooHeavy() {
-  if (!props.dateStr) return
-  workoutStore.markTooHeavy(props.dateStr, drawerSectionIdx.value, drawerExerciseIdx.value)
-  const ex = plan.value?.sections[drawerSectionIdx.value]?.exercises[drawerExerciseIdx.value]
-  if (ex) drawerExercise.value = { ...ex }
-}
-
-// 有 dateStr 但没有 plan 时尝试加载
-watch(() => props.dateStr, async (newDate) => {
-  if (!newDate) return
-  const p = workoutStore.getDayPlan(newDate)
-  if (!p && !isFuture.value) {
-    const planId = localStorage.getItem('fitness_current_plan_id')
-    if (planId) {
-      loading.value = true
-      try {
-        await workoutStore.fetchPlan(Number(planId))
-      } catch { /* ignore */ } finally {
-        loading.value = false
-      }
-    }
-  }
-}, { immediate: true })
 </script>
 
 <style scoped>
@@ -215,7 +187,7 @@ watch(() => props.dateStr, async (newDate) => {
   overflow-y: auto;
 }
 
-.empty-state, .loading-state {
+.empty-state {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -226,7 +198,6 @@ watch(() => props.dateStr, async (newDate) => {
 }
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; margin: 0; }
-.loading-state p { margin-top: 12px; color: #999; }
 
 .rest-day, .future-day {
   flex: 1;
@@ -244,7 +215,7 @@ watch(() => props.dateStr, async (newDate) => {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .date-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0; }
 .focus-tag {
@@ -253,22 +224,41 @@ watch(() => props.dateStr, async (newDate) => {
   font-size: 12px; font-weight: 600;
 }
 
-.progress-section { margin-bottom: 18px; }
-.complete-text {
-  text-align: center; font-size: 16px; font-weight: 700;
-  color: #22c55e; margin-top: 8px;
-  animation: bounce 0.5s ease-out;
-}
-@keyframes bounce {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.section-block { margin-bottom: 16px; }
+.section-block { margin-bottom: 14px; }
 .section-title {
-  font-size: 15px; font-weight: 700; color: #444;
-  margin: 0 0 6px 12px;
+  font-size: 14px; font-weight: 700; color: #555;
+  margin: 0 0 6px 4px;
 }
-.exercise-list { display: flex; flex-direction: column; gap: 5px; }
+.exercise-list { display: flex; flex-direction: column; gap: 4px; }
+
+.rpe-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 8px 0 12px;
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
+}
+.rpe-hint-icon { font-size: 14px; flex-shrink: 0; }
+
+.checkin-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff;
+  transition: all 0.2s;
+}
+.checkin-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.35); transform: translateY(-1px); }
+.checkin-btn:disabled { background: #d9d9d9; color: #999; cursor: not-allowed; }
+.checkin-hint { text-align: center; font-size: 12px; color: #999; margin: 6px 0 0; }
+.error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 8px; }
 </style>

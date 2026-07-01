@@ -1,0 +1,42 @@
+{
+  "summary": "为减脂新手设计3天健身房训练计划",
+  "todos": [
+    {
+      "content": "获取肌群和分类信息",
+      "status": "in_progress",
+      "created_at": "2026-06-25T18:18:36.498575",
+      "updated_at": "2026-06-25T18:18:36.498575"
+    },
+    {
+      "content": "第1天：胸+三头 - 搜索相关动作",
+      "status": "pending",
+      "created_at": "2026-06-25T18:18:36.498575",
+      "updated_at": "2026-06-25T18:18:36.498575"
+    },
+    {
+      "content": "第2天：背+二头 - 搜索相关动作",
+      "status": "pending",
+      "created_at": "2026-06-25T18:18:36.498575",
+      "updated_at": "2026-06-25T18:18:36.498575"
+    },
+    {
+      "content": "第3天：腿+肩+腹肌 - 搜索相关动作",
+      "status": "pending",
+      "created_at": "2026-06-25T18:18:36.498575",
+      "updated_at": "2026-06-25T18:18:36.498575"
+    },
+    {
+      "content": "汇总输出最终JSON结果",
+      "status": "pending",
+      "created_at": "2026-06-25T18:18:36.498575",
+      "updated_at": "2026-06-25T18:18:36.498575"
+    }
+  ],
+  "created_at": "2026-06-25T18:18:36.498575",
+  "stats": {
+    "total": 5,
+    "completed": 0,
+    "in_progress": 1,
+    "pending": 4
+  }
+}

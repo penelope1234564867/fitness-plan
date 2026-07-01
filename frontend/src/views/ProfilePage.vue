@@ -8,9 +8,9 @@
     </h2>
     <p class="profile-goal">{{ userStore.profile?.goal || '未设置' }}</p>
 
-    <a-divider />
+    <hr class="divider" />
 
-    <!-- 信息列表 -->
+    <!-- 基本信息：查看模式 -->
     <div v-if="!editing" class="info-list">
       <div class="info-row">
         <span class="info-label">身高</span>
@@ -32,102 +32,118 @@
         <span class="info-label">目标</span>
         <span class="info-value">{{ profileData.goal || '-' }}</span>
       </div>
+
+      <button class="edit-btn" @click="startEditing">✏️ 编辑个人信息</button>
     </div>
 
-    <!-- 编辑模式 -->
-    <a-form v-else layout="vertical" class="edit-form">
-      <a-row :gutter="12">
-        <a-col :span="12">
-          <a-form-item label="身高 (cm)">
-            <a-input-number v-model:value="editData.height" :min="100" :max="250" style="width: 100%" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="体重 (kg)">
-            <a-input-number v-model:value="editData.weight" :min="30" :max="250" style="width: 100%" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="12">
-        <a-col :span="12">
-          <a-form-item label="年龄">
-            <a-input-number v-model:value="editData.age" :min="10" :max="100" style="width: 100%" />
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="性别">
-            <a-select v-model:value="editData.gender" style="width: 100%">
-              <a-select-option value="male">男</a-select-option>
-              <a-select-option value="female">女</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-form-item label="目标">
-        <a-select v-model:value="editData.goal" style="width: 100%">
-          <a-select-option value="减脂">🔥 减脂</a-select-option>
-          <a-select-option value="增肌">💪 增肌</a-select-option>
-          <a-select-option value="塑形">✨ 塑形</a-select-option>
-          <a-select-option value="保持健康">🌿 保持健康</a-select-option>
-        </a-select>
-      </a-form-item>
-    </a-form>
+    <!-- 基本信息：编辑模式 -->
+    <div v-else class="edit-form">
+      <h3 class="section-title">✏️ 编辑个人信息</h3>
+      <p class="section-hint">💡 修改后将用于下次生成计划</p>
 
-    <div class="profile-actions">
-      <a-button v-if="!editing" type="primary" block size="large" @click="startEdit">
-        ✏️ 编辑资料
-      </a-button>
-      <template v-else>
-        <a-button type="primary" block size="large" :loading="saving" @click="saveEdit">
-          💾 保存
-        </a-button>
-        <a-button block size="large" style="margin-top: 8px;" @click="cancelEdit">
-          取消
-        </a-button>
-      </template>
-    </div>
-
-    <a-divider />
-
-    <a-button block size="large" class="regenerate-btn" :loading="regenerating" @click="onRegenerate">
-      🔄 重新生成计划
-    </a-button>
-
-    <div v-if="hasStats" class="stats-section">
-      <a-divider />
-      <h3 class="stats-title">📊 训练统计</h3>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value">{{ userStore.stats.totalWorkoutDays }}</span>
-          <span class="stat-label">总训练天数</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ userStore.stats.currentStreak }}</span>
-          <span class="stat-label">连续天数</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ userStore.stats.monthlyDone }}/{{ userStore.stats.monthlyTotal }}</span>
-          <span class="stat-label">本月完成</span>
+      <div class="edit-row">
+        <span class="info-label">身高 (cm)</span>
+        <input v-model.number="editData.height" type="number" min="100" max="250" class="edit-input" placeholder="165" />
+      </div>
+      <div class="edit-row">
+        <span class="info-label">体重 (kg)</span>
+        <input v-model.number="editData.weight" type="number" min="30" max="250" class="edit-input" placeholder="65" />
+      </div>
+      <div class="edit-row">
+        <span class="info-label">年龄</span>
+        <input v-model.number="editData.age" type="number" min="10" max="100" class="edit-input" placeholder="25" />
+      </div>
+      <div class="edit-row">
+        <span class="info-label">性别</span>
+        <div class="gender-group">
+          <button
+            class="gender-btn"
+            :class="{ active: editData.gender === 'male' }"
+            @click="editData.gender = 'male'"
+          >♂ 男</button>
+          <button
+            class="gender-btn"
+            :class="{ active: editData.gender === 'female' }"
+            @click="editData.gender = 'female'"
+          >♀ 女</button>
         </div>
       </div>
+
+      <div class="edit-actions">
+        <button class="cancel-btn" @click="cancelEditing">取消</button>
+        <button class="save-btn" :disabled="saving" @click="handleSaveProfile">
+          {{ saving ? '⏳ 保存中...' : '💾 保存' }}
+        </button>
+      </div>
     </div>
+
+    <!-- 当前训练状态 -->
+    <div class="state-section">
+      <h3 class="section-title">⚙️ 当前训练状态</h3>
+      <p class="section-hint">💡 修改后将在下周生成时生效</p>
+
+      <div class="state-row">
+        <span class="info-label">经验等级</span>
+        <select v-model="stateData.experience_level" class="state-select">
+          <option value="新手">🌱 新手</option>
+          <option value="中级">💪 中级</option>
+          <option value="高级">🔥 高级</option>
+        </select>
+      </div>
+
+      <div class="state-row">
+        <span class="info-label">训练地点</span>
+        <select v-model="stateData.workout_location" class="state-select">
+          <option value="居家">🏠 居家</option>
+          <option value="健身房">🏋️ 健身房</option>
+          <option value="户外">🌳 户外</option>
+        </select>
+      </div>
+
+      <div class="state-row">
+        <span class="info-label">训练日</span>
+        <div class="day-picker-sm">
+          <span
+            v-for="d in dayOptions"
+            :key="d.value"
+            class="day-chip-sm"
+            :class="{ active: stateData.preferredDays.includes(String(d.value)) }"
+            @click="toggleDay(d.value)"
+          >{{ d.label }}</span>
+        </div>
+      </div>
+      <p class="day-count-sm">每周 {{ stateData.preferredDays.split(',').filter(Boolean).length }} 天</p>
+
+      <button class="save-state-btn" :disabled="stateSaving" @click="handleSaveState">
+        {{ stateSaving ? '⏳ 保存中...' : '💾 保存训练状态' }}
+      </button>
+    </div>
+
+    <hr class="divider" />
+
+    <button class="regenerate-btn" @click="onRegenerate">
+      🔄 重新生成计划
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { useWorkoutStore } from '@/stores/workout'
+import { createOrUpdateProfile } from '@/services/api'
 
 const router = useRouter()
 const userStore = useUserStore()
-const workoutStore = useWorkoutStore()
 
 const editing = ref(false)
 const saving = ref(false)
-const regenerating = ref(false)
+const stateSaving = ref(false)
+
+const dayOptions = [
+  { value: 1, label: '一' }, { value: 2, label: '二' }, { value: 3, label: '三' },
+  { value: 4, label: '四' }, { value: 5, label: '五' }, { value: 6, label: '六' }, { value: 7, label: '日' },
+]
 
 const profileData = computed(() => ({
   height: userStore.profile?.height,
@@ -137,85 +153,104 @@ const profileData = computed(() => ({
   goal: userStore.profile?.goal,
 }))
 
-const hasStats = computed(() => userStore.stats.totalWorkoutDays > 0)
-
 const editData = reactive({
   height: undefined as number | undefined,
   weight: undefined as number | undefined,
   age: undefined as number | undefined,
   gender: undefined as string | undefined,
-  goal: undefined as string | undefined,
 })
 
-onMounted(() => {
-  userStore.fetchProfile().catch(() => {})
-  loadEditData()
+const stateData = reactive({
+  experience_level: '新手',
+  workout_location: '居家',
+  preferredDays: '1,3,5',
 })
 
-function loadEditData() {
-  editData.height = userStore.profile?.height
-  editData.weight = userStore.profile?.weight
-  editData.age = userStore.profile?.age
-  editData.gender = userStore.profile?.gender
-  editData.goal = userStore.profile?.goal
-}
+onMounted(async () => {
+  await userStore.fetchProfile().catch(() => {})
+  await userStore.fetchCurrentState()
 
-function startEdit() {
-  loadEditData()
+  // 初始化编辑数据
+  if (userStore.profile) {
+    editData.height = userStore.profile.height ?? undefined
+    editData.weight = userStore.profile.weight ?? undefined
+    editData.age = userStore.profile.age ?? undefined
+    editData.gender = userStore.profile.gender ?? undefined
+  }
+
+  if (userStore.currentState) {
+    stateData.experience_level = userStore.currentState.experience_level
+    stateData.workout_location = userStore.currentState.workout_location
+    stateData.preferredDays = userStore.currentState.preferred_days || stateData.preferredDays
+  }
+})
+
+function startEditing() {
+  // 从 profile 加载当前值
+  editData.height = userStore.profile?.height ?? undefined
+  editData.weight = userStore.profile?.weight ?? undefined
+  editData.age = userStore.profile?.age ?? undefined
+  editData.gender = userStore.profile?.gender ?? undefined
   editing.value = true
 }
 
-async function saveEdit() {
+function cancelEditing() {
+  editing.value = false
+}
+
+async function handleSaveProfile() {
   saving.value = true
   try {
-    await userStore.saveProfile({
+    await createOrUpdateProfile({
       height: editData.height,
       weight: editData.weight,
       age: editData.age,
       gender: editData.gender,
-      goal: editData.goal,
+      goal: userStore.profile?.goal,
+      experience: userStore.profile?.experience,
+      city: userStore.profile?.city,
+      workout_location: userStore.profile?.workout_location,
+      days_per_week: userStore.profile?.days_per_week,
     })
-    message.success('资料已更新')
+    await userStore.fetchProfile()
     editing.value = false
-  } catch (e: any) {
-    message.error('保存失败')
+  } catch {
+    // 错误静默处理
   } finally {
     saving.value = false
   }
 }
 
-function cancelEdit() {
-  editing.value = false
+function toggleDay(value: number) {
+  const arr = stateData.preferredDays.split(',').map(Number).filter(Boolean)
+  const idx = arr.indexOf(value)
+  if (idx >= 0) {
+    arr.splice(idx, 1)
+  } else {
+    arr.push(value)
+    arr.sort()
+  }
+  stateData.preferredDays = arr.join(',')
+}
+
+async function handleSaveState() {
+  stateSaving.value = true
+  try {
+    await userStore.saveCurrentState({
+      experience_level: stateData.experience_level,
+      workout_location: stateData.workout_location,
+      preferred_days: stateData.preferredDays,
+    })
+  } catch {
+    // 错误静默处理
+  } finally {
+    stateSaving.value = false
+  }
 }
 
 function onRegenerate() {
-  Modal.confirm({
-    title: '重新生成计划',
-    content: '将根据你最新的资料重新生成训练计划，确认吗？',
-    okText: '确认生成',
-    cancelText: '取消',
-    onOk: async () => {
-      regenerating.value = true
-      try {
-        const goal = userStore.profile?.goal || '保持健康'
-        const location = userStore.profile?.gender === 'female' ? '居家' : '健身房'
-        await workoutStore.createPlan({
-          goal,
-          experience_level: '新手',
-          workout_location: location,
-          days_per_week: 3,
-          duration_weeks: 4,
-          diet_preference: '普通',
-        })
-        message.success('新计划已生成！')
-        setTimeout(() => router.push('/home'), 500)
-      } catch (e: any) {
-        message.error(e.message || '生成失败')
-      } finally {
-        regenerating.value = false
-      }
-    },
-  })
+  // 重新生成 → 去个人信息页（已有数据会自动预填）
+  router.push('/')
 }
 </script>
 
@@ -223,8 +258,7 @@ function onRegenerate() {
 .profile-card {
   background: #fff; border-radius: 20px; padding: 32px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  max-width: 520px;
-  margin: 0 auto;
+  max-width: 520px; margin: 0 auto;
 }
 .profile-avatar { text-align: center; margin-bottom: 12px; }
 .avatar-icon {
@@ -235,24 +269,81 @@ function onRegenerate() {
 .profile-name { text-align: center; font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px 0; }
 .profile-goal { text-align: center; font-size: 14px; color: #f97316; font-weight: 500; margin: 0; }
 
+.divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
+
 .info-list { display: flex; flex-direction: column; gap: 12px; }
 .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
 .info-row:last-child { border-bottom: none; }
 .info-label { font-size: 14px; color: #888; }
 .info-value { font-size: 14px; font-weight: 600; color: #333; }
 
-.edit-form { margin: 16px 0; }
+.edit-btn {
+  width: 100%; margin-top: 12px; padding: 10px; border-radius: 10px;
+  border: 1px solid #f97316; background: #fff; color: #f97316;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.edit-btn:hover { background: #fff7ed; }
 
-.profile-actions { margin-top: 20px; }
-.profile-actions .ant-btn-primary { background: linear-gradient(135deg, #f97316, #fb923c); border: none; box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
+/* 编辑模式 */
+.edit-form { display: flex; flex-direction: column; gap: 14px; }
+.section-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px 0; }
+.section-hint { font-size: 12px; color: #f97316; margin: 0 0 8px 0; }
+.edit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+.edit-input {
+  width: 120px; padding: 8px 12px; border: 1.5px solid #e8e8e8; border-radius: 8px;
+  font-size: 14px; text-align: right; outline: none; transition: border-color 0.2s;
+}
+.edit-input:focus { border-color: #f97316; }
+.gender-group { display: flex; gap: 6px; }
+.gender-btn {
+  padding: 6px 14px; border: 1.5px solid #e8e8e8; border-radius: 8px;
+  background: #fff; font-size: 14px; cursor: pointer; transition: all 0.2s;
+}
+.gender-btn:hover { border-color: #f97316; }
+.gender-btn.active { border-color: #f97316; background: #fff7ed; color: #f97316; font-weight: 600; }
+.edit-actions { display: flex; gap: 10px; margin-top: 4px; }
+.cancel-btn {
+  flex: 1; padding: 10px; border: 1.5px solid #e8e8e8; border-radius: 10px;
+  background: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.cancel-btn:hover { border-color: #999; }
+.save-btn {
+  flex: 1; padding: 10px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.save-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
+.save-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
 
-.regenerate-btn { border-color: #22c55e; color: #22c55e; font-weight: 600; height: 48px; border-radius: 12px; }
-.regenerate-btn:hover { background: #f0fdf4; border-color: #22c55e; color: #22c55e; }
+/* 训练状态 */
+.state-section { margin: 16px 0; }
+.state-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+.state-select { padding: 6px 12px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px; background: #fff; cursor: pointer; }
+.day-picker-sm { display: flex; gap: 4px; }
+.day-chip-sm {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+  border: 1.5px solid #e8e8e8; background: #fff;
+  cursor: pointer; transition: all 0.15s; user-select: none;
+}
+.day-chip-sm:hover { border-color: #f97316; }
+.day-chip-sm.active { background: #f97316; border-color: #f97316; color: #fff; }
+.day-count-sm { font-size: 12px; color: #888; margin: 8px 0 12px; }
 
-.stats-section { margin-top: 8px; }
-.stats-title { font-size: 16px; font-weight: 600; color: #333; margin: 0 0 16px 0; }
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.stat-item { text-align: center; padding: 16px; background: #f9fafb; border-radius: 12px; }
-.stat-value { font-size: 20px; font-weight: 700; color: #f97316; display: block; }
-.stat-label { font-size: 12px; color: #999; margin-top: 4px; display: block; }
+.save-state-btn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  border: none; font-size: 14px; font-weight: 600;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff; cursor: pointer; transition: all 0.2s;
+}
+.save-state-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
+.save-state-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
+
+.regenerate-btn {
+  width: 100%; padding: 12px; border-radius: 12px;
+  border: 1.5px solid #22c55e; background: #fff;
+  color: #22c55e; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.regenerate-btn:hover { background: #f0fdf4; }
 </style>

@@ -1,32 +1,310 @@
-// ── 健身计划类型定义 ──────────────────────────────────────────
+// ── 健身计划类型定义（引擎 v2）─────────────────────────
+//  对应后端引擎设计：fitness-engine-design.md
+//  完整设计文档：0-docs/10-frontend-plan.md
 
-// 用户资料
-export interface UserProfile {
-  height?: number       // cm
-  weight?: number       // kg
-  age?: number
-  gender?: string       // male / female
-  goal?: string         // 减脂/增肌/塑形/保持健康
-  experience?: string   // 新手/中级/高级
+// ═════════════════════════════════════════════════════════
+//  动作库 — Exercise（来自 wger 缓存）
+// ═════════════════════════════════════════════════════════
+
+export interface ExerciseInfo {
+  id: number | null
+  name: string
+  target_muscle: string
+  muscle_group: string
+  equipment: string
+  image_url: string
+  description: string
 }
 
+// ═════════════════════════════════════════════════════════
+//  动作安排 + 打卡 — ExerciseSlot（计划+打卡二合一）
+// ═════════════════════════════════════════════════════════
+
+export type PhaseType = 'warmup' | 'main' | 'cardio' | 'stretch'
+
+export type RPEQuick = 'easy' | 'normal' | 'hard'
+
+export interface ExerciseSlot {
+  id: number
+  day_id: number
+  phase_type: PhaseType
+  sort_order: number
+  wger_id: number | null
+  exercise_name: string
+
+  // ── 计划参数（生成时写入）──
+  target_sets: number
+  target_reps: number
+  target_reps_max: number
+  weight_kg: number
+  weight_suggestion: string
+  rest_seconds: number
+
+  // ── 实际完成数据（打卡时更新）──
+  actual_sets: number
+  actual_reps: number
+  rpe: number
+  notes: string
+  actual_weight_kg: number
+
+  // ── 动作详情（来自本地 exercise 表或 wger）──
+  exercise: ExerciseInfo | null
+
+  // ── 前端 UI 状态（不来自后端）──
+  _completed: boolean
+  _rpeQuick: RPEQuick | null
+  _loading: boolean
+}
+
+// ═════════════════════════════════════════════════════════
+//  训练日 — Day
+// ═════════════════════════════════════════════════════════
+
+export interface WorkoutDay {
+  id: number
+  day_order: number
+  day_of_week: number          // 1=周一 … 7=周日
+  date: string                 // YYYY-MM-DD
+  day_label: string
+  focus: string
+  estimated_calories: number
+  is_completed: boolean
+  completed_date: string
+  rpe_score: number
+  slots: ExerciseSlot[]
+}
+
+/** 按 phase_type 分组的辅助类型（前端 UI 用） */
+export interface WorkoutDayGrouped extends WorkoutDay {
+  warmup: ExerciseSlot[]
+  main: ExerciseSlot[]
+  cardio: ExerciseSlot | null
+  stretch: ExerciseSlot[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  小周期 — Week
+// ═════════════════════════════════════════════════════════
+
+export type WeekStatus = 'pending' | 'active' | 'completed' | 'skipped'
+
+export interface WeekPlan {
+  id: number
+  week_number: number
+  start_date: string            // YYYY-MM-DD
+  status: WeekStatus
+  generated_at: string
+  mesocycle_phase: string
+  days: WorkoutDay[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  中周期 — Mesocycle
+// ═════════════════════════════════════════════════════════
+
+export type Phase = 'foundational' | 'hypertrophy' | 'strength' | 'deload'
+
+export interface MesocycleSummary {
+  id: number
+  macrocycle_id: number
+  phase: Phase
+  week_count: number
+  sort_order: number
+  status: string
+}
+
+export interface MesocycleDetail extends MesocycleSummary {
+  weeks: WeekSummary[]
+}
+
+export interface WeekSummary {
+  id: number
+  week_number: number
+  status: WeekStatus
+  day_count: number
+}
+
+// ═════════════════════════════════════════════════════════
+//  大周期 — Macrocycle
+// ═════════════════════════════════════════════════════════
+
+export interface MacrocycleSummary {
+  id: number
+  goal: string
+  start_date: string
+  status: string
+  created_at: string
+}
+
+export interface MacrocycleDetail extends MacrocycleSummary {
+  mesocycles: MesocycleDetail[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  用户配置 — UserCurrentState
+// ═════════════════════════════════════════════════════════
+
+export interface UserCurrentState {
+  id?: number
+  experience_level: string
+  workout_location: string
+  days_per_week: number
+  preferred_days: string           // "1,3,5"
+  current_mesocycle_id: number | null
+}
+
+export interface UserCurrentStateUpdate {
+  experience_level?: string
+  workout_location?: string
+  days_per_week?: number
+  preferred_days?: string
+}
+
+// ═════════════════════════════════════════════════════════
+//  API 请求类型
+// ═════════════════════════════════════════════════════════
+
+export interface InitPlanRequest {
+  goal: string
+  experience_level: string
+  workout_location: string
+  days_per_week: number
+  preferred_days: string
+  start_date?: string       // YYYY-MM-DD
+  city?: string
+  height?: number      // cm
+  weight?: number      // kg
+  age?: number         // 岁
+  gender?: string      // male / female
+}
+
+export interface SlotCheckinData {
+  slot_id: number
+  actual_sets: number
+  actual_reps: number
+  actual_weight_kg?: number
+  rpe: number
+  notes: string
+}
+
+export interface DayCheckinRequest {
+  day_id: number
+  is_completed: boolean
+  rpe_score: number
+  exercises: SlotCheckinData[]
+}
+
+export interface RescheduleRequest {
+  /** 新的 day_of_week 值，1=周一 … 7=周日 */
+  day_of_week: number
+}
+
+// ═════════════════════════════════════════════════════════
+//  日历相关（新增）
+// ═════════════════════════════════════════════════════════
+
+export interface CalendarEntry {
+  date: string                   // YYYY-MM-DD
+  has_plan: boolean
+  day_status: string             // pending / completed / future / no_plan
+  focus: string
+  mesocycle_phase: string
+}
+
+export interface CalendarEntryResponse {
+  entries: CalendarEntry[]
+}
+
+export interface DayDetailResponse {
+  date: string
+  day_status: string             // pending / completed / future / no_plan
+  day_label: string
+  focus: string
+  week_id: number
+  mesocycle_phase: string
+  is_rest_day: boolean
+  has_plan: boolean
+  slots: ExerciseSlot[]
+  warmup: any[]
+  main: any[]
+  cardio: any | null
+  stretch: any[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  SSE 事件类型
+// ═════════════════════════════════════════════════════════
+
+export interface SSEProgressData {
+  phase: string
+  text: string
+  day?: number
+}
+
+export interface SSEDayDoneData {
+  day: number
+  focus: string
+  main_count: number
+}
+
+export interface SSEErrorData {
+  text: string
+}
+
+export interface SSEEventCallbacks {
+  onProgress?: (data: SSEProgressData) => void
+  onDayDone?: (data: SSEDayDoneData) => void
+  onDone?: (data: WeekPlan) => void
+  onError?: (data: SSEErrorData) => void
+}
+
+// ═════════════════════════════════════════════════════════
+//  RPE 映射表（前端用，帮助用户理解引擎行为）
+// ═════════════════════════════════════════════════════════
+
+export const RPE_QUICK_MAP: Record<RPEQuick, { rpe: number; label: string; description: string; engineAction: string }> = {
+  easy: { rpe: 4, label: '😊 太轻松', description: '全部完成，感觉还能加', engineAction: '下周加重量' },
+  normal: { rpe: 7, label: '✔ 正常完成', description: '有挑战但不吃力', engineAction: '下周加次数' },
+  hard: { rpe: 9, label: '😰 太重了', description: '很难完成，最后几个做不动', engineAction: '下周减量' },
+}
+
+export const RPE_QUICK_DEFAULT: RPEQuick = 'normal'
+
+// ═════════════════════════════════════════════════════════
+//  @deprecated 旧类型 — 视图重构完成后删除
+// ═════════════════════════════════════════════════════════
+
+/** @deprecated 使用 WorkoutDay / ExerciseSlot 替代 */
+export interface UserProfile {
+  height?: number
+  weight?: number
+  age?: number
+  gender?: string
+  goal?: string
+  experience?: string
+  experience_level?: string
+  city?: string
+  workout_location?: string
+  days_per_week?: number
+}
+
+/** @deprecated */
 export interface UserProfileResponse extends UserProfile {
   id: number
 }
 
-// 计划生成请求
+/** @deprecated 使用 InitPlanRequest 替代 */
 export interface PlanRequest {
   goal: string
   experience_level: string
   workout_location: string
   days_per_week: number
   duration_weeks: number
-  diet_preference: string
   city?: string
   notes?: string
 }
 
-// 训练动作（后端返回格式）
+/** @deprecated 使用 ExerciseSlot 替代 */
 export interface ExerciseItem {
   name: string
   target_muscle?: string
@@ -37,35 +315,31 @@ export interface ExerciseItem {
   weight_suggestion?: string
   description?: string
   image_url?: string
+  /** @deprecated 前端示例数据用 */
+  instruction?: string
+  /** @deprecated 前端示例数据用 */
+  duration?: number
 }
 
-// 每日训练（后端返回格式）
+/** @deprecated 使用 WorkoutDay 替代 */
 export interface DailyWorkout {
   day: string
   focus: string
   warmup: ExerciseItem[]
   main: ExerciseItem[]
-  cooldown: ExerciseItem[]
+  cardio?: ExerciseItem | null
+  stretch?: ExerciseItem[]
+  cooldown?: ExerciseItem[]
   estimated_calories?: number
 }
 
-// 每周计划（后端返回格式）
+/** @deprecated 使用 WeekPlan 替代 */
 export interface WeeklyPlan {
   week: number
   days: DailyWorkout[]
 }
 
-// 饮食建议
-export interface DietAdvice {
-  daily_calories?: number
-  protein_ratio?: string
-  carb_ratio?: string
-  fat_ratio?: string
-  meals?: Record<string, string>
-  tips: string[]
-}
-
-// 完整计划（后端返回）
+/** @deprecated 不再使用 */
 export interface FitnessPlan {
   id: number
   goal: string
@@ -73,12 +347,11 @@ export interface FitnessPlan {
   workout_location: string
   days_per_week: number
   duration_weeks: number
-  diet_preference: string
   weekly_plans: WeeklyPlan[]
-  diet?: DietAdvice
   created_at: string
 }
 
+/** @deprecated */
 export interface FitnessPlanSummary {
   id: number
   goal: string
@@ -87,7 +360,7 @@ export interface FitnessPlanSummary {
   created_at: string
 }
 
-// 训练记录请求（保留，API 仍用）
+/** @deprecated 使用 SlotCheckinData 替代 */
 export interface RecordRequest {
   plan_id?: number
   date: string
@@ -102,13 +375,12 @@ export interface RecordRequest {
   notes?: string
 }
 
+/** @deprecated */
 export interface RecordResponse extends RecordRequest {
   id: number
 }
 
-// ── 新增：前端日历 & 打勾清单类型 ─────────────────────────
-
-// 训练动作状态（前端用，含完成状态）
+/** @deprecated 使用 ExerciseSlot 替代 */
 export interface ExerciseState {
   name: string
   targetMuscle?: string
@@ -116,42 +388,35 @@ export interface ExerciseState {
   sets: number
   reps: number
   weight?: string
-  duration?: number      // 热身/拉伸用秒
-  completed: boolean     // ✅ 打勾
-  tooHeavy: boolean      // 😰 太重了
+  duration?: number
+  completed: boolean
+  tooHeavy: boolean
   order: number
-  imageUrl?: string      // 动作图片
-  description?: string   // 动作描述
+  imageUrl?: string
+  description?: string
+  wgerId?: number
 }
 
-// 训练区块（热身/主训/冷身）
+/** @deprecated */
 export interface WorkoutSection {
-  type: 'warmup' | 'main' | 'cooldown'
+  type: 'warmup' | 'main' | 'cardio' | 'stretch'
   label: string
   exercises: ExerciseState[]
 }
 
-// 每日训练（前端日历视图用）
+/** @deprecated 使用 WorkoutDayGrouped 替代 */
 export interface DayPlan {
-  date: string           // "2026-06-04"
-  dayOfWeek: number      // 0=周日, 1=周一...
-  focusArea: string      // "腿部训练" / "休息"
+  date: string
+  dayOfWeek: number
+  focusArea: string
   isRestDay: boolean
   sections: WorkoutSection[]
 }
 
-// 月日历数据
-export interface MonthData {
-  year: number
-  month: number          // 1-12
-  days: DayPlan[]
-}
+/** @deprecated */
+export type DayStatus = 'rest' | 'pending' | 'partial' | 'completed' | 'missed' | 'future'
 
-// 完成状态分类
-export type DayStatus = 'rest' | 'pending' | 'partial' | 'completed' | 'missed'
-
-// ── 通用响应 ──────────────────────────────────────────────
-
+/** @deprecated */
 export interface ApiResponse<T = any> {
   success: boolean
   message: string

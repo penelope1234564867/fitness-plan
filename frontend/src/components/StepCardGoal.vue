@@ -24,7 +24,7 @@
 import { ref } from 'vue'
 
 const props = defineProps<{ data: string }>()
-const emit = defineEmits<{ prev: []; next: [value: string] }>()
+defineEmits<{ prev: []; next: [value: string] }>()
 const localGoal = ref(props.data)
 const goals = [
   { value: '减脂', icon: '🔥', label: '减脂', desc: '降低体脂率' },
