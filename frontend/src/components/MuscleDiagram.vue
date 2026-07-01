@@ -54,35 +54,53 @@ const tooltipY = ref(0)
 function attachHoverListeners() {
   const container = diagramRef.value
   if (!container) return
-  const paths = container.querySelectorAll<SVGPathElement>('path[id]')
-  paths.forEach(path => {
-    const id = path.id
+
+  // 库渲染有两种方式：
+  //   1. <path id="chest">  — chest, lats, neck, forearms
+  //   2. <g id="abs"><path></g> — 大部分肌肉（abs, biceps, quads 等）
+  // 需要同时处理这两种情况
+  const elements = container.querySelectorAll<SVGPathElement | SVGGElement>('[id]')
+  elements.forEach(el => {
+    const id = el.id
     if (!MUSCLE_NAME_CN[id]) return
     // 避免重复绑定（MutationObserver 可能多次触发）
-    if ((path as any)._muscleHoverAttached) return
-    ;(path as any)._muscleHoverAttached = true
+    if ((el as any)._muscleHoverAttached) return
+    ;(el as any)._muscleHoverAttached = true
 
-    path.style.cursor = 'pointer'
+    // 如果是 <g> 元素，找到内部的 path 来绑定事件和操作 fill
+    let target: SVGPathElement
+    if (el.tagName === 'g') {
+      const childPath = el.querySelector('path')
+      if (!childPath) return
+      target = childPath
+      // 给整个 <g> 区域加 pointer cursor
+      el.style.cursor = 'pointer'
+    } else {
+      target = el as SVGPathElement
+      target.style.cursor = 'pointer'
+    }
+
     // 保存原始 fill/opacity，mouseleave 时恢复
-    ;(path as any)._originalFill = path.style.fill
-    ;(path as any)._originalOpacity = path.style.opacity || '1'
+    ;(target as any)._originalFill = target.style.fill
+    ;(target as any)._originalOpacity = target.style.opacity || '1'
 
-    path.addEventListener('mouseenter', () => {
+    // 事件绑定在 target（path）上，确保鼠标移入精确区域
+    target.addEventListener('mouseenter', () => {
       hoveredMuscle.value = MUSCLE_NAME_CN[id]
       // 高亮为淡紫色，全不透明
-      path.style.fill = '#e1bee7'
-      path.style.opacity = '1'
+      target.style.fill = '#e1bee7'
+      target.style.opacity = '1'
     })
-    path.addEventListener('mousemove', (e: MouseEvent) => {
+    target.addEventListener('mousemove', (e: MouseEvent) => {
       const rect = container.getBoundingClientRect()
       tooltipX.value = e.clientX - rect.left + 12
       tooltipY.value = e.clientY - rect.top - 10
     })
-    path.addEventListener('mouseleave', () => {
+    target.addEventListener('mouseleave', () => {
       hoveredMuscle.value = ''
       // 恢复原始颜色
-      path.style.fill = (path as any)._originalFill
-      path.style.opacity = (path as any)._originalOpacity
+      target.style.fill = (target as any)._originalFill
+      target.style.opacity = (target as any)._originalOpacity
     })
   })
 }
