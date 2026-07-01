@@ -94,8 +94,32 @@ def search_exercises(
     return exercises[:50]
 
 
+# 肌肉 ID → 中文名映射（wger 肌肉表，~15 个）
+MUSCLE_CN = {
+    1: "肱二头肌", 2: "三角肌", 3: "竖脊肌", 4: "胸大肌",
+    5: "肱三头肌", 6: "腹肌", 7: "内收肌", 8: "臀大肌",
+    9: "斜方肌", 10: "股四头肌", 11: "腘绳肌", 12: "背阔肌",
+    13: "小腿", 14: "前臂",
+}
+
+
+def _extract_muscles(muscle_list: list) -> list:
+    """从 wger 肌肉对象数组中提取结构化的肌肉列表。"""
+    result = []
+    for m in muscle_list:
+        if isinstance(m, dict):
+            mid = m.get("id")
+            name_en = m.get("name") or m.get("name_en", "")
+            result.append({
+                "id": mid,
+                "name_en": name_en,
+                "name_cn": MUSCLE_CN.get(mid, ""),
+            })
+    return result
+
+
 def get_exercise_detail(wger_id: int) -> dict:
-    """获取单个动作的详情（图片列表 + 描述）。
+    """获取单个动作的详情（图片列表 + 描述 + 肌群等元信息）。
 
     wger 没有 /exerciseinfo/{id} 独立端点，
     改为通过 search 按 id 过滤：exerciseinfo/?id={wger_id}&limit=1
@@ -104,7 +128,7 @@ def get_exercise_detail(wger_id: int) -> dict:
         wger_id: wger 动作 ID
 
     Returns:
-        包含 images 和 description 的字典
+        包含 images, description, target_muscle, equipment 等的字典
     """
     import re
 
@@ -136,12 +160,52 @@ def get_exercise_detail(wger_id: int) -> dict:
             break
     if not description and ex.get("translations"):
         description = ex["translations"][0].get("description", "")
-    # 清理 HTML 标签
     description = re.sub(r"<[^>]+>", "", description).strip()
 
+    # 提取动作名（中文优先）
+    name = ""
+    for t in ex.get("translations", []):
+        if t.get("language") == 2:
+            name = t.get("name", "")
+            break
+    if not name:
+        name = ex.get("name", "")
+
+    # 提取目标肌群（第一个主要肌肉）
+    target_muscle = ""
+    for m in ex.get("muscles", []):
+        if isinstance(m, dict):
+            target_muscle = m.get("name", m.get("name_en", ""))
+            break
+
+    # 提取器材
+    equipment_list = []
+    for eq in ex.get("equipment", []):
+        if isinstance(eq, dict) and eq.get("name"):
+            equipment_list.append(eq["name"])
+    equipment = ", ".join(equipment_list)
+
+    # 提取分类作为 muscle_group 参考
+    category = ex.get("category", {})
+    if isinstance(category, dict):
+        muscle_group = category.get("name", "")
+    else:
+        muscle_group = ""
+
+    # 提取全部主动肌和辅助肌
+    primary_muscles = _extract_muscles(ex.get("muscles", []))
+    secondary_muscles = _extract_muscles(ex.get("muscles_secondary", []))
+
     return {
+        "name": name,
         "images": images[:3],
         "description": description,
+        "target_muscle": target_muscle,
+        "equipment": equipment,
+        "muscle_group": muscle_group,
+        "primary_muscles": primary_muscles,
+        "secondary_muscles": secondary_muscles,
+        "equipment_list": equipment_list,
     }
 
 

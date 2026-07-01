@@ -13,18 +13,18 @@
       <div v-for="w in weekdays" :key="w" class="weekday-label">{{ w }}</div>
     </div>
 
-    <!-- 日历格 -->
+    <!-- 日历格（完整周） -->
     <div class="calendar-grid">
-      <div v-for="i in firstDayOfWeek" :key="'empty-' + i" class="day-placeholder"></div>
       <DayCell
-        v-for="d in daysInMonth"
-        :key="d"
-        :day="d"
-        :date="formatDate(d)"
-        :is-today="formatDate(d) === todayStr"
-        :status="getCellStatus(formatDate(d))"
-        :focus-icon="getFocusIcon(formatDate(d))"
-        :focus-label="getFocusLabel(formatDate(d))"
+        v-for="cd in calendarDays"
+        :key="cd.date"
+        :day="cd.day"
+        :date="cd.date"
+        :is-today="cd.isToday"
+        :is-current-month="cd.isCurrentMonth"
+        :status="cd.status"
+        :focus-icon="cd.focusIcon"
+        :focus-label="cd.focusLabel"
         @click="onDayClick"
       />
     </div>
@@ -53,14 +53,62 @@ const focusIcons: Record<string, string> = {
 }
 
 const monthLabel = computed(() => dayjs(currentMonth.value).format('YYYY年M月'))
-const daysInMonth = computed(() => dayjs(currentMonth.value).daysInMonth())
-const firstDayOfWeek = computed(() => dayjs(currentMonth.value + '-01').day())
 
-// 翻月时自动获取日历数据
+/** 当月最后一天的日期字符串 */
+const lastDateOfMonth = computed(() =>
+  dayjs(currentMonth.value + '-01').endOf('month').format('YYYY-MM-DD'),
+)
+
+/** 可见范围：包含当月完整周的起始日期（周日） */
+const firstVisibleDate = computed(() =>
+  dayjs(currentMonth.value + '-01').startOf('week').format('YYYY-MM-DD'),
+)
+
+/** 可见范围：包含当月完整周的结束日期（周六） */
+const lastVisibleDate = computed(() =>
+  dayjs(lastDateOfMonth.value).endOf('week').format('YYYY-MM-DD'),
+)
+
+/** 显示的日期数组 */
+interface CalendarDay {
+  day: number
+  date: string
+  isCurrentMonth: boolean
+  isToday: boolean
+  status: DayStatus
+  focusIcon?: string
+  focusLabel?: string
+}
+const calendarDays = computed<CalendarDay[]>(() => {
+  const start = dayjs(firstVisibleDate.value)
+  const end = dayjs(lastVisibleDate.value)
+  const totalDays = end.diff(start, 'day') + 1
+  const currentMonthStr = currentMonth.value
+
+  const result: CalendarDay[] = []
+  for (let i = 0; i < totalDays; i++) {
+    const d = start.add(i, 'day')
+    const dateStr = d.format('YYYY-MM-DD')
+    const isCurrentMonth = d.format('YYYY-MM') === currentMonthStr
+
+    result.push({
+      day: d.date(),
+      date: dateStr,
+      isCurrentMonth,
+      isToday: dateStr === todayStr,
+      status: getCellStatus(dateStr),
+      focusIcon: getFocusIcon(dateStr),
+      focusLabel: getFocusLabel(dateStr),
+    })
+  }
+  return result
+})
+
+// 翻月时获取完整跨月范围的数据
 watch(currentMonth, (month) => {
-  const monthStart = dayjs(month + '-01').format('YYYY-MM-DD')
-  const monthEnd = dayjs(month + '-01').endOf('month').format('YYYY-MM-DD')
-  cycleStore.fetchCalendarData(monthStart, monthEnd)
+  const from = dayjs(month + '-01').startOf('week').format('YYYY-MM-DD')
+  const to = dayjs(month + '-01').endOf('month').endOf('week').format('YYYY-MM-DD')
+  cycleStore.fetchCalendarData(from, to)
 }, { immediate: true })
 
 /** 从 calendarEntries 找该日期对应的 CalendarEntry */
@@ -68,15 +116,14 @@ function getEntry(date: string) {
   return cycleStore.calendarEntries.get(date) ?? null
 }
 
-function formatDate(day: number) {
-  return `${currentMonth.value}-${String(day).padStart(2, '0')}`
-}
-
 function getCellStatus(date: string): DayStatus {
   const entry = getEntry(date)
   if (!entry || !entry.has_plan) return 'pending'
+  if (entry.day_status === 'rest') return 'rest'
   if (date > todayStr && entry.day_status !== 'completed') return 'future'
   if (entry.day_status === 'completed') return 'completed'
+  if (entry.day_status === 'partial') return 'partial'
+  if (entry.day_status === 'missed') return 'missed'
   return 'pending'
 }
 
@@ -157,5 +204,4 @@ function goToToday() {
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
 }
-.day-placeholder { aspect-ratio: 1; }
 </style>

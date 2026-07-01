@@ -16,6 +16,13 @@
           @generate="handleGenerateNext"
         />
       </div>
+      <div class="muscle-section">
+        <MuscleDiagram
+          :gender="userStore.profile?.gender"
+          :primary-muscles="workoutStore.activePrimaryMuscles"
+          :secondary-muscles="workoutStore.activeSecondaryMuscles"
+        />
+      </div>
     </aside>
 
     <!-- 右侧主区域 -->
@@ -30,14 +37,17 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCycleStore } from '@/stores/cycle'
 import { useUserStore } from '@/stores/user'
+import { useWorkoutStore } from '@/stores/workout'
 import CalendarPanel from '@/components/CalendarPanel.vue'
 import CycleInfo from '@/components/CycleInfo.vue'
 import DailyPlanPanel from '@/components/DailyPlanPanel.vue'
+import MuscleDiagram from '@/components/MuscleDiagram.vue'
 import dayjs from 'dayjs'
 
 const router = useRouter()
 const cycleStore = useCycleStore()
 const userStore = useUserStore()
+const workoutStore = useWorkoutStore()
 
 const selectedDate = ref<string | null>(null)
 const todayStr = dayjs().format('YYYY-MM-DD')
@@ -74,7 +84,7 @@ function onDateSelect(date: string) {
 
 async function handleGenerateNext() {
   // 重新生成 → 去个人信息页（已有数据会自动预填）
-  router.push('/')
+  router.push('/?force=true')
 }
 </script>
 
@@ -82,7 +92,9 @@ async function handleGenerateNext() {
 .main-content {
   display: flex;
   gap: 16px;
-  min-height: auto;
+  height: 100%;
+  min-height: 0;
+  padding-bottom: 16px;
 }
 
 .left-column {
@@ -95,9 +107,13 @@ async function handleGenerateNext() {
 }
 .calendar-section { flex-shrink: 0; }
 .cycle-section { flex-shrink: 0; }
+.muscle-section { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .right-column {
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 </style>

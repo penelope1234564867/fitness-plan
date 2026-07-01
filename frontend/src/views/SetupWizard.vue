@@ -194,11 +194,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { getProfile, createOrUpdateProfile } from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const currentIndex = ref(0)
@@ -262,6 +263,12 @@ const canGoNext = computed(() => {
 })
 
 onMounted(async () => {
+  // 老用户快速跳转：已引导完成且不是主动「重新生成」
+  if (!userStore.isFirstVisit && route.query.force !== 'true') {
+    router.replace('/home')
+    return
+  }
+
   // 尝试从后端加载已有数据（重新生成时预填）
   try {
     const profile = await getProfile()
@@ -341,17 +348,10 @@ async function handleGenerate() {
       workout_location: form.locations[0] || '居家',
     })
 
-    // 2. 保存训练状态
-    await userStore.saveCurrentState({
-      experience_level: form.experience,
-      workout_location: form.locations[0] || '居家',
-      preferred_days: form.preferredDays,
-    })
-
-    // 3. 刷新 profile 到 store
+    // 2. 刷新 profile 到 store
     await userStore.fetchProfile()
 
-    // 4. 跳转到生成页
+    // 3. 跳转到生成页（initPlan 会自动创建 UserCurrentState）
     router.push('/generating')
   } catch (e) {
     console.error('保存失败:', e)

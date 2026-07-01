@@ -82,8 +82,12 @@ def get_or_fetch_exercise(wger_id: int, db: Session) -> Optional[Exercise]:
         ex = Exercise(
             wger_id=wger_id,
             name=data.get("name", ""),
+            target_muscle=data.get("target_muscle", ""),
+            muscle_group=data.get("muscle_group", ""),
+            equipment=data.get("equipment", ""),
             description=data.get("description", ""),
             image_url=", ".join(data.get("images", [])) if data.get("images") else "",
+            difficulty=data.get("difficulty", 1),
         )
         cache_db.add(ex)
         cache_db.commit()

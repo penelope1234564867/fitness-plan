@@ -89,10 +89,6 @@ export const useCycleStore = defineStore('cycle', () => {
       generationProgress.value = 100
       generationStatus.value = '✅ 计划生成成功！'
       await fetchMacrocycles()
-      // 加载当月日历数据
-      const monthStart = dayjs().startOf('month').format('YYYY-MM-DD')
-      const monthEnd = dayjs().endOf('month').format('YYYY-MM-DD')
-      await fetchCalendarData(monthStart, monthEnd)
       return result
     } catch (e: any) {
       error.value = e.message || '初始化失败'
@@ -127,10 +123,6 @@ export const useCycleStore = defineStore('cycle', () => {
       generationProgress.value = 100
       generationStatus.value = '✅ 下周计划已生成！'
       await fetchMacrocycles()
-      // 加载当月日历数据
-      const monthStart = dayjs().startOf('month').format('YYYY-MM-DD')
-      const monthEnd = dayjs().endOf('month').format('YYYY-MM-DD')
-      await fetchCalendarData(monthStart, monthEnd)
       return result
     } catch (e: any) {
       error.value = e.message || '生成失败'
@@ -144,10 +136,6 @@ export const useCycleStore = defineStore('cycle', () => {
     loading.value = true
     try {
       currentWeek.value = await api.fetchCurrentWeek()
-      // 自动加载当月日历数据
-      const monthStart = dayjs().startOf('month').format('YYYY-MM-DD')
-      const monthEnd = dayjs().endOf('month').format('YYYY-MM-DD')
-      await fetchCalendarData(monthStart, monthEnd)
       return currentWeek.value
     } catch (e: any) {
       error.value = e.message

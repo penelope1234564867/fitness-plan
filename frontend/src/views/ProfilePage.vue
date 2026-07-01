@@ -250,7 +250,7 @@ async function handleSaveState() {
 
 function onRegenerate() {
   // 重新生成 → 去个人信息页（已有数据会自动预填）
-  router.push('/')
+  router.push('/?force=true')
 }
 </script>
 

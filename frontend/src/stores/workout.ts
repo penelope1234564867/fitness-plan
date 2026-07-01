@@ -22,6 +22,10 @@ export const useWorkoutStore = defineStore('workout', () => {
   const checkinLoading = ref(false)
   const error = ref<string | null>(null)
 
+  // 肌肉图状态
+  const activePrimaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
+  const activeSecondaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
+
   const todayStr = computed(() => dayjs().format('YYYY-MM-DD'))
 
   // 将 DayDetailResponse 转为 WorkoutDayGrouped 兼容格式
@@ -155,6 +159,7 @@ export const useWorkoutStore = defineStore('workout', () => {
   return {
     selectedDate, dayDetail, currentDay, todayStr,
     dayDetailLoading, checkinLoading, error,
+    activePrimaryMuscles, activeSecondaryMuscles,
     toggleExercise, setRPEQuick, rescheduleDay, submitCheckin, reloadDayDetail,
   }
 })

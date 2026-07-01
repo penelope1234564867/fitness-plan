@@ -1,8 +1,15 @@
 <template>
   <div
     class="day-cell"
-    :class="[status, { today: isToday, hasPlan: !!focusIcon }]"
-    @click="$emit('click', date)"
+    :class="[
+      status,
+      {
+        today: isToday,
+        hasPlan: !!focusIcon,
+        'adjacent-month': !isCurrentMonth,
+      },
+    ]"
+    @click="onClick"
   >
     <span class="day-number">{{ day }}</span>
     <span v-if="focusIcon && status !== 'rest'" class="day-icon" :title="focusLabel">{{ focusIcon }}</span>
@@ -11,16 +18,24 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   day: number
   date: string
   focusIcon?: string
   focusLabel?: string
   isToday: boolean
+  isCurrentMonth?: boolean
   status: 'rest' | 'pending' | 'partial' | 'completed' | 'missed' | 'future'
 }>()
 
-defineEmits<{ click: [date: string] }>()
+const emit = defineEmits<{ click: [date: string] }>()
+
+function onClick() {
+  // 非本月日期，除非有训练数据，否则不可点击
+  if (props.isCurrentMonth || props.focusIcon || props.status === 'completed') {
+    emit('click', props.date)
+  }
+}
 </script>
 
 <style scoped>
@@ -69,4 +84,17 @@ defineEmits<{ click: [date: string] }>()
 /* 没有计划的日期 */
 .day-cell:not(.hasPlan):not(.today) { cursor: default; }
 .day-cell:not(.hasPlan):not(.today):hover { background: #fff; border-color: transparent; transform: none; box-shadow: none; }
+
+/* ═══ 跨月日期 ═══ */
+.day-cell.adjacent-month { background: #fafafa; }
+.day-cell.adjacent-month .day-number { color: #bbb; font-size: 12px; }
+.day-cell.adjacent-month:hover { background: #f5f5f5; border-color: #ddd; transform: none; box-shadow: none; }
+.day-cell.adjacent-month.today { border-color: #f97316; box-shadow: 0 0 0 2px #f97316; }
+.day-cell.adjacent-month.today .day-number { color: #f97316; font-size: 14px; }
+/* 非本月但有计划的日期 */
+.day-cell.adjacent-month.hasPlan { background: #f5f5f5; }
+.day-cell.adjacent-month.hasPlan .day-number { color: #888; }
+.day-cell.adjacent-month.hasPlan:hover { background: #fff7ed; border-color: #f97316; }
+.day-cell.adjacent-month.completed { background: #f0fdf4; }
+.day-cell.adjacent-month.completed .day-number { color: #22c55e; }
 </style>

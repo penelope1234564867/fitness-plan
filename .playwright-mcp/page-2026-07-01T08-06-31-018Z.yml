@@ -1,0 +1,219 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - generic [ref=f1e5]:
+        - generic [ref=f1e6] [cursor=pointer]:
+          - generic [ref=f1e7]: 💪
+          - heading "AI 智能健身助手" [level=1] [ref=f1e8]
+        - generic [ref=f1e11] [cursor=pointer]: ♀
+    - generic [ref=f1e13]:
+      - complementary [ref=f1e14]:
+        - generic [ref=f1e16]:
+          - generic [ref=f1e17]:
+            - button "‹" [ref=f1e18] [cursor=pointer]
+            - heading "2026年7月" [level=3] [ref=f1e19]
+            - button "›" [ref=f1e20] [cursor=pointer]
+            - button "今天" [ref=f1e21] [cursor=pointer]
+          - generic [ref=f1e22]:
+            - generic [ref=f1e23]: 日
+            - generic [ref=f1e24]: 一
+            - generic [ref=f1e25]: 二
+            - generic [ref=f1e26]: 三
+            - generic [ref=f1e27]: 四
+            - generic [ref=f1e28]: 五
+            - generic [ref=f1e29]: 六
+          - generic [ref=f1e30]:
+            - generic [ref=f1e32]: "28"
+            - generic [ref=f1e33] [cursor=pointer]:
+              - generic [ref=f1e34]: "29"
+              - generic "胸部 + 肩部 + 三头" [ref=f1e150]: 🏋️
+            - generic [ref=f1e36]: "30"
+            - generic [ref=f1e37] [cursor=pointer]:
+              - generic [ref=f1e38]: "1"
+              - generic "背部 + 二头" [ref=f1e151]: 🏋️
+            - generic [ref=f1e40]: "2"
+            - generic [ref=f1e41] [cursor=pointer]:
+              - generic [ref=f1e42]: "3"
+              - generic "腿部 + 臀部" [ref=f1e152]: 🦵
+            - generic [ref=f1e44]: "4"
+            - generic [ref=f1e46]: "5"
+            - generic [ref=f1e48]: "6"
+            - generic [ref=f1e50]: "7"
+            - generic [ref=f1e52]: "8"
+            - generic [ref=f1e54]: "9"
+            - generic [ref=f1e56]: "10"
+            - generic [ref=f1e58]: "11"
+            - generic [ref=f1e60]: "12"
+            - generic [ref=f1e62]: "13"
+            - generic [ref=f1e64]: "14"
+            - generic [ref=f1e66]: "15"
+            - generic [ref=f1e68]: "16"
+            - generic [ref=f1e70]: "17"
+            - generic [ref=f1e72]: "18"
+            - generic [ref=f1e74]: "19"
+            - generic [ref=f1e76]: "20"
+            - generic [ref=f1e78]: "21"
+            - generic [ref=f1e80]: "22"
+            - generic [ref=f1e82]: "23"
+            - generic [ref=f1e84]: "24"
+            - generic [ref=f1e86]: "25"
+            - generic [ref=f1e88]: "26"
+            - generic [ref=f1e90]: "27"
+            - generic [ref=f1e92]: "28"
+            - generic [ref=f1e94]: "29"
+            - generic [ref=f1e96]: "30"
+            - generic [ref=f1e98]: "31"
+            - generic [ref=f1e100]: "1"
+        - generic [ref=f1e102]:
+          - generic [ref=f1e103]:
+            - generic [ref=f1e104]: 🎯
+            - generic [ref=f1e153]: 基础适应期
+          - generic [ref=f1e105]:
+            - generic [ref=f1e106]: 第1周 / 共4周
+            - generic [ref=f1e108]: 0%
+          - generic [ref=f1e109]:
+            - generic [ref=f1e110]: 📋 已完成 0%
+            - button "⚡ 生成下周" [disabled] [ref=f1e111]
+        - generic [ref=f1e113]:
+          - generic [ref=f1e115]: 💪 肌肉分布
+          - img [ref=f1e154]
+          - generic [ref=f1e144]: 点击动作查看肌肉分布
+      - main [ref=f1e145]:
+        - generic [ref=f1e198]:
+          - generic [ref=f1e199]:
+            - heading "7月1日 周三" [level=2] [ref=f1e200]
+            - generic [ref=f1e201]: 背部 + 二头
+          - generic [ref=f1e202]:
+            - heading "🔥 热身" [level=3] [ref=f1e203]
+            - generic [ref=f1e204]:
+              - generic [ref=f1e208] [cursor=pointer]:
+                - generic [ref=f1e209]: 肩部环绕
+                - generic [ref=f1e210]: 10秒 · 向前向后各绕 10 圈
+              - generic [ref=f1e214] [cursor=pointer]:
+                - generic [ref=f1e215]: 手臂前后画圈
+                - generic [ref=f1e216]: 10秒 · 由小到大画圈
+              - generic [ref=f1e220] [cursor=pointer]:
+                - generic [ref=f1e221]: 抱膝提踵
+                - generic [ref=f1e222]: 8秒 · 单腿抱膝上提，同时另一脚踮起
+              - generic [ref=f1e226] [cursor=pointer]:
+                - generic [ref=f1e227]: 开合跳
+                - generic [ref=f1e228]: 15秒 · 手脚同步打开再收回
+              - generic [ref=f1e232] [cursor=pointer]:
+                - generic [ref=f1e233]: 高抬腿
+                - generic [ref=f1e234]: 15秒 · 膝盖抬高至腰部，保持核心收紧
+              - generic [ref=f1e238] [cursor=pointer]:
+                - generic [ref=f1e239]: 胯下击掌
+                - generic [ref=f1e240]: 15秒 · 抬腿至胯高，双手在大腿下击掌
+              - generic [ref=f1e244] [cursor=pointer]:
+                - generic [ref=f1e245]: 后踢腿
+                - generic [ref=f1e246]: 15秒 · 脚跟尽量踢到臀部
+              - generic [ref=f1e250] [cursor=pointer]:
+                - generic [ref=f1e251]: 弓步转体
+                - generic [ref=f1e252]: 8秒 · 前腿弓步同时上半身向同侧转
+              - generic [ref=f1e256] [cursor=pointer]:
+                - generic [ref=f1e257]: 侧弓步
+                - generic [ref=f1e258]: 8秒 · 向侧方迈步屈膝，另一腿伸直
+              - generic [ref=f1e262] [cursor=pointer]:
+                - generic [ref=f1e263]: 手腕脚踝活动
+                - generic [ref=f1e264]: 10秒 · 转动手腕和脚踝各 10 圈
+          - generic [ref=f1e265]:
+            - heading "💪 主训练" [level=3] [ref=f1e266]
+            - generic [ref=f1e267]:
+              - generic [ref=f1e268]:
+                - generic [ref=f1e271] [cursor=pointer]:
+                  - generic [ref=f1e272]: Incline Chest-Supported Dumbbell Row
+                  - generic [ref=f1e273]: 3组×10次
+                - generic [ref=f1e274]:
+                  - button "😊" [ref=f1e275] [cursor=pointer]
+                  - button "✔" [ref=f1e276] [cursor=pointer]
+                  - button "😰" [ref=f1e277] [cursor=pointer]
+              - generic [ref=f1e278]:
+                - generic [ref=f1e281] [cursor=pointer]:
+                  - generic [ref=f1e282]: One-Arm Heavy Row
+                  - generic [ref=f1e283]: 3组×10次
+                - generic [ref=f1e284]:
+                  - button "😊" [ref=f1e285] [cursor=pointer]
+                  - button "✔" [ref=f1e286] [cursor=pointer]
+                  - button "😰" [ref=f1e287] [cursor=pointer]
+              - generic [ref=f1e288]:
+                - generic [ref=f1e291] [cursor=pointer]:
+                  - generic [ref=f1e292]: Dumbbell Pullover
+                  - generic [ref=f1e293]: 3组×10次
+                - generic [ref=f1e294]:
+                  - button "😊" [ref=f1e295] [cursor=pointer]
+                  - button "✔" [ref=f1e296] [cursor=pointer]
+                  - button "😰" [ref=f1e297] [cursor=pointer]
+              - generic [ref=f1e298]:
+                - generic [ref=f1e301] [cursor=pointer]:
+                  - generic [ref=f1e302]: Biceps Curls With Dumbbell
+                  - generic [ref=f1e303]: 3组×10次
+                - generic [ref=f1e304]:
+                  - button "😊" [ref=f1e305] [cursor=pointer]
+                  - button "✔" [ref=f1e306] [cursor=pointer]
+                  - button "😰" [ref=f1e307] [cursor=pointer]
+              - generic [ref=f1e308]:
+                - generic [ref=f1e311] [cursor=pointer]:
+                  - generic [ref=f1e312]: Alternating dumbbell hammer curl
+                  - generic [ref=f1e313]: 3组×10次
+                - generic [ref=f1e314]:
+                  - button "😊" [ref=f1e315] [cursor=pointer]
+                  - button "✔" [ref=f1e316] [cursor=pointer]
+                  - button "😰" [ref=f1e317] [cursor=pointer]
+              - generic [ref=f1e318]:
+                - generic [ref=f1e321] [cursor=pointer]:
+                  - generic [ref=f1e322]: Zottman curl
+                  - generic [ref=f1e323]: 3组×10次
+                - generic [ref=f1e324]:
+                  - button "😊" [ref=f1e325] [cursor=pointer]
+                  - button "✔" [ref=f1e326] [cursor=pointer]
+                  - button "😰" [ref=f1e327] [cursor=pointer]
+          - generic [ref=f1e328]:
+            - heading "🏃 有氧收尾" [level=3] [ref=f1e329]
+            - generic [ref=f1e334] [cursor=pointer]:
+              - generic [ref=f1e335]: 慢跑
+              - generic [ref=f1e336]: 1组×20次 · 跑步机慢跑 20 分钟，心率保持在最大心率的 60-70%
+          - generic [ref=f1e337]:
+            - heading "🧘 拉伸" [level=3] [ref=f1e338]
+            - generic [ref=f1e339]:
+              - generic [ref=f1e343] [cursor=pointer]:
+                - generic [ref=f1e344]: 婴儿式背部拉伸
+                - generic [ref=f1e345]: 1秒 · 跪姿，双手前伸，臀部坐脚跟，背部放松，保持 20 秒
+              - generic [ref=f1e349] [cursor=pointer]:
+                - generic [ref=f1e350]: 猫牛式脊柱活动
+                - generic [ref=f1e351]: 1秒 · 四足跪姿，交替弓背和塌腰，各做 5 次
+          - generic [ref=f1e352]:
+            - generic [ref=f1e353]: ℹ️
+            - generic [ref=f1e354]: 😊 太轻松 → 加重量 | ✔ 正常完成 → 加次数 | 😰 太重了 → 减量
+          - button "📝 提交打卡" [disabled] [ref=f1e355]
+          - paragraph [ref=f1e356]: 请至少完成一个动作再提交
+  - generic [ref=f1e359]:
+    - generic [ref=f1e361]:
+      - button "Close" [ref=f1e362] [cursor=pointer]:
+        - img "close" [ref=f1e363]:
+          - img [ref=f1e364]
+      - generic [ref=f1e366]: 倾斜胸支撑哑铃划船
+    - generic [ref=f1e368]:
+      - img "倾斜胸支撑哑铃划船" [ref=f1e389]
+      - generic [ref=f1e372]:
+        - generic [ref=f1e390]: Back
+        - generic [ref=f1e391]: Bench
+        - generic [ref=f1e392]: Dumbbell
+        - generic [ref=f1e373]: ★
+      - generic [ref=f1e374]:
+        - generic [ref=f1e375]:
+          - generic [ref=f1e376]: ⚙️ 训练量
+          - generic [ref=f1e377]: 3组 × 10次
+        - generic [ref=f1e378]:
+          - generic [ref=f1e379]: 🏋️ 重量
+          - generic [ref=f1e380]: —
+        - generic [ref=f1e381]:
+          - generic [ref=f1e382]: ⏱️ 组间休息
+          - generic [ref=f1e383]: 60秒
+      - generic [ref=f1e393]:
+        - generic [ref=f1e394]: 📝 动作描述
+        - paragraph [ref=f1e395]: Set up an adjustable bench at a 45-degree angle. Lay on your stomach with your head hanging just above the edge of the bench. Grab a dumbbell in each hand and set up with a good posture – core and lats engaged and shoulders neutral. Row the dumbbells toward the top of the stomach and squeeze the back at the top of the rep. Finally, lower the dumbbells back to the starting position and repeat until all reps are completed.
+      - generic [ref=f1e384]:
+        - button "✅ 标记完成" [ref=f1e385] [cursor=pointer]:
+          - generic [ref=f1e386]: ✅ 标记完成
+        - button "😰 太重了，下次减轻" [ref=f1e387] [cursor=pointer]:
+          - generic [ref=f1e388]: 😰 太重了，下次减轻
