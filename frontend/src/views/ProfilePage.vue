@@ -76,19 +76,13 @@
     <!-- 右侧：训练周期总览 -->
     <div class="profile-right">
       <template v-if="cycleStore.roadmapData">
-        <CycleRoadmap :data="cycleStore.roadmapData" />
-        <PhaseDetail
-          :phase-label="cycleStore.mesocyclePhaseLabel || ''"
-          :phase-description="phaseDescription"
-          :color="currentPhaseColor"
-          :completion-rate="cycleStore.weekCompletionRate"
-          :week-number="cycleStore.currentWeekNumber"
-          :total-weeks="cycleStore.mesocycleTotalWeeks"
+        <CycleRoadmapNew
+          :data="cycleStore.roadmapData"
+          :goal="cycleStore.macrocycle?.goal || '增肌'"
           :completed-days="completedDays"
           :total-days="totalDays"
-          :next-phase="cycleStore.nextPhaseLabel ?? undefined"
+          :next-phase-label="cycleStore.nextPhaseLabel ?? undefined"
         />
-        <CycleHistory :segments="cycleStore.roadmapData.mesocycles" />
       </template>
       <div v-else class="profile-empty">
         <div class="empty-hint">
@@ -106,10 +100,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useCycleStore } from '@/stores/cycle'
 import { createOrUpdateProfile } from '@/services/api'
-import { PHASE_COLORS } from '@/types'
-import CycleRoadmap from '@/components/CycleRoadmap.vue'
-import PhaseDetail from '@/components/PhaseDetail.vue'
-import CycleHistory from '@/components/CycleHistory.vue'
+import CycleRoadmapNew from '@/components/CycleRoadmapNew.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -143,21 +134,6 @@ const stateData = reactive({
   experience_level: '新手',
   workout_location: '居家',
   preferredDays: '1,3,5',
-})
-
-const currentPhaseColor = computed(() => {
-  const phase = cycleStore.currentWeek?.mesocycle_phase ?? ''
-  return PHASE_COLORS[phase] || '#f97316'
-})
-
-const phaseDescription = computed(() => {
-  const d: Record<string, string> = {
-    foundational: '建立训练基础，掌握动作模式',
-    hypertrophy: '增加肌纤维横截面积',
-    strength: '增强绝对力量',
-    deload: '降低强度，促进恢复',
-  }
-  return d[cycleStore.currentWeek?.mesocycle_phase ?? ''] ?? ''
 })
 
 const completedDays = computed(() => cycleStore.currentWeek?.days.filter(d => d.is_completed).length ?? 0)
