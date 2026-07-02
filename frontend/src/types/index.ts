@@ -117,6 +117,7 @@ export interface MesocycleSummary {
 
 export interface MesocycleDetail extends MesocycleSummary {
   weeks: WeekSummary[]
+  completion_rate?: number
 }
 
 export interface WeekSummary {
@@ -124,6 +125,8 @@ export interface WeekSummary {
   week_number: number
   status: WeekStatus
   day_count: number
+  completed_days?: number
+  completion_rate?: number
 }
 
 // ═════════════════════════════════════════════════════════
@@ -140,6 +143,67 @@ export interface MacrocycleSummary {
 
 export interface MacrocycleDetail extends MacrocycleSummary {
   mesocycles: MesocycleDetail[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  路线图展示类型（中周期路线图用）
+// ═════════════════════════════════════════════════════════
+
+/** 各目标对应的阶段中文名 */
+export const PHASE_LABEL_MAP: Record<string, Record<string, string>> = {
+  '增肌': {
+    foundational: '基础适应期',
+    hypertrophy: '肌肥大期',
+    strength: '力量提升期',
+    deload: '减载恢复周',
+  },
+  '减脂': {
+    foundational: '基础适应期',
+    hypertrophy: '燃脂强化期',
+    strength: '代谢提升期',
+    deload: '减载恢复周',
+  },
+  '塑形': {
+    foundational: '基础适应期',
+    hypertrophy: '塑形雕刻期',
+    strength: '紧致提升期',
+    deload: '减载恢复周',
+  },
+  '保持健康': {
+    foundational: '基础适应期',
+    hypertrophy: '综合维持期',
+    strength: '活跃恢复期',
+    deload: '减载恢复周',
+  },
+}
+
+/** 阶段对应颜色 */
+export const PHASE_COLORS: Record<string, string> = {
+  foundational: '#3b82f6',
+  hypertrophy: '#22c55e',
+  strength: '#f97316',
+  deload: '#a855f7',
+}
+
+/** 路线图上单个阶段的显示数据 */
+export interface PhaseSegment {
+  phase: string
+  label: string
+  color: string
+  status: 'completed' | 'active' | 'pending'
+  weekCount: number
+  currentWeek?: number
+  completionRate: number
+  weeks: WeekSummary[]
+}
+
+/** 路线图全部数据 */
+export interface RoadmapData {
+  macrocycleId: number
+  goal: string
+  totalWeeks: number
+  currentWeekNumber: number
+  mesocycles: PhaseSegment[]
 }
 
 // ═════════════════════════════════════════════════════════

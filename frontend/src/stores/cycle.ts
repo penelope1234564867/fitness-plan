@@ -9,7 +9,8 @@ import { ref, computed } from 'vue'
 import * as api from '@/services/api'
 import { estimateProgress } from '@/services/sse'
 import dayjs from 'dayjs'
-import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry } from '@/types'
+import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
+import { PHASE_LABEL_MAP, PHASE_COLORS } from '@/types'
 
 export const useCycleStore = defineStore('cycle', () => {
   // ── 状态 ──
@@ -42,12 +43,8 @@ export const useCycleStore = defineStore('cycle', () => {
   const mesocycleTotalWeeks = computed(() => currentMesocycle.value?.week_count ?? 4)
 
   const mesocyclePhaseLabel = computed(() => {
-    const labels: Record<string, string> = {
-      foundational: '基础适应期',
-      hypertrophy: '肌肥大期',
-      strength: '力量期',
-      deload: '减载周',
-    }
+    const goal = macrocycle.value?.goal || '增肌'
+    const labels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
     return labels[currentWeek.value?.mesocycle_phase ?? ''] ?? ''
   })
 
@@ -60,6 +57,61 @@ export const useCycleStore = defineStore('cycle', () => {
   const isWeekComplete = computed(() => {
     if (!currentWeek.value?.days.length) return false
     return currentWeek.value.days.every(d => d.is_completed)
+  })
+
+  /** 路线图数据：转为前端展示格式 */
+  const roadmapData = computed<RoadmapData | null>(() => {
+    if (!macrocycle.value || !macrocycle.value.mesocycles.length) return null
+    const goal = macrocycle.value.goal || '增肌'
+    const phaseLabels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
+    const currentPhase = currentWeek.value?.mesocycle_phase ?? ''
+
+    let totalWeeksSum = 0
+    let currentWeekNumber = 0
+    let found = false
+
+    const segments: PhaseSegment[] = macrocycle.value.mesocycles.map(ms => {
+      totalWeeksSum += ms.week_count
+      let segStatus: 'completed' | 'active' | 'pending' = 'pending'
+      let weekInPhase = 0
+
+      if (ms.status === 'completed') {
+        segStatus = 'completed'
+      } else if (ms.phase === currentPhase && !found) {
+        segStatus = 'active'
+        weekInPhase = currentWeek.value?.week_number ?? 1
+        currentWeekNumber = totalWeeksSum - ms.week_count + weekInPhase
+        found = true
+      }
+
+      return {
+        phase: ms.phase,
+        label: phaseLabels[ms.phase] || ms.phase,
+        color: PHASE_COLORS[ms.phase] || '#999',
+        status: segStatus,
+        weekCount: ms.week_count,
+        currentWeek: segStatus === 'active' ? weekInPhase : undefined,
+        completionRate: ms.completion_rate ?? 0,
+        weeks: ms.weeks || [],
+      }
+    })
+
+    return {
+      macrocycleId: macrocycle.value.id,
+      goal,
+      totalWeeks: totalWeeksSum,
+      currentWeekNumber,
+      mesocycles: segments,
+    }
+  })
+
+  /** 当前阶段的下一个阶段名称 */
+  const nextPhaseLabel = computed<string | null>(() => {
+    if (!roadmapData.value) return null
+    const segs = roadmapData.value.mesocycles
+    const idx = segs.findIndex(s => s.status === 'active')
+    if (idx >= 0 && idx < segs.length - 1) return segs[idx + 1].label
+    return null
   })
 
   // ── Actions ──
@@ -195,6 +247,7 @@ export const useCycleStore = defineStore('cycle', () => {
     loading, error,
     currentMesocycle, currentWeekNumber, mesocycleTotalWeeks,
     mesocyclePhaseLabel, weekCompletionRate, isWeekComplete,
+    roadmapData, nextPhaseLabel,
     initPlan, generateNextWeek, fetchCurrentWeek, fetchMacrocycles,
     fetchCalendarData, initCalendarRange,
   }

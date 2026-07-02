@@ -25,6 +25,7 @@
         :status="cd.status"
         :focus-icon="cd.focusIcon"
         :focus-label="cd.focusLabel"
+        :phase-color="cd.phaseColor"
         @click="onDayClick"
       />
     </div>
@@ -37,6 +38,7 @@ import { useCycleStore } from '@/stores/cycle'
 import DayCell from './DayCell.vue'
 import dayjs from 'dayjs'
 import type { DayStatus } from '@/types'
+import { PHASE_COLORS } from '@/types'
 
 const emit = defineEmits<{ select: [date: string] }>()
 const cycleStore = useCycleStore()
@@ -78,6 +80,7 @@ interface CalendarDay {
   status: DayStatus
   focusIcon?: string
   focusLabel?: string
+  phaseColor?: string
 }
 const calendarDays = computed<CalendarDay[]>(() => {
   const start = dayjs(firstVisibleDate.value)
@@ -91,6 +94,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
     const dateStr = d.format('YYYY-MM-DD')
     const isCurrentMonth = d.format('YYYY-MM') === currentMonthStr
 
+    const entry = getEntry(dateStr)
     result.push({
       day: d.date(),
       date: dateStr,
@@ -99,6 +103,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
       status: getCellStatus(dateStr),
       focusIcon: getFocusIcon(dateStr),
       focusLabel: getFocusLabel(dateStr),
+      phaseColor: entry?.mesocycle_phase ? (PHASE_COLORS[entry.mesocycle_phase] || undefined) : undefined,
     })
   }
   return result

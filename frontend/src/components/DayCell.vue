@@ -14,6 +14,7 @@
     <span class="day-number">{{ day }}</span>
     <span v-if="focusIcon && status !== 'rest'" class="day-icon" :title="focusLabel">{{ focusIcon }}</span>
     <span v-else-if="status === 'rest'" class="day-icon rest-icon" title="休息日">☕</span>
+    <span v-if="phaseColor" class="phase-dot" :style="{ background: phaseColor }" />
   </div>
 </template>
 
@@ -26,6 +27,7 @@ const props = defineProps<{
   isToday: boolean
   isCurrentMonth?: boolean
   status: 'rest' | 'pending' | 'partial' | 'completed' | 'missed' | 'future'
+  phaseColor?: string
 }>()
 
 const emit = defineEmits<{ click: [date: string] }>()
@@ -69,6 +71,7 @@ function onClick() {
 .day-icon { font-size: 16px; line-height: 1; }
 
 .rest-icon { opacity: 0.5; font-size: 14px; }
+.phase-dot { position: absolute; bottom: 2px; right: 2px; width: 5px; height: 5px; border-radius: 50%; }
 
 /* 状态颜色 */
 .day-cell.completed { background: #f0fdf4; }
