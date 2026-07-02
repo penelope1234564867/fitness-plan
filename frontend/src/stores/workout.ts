@@ -43,19 +43,29 @@ export const useWorkoutStore = defineStore('workout', () => {
       is_completed: dd.day_status === 'completed',
       completed_date: dd.day_status === 'completed' ? dd.date : '',
       rpe_score: 0,
-      slots: dd.slots.map(s => ({
-        ...s,
-        day_id: dd.slots[0]?.day_id || 0,
-        _completed: false,
-        _rpeQuick: null as RPEQuick | null,
-        _loading: false,
-      })),
-      warmup: dd.warmup,
-      main: dd.main,
-      cardio: dd.cardio,
-      stretch: dd.stretch,
+      slots: (() => {
+        return dd.slots.map(s => _mapSlot(s, dd))
+      })(),
+      warmup: dd.slots.filter(s => s.phase_type === 'warmup').map(s => _mapSlot(s, dd)),
+      main: dd.slots.filter(s => s.phase_type === 'main').map(s => _mapSlot(s, dd)),
+      cardio: (() => {
+        const items = dd.slots.filter(s => s.phase_type === 'cardio').map(s => _mapSlot(s, dd))
+        return items[0] || null
+      })(),
+      stretch: dd.slots.filter(s => s.phase_type === 'stretch').map(s => _mapSlot(s, dd)),
     }
   })
+
+  /** 为 slot 添加前端 UI 状态字段 */
+  function _mapSlot(s: any, dd: any) {
+    return {
+      ...s,
+      day_id: dd?.slots?.[0]?.day_id || s.day_id || 0,
+      _completed: false,
+      _rpeQuick: null as RPEQuick | null,
+      _loading: false,
+    }
+  }
 
   // selectedDate 变化时自动获取 day detail
   watch(selectedDate, async (date) => {

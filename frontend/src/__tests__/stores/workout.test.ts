@@ -131,7 +131,16 @@ describe('workoutStore', () => {
     it('groups slots from dayDetail response', () => {
       const store = useWorkoutStore()
       const detail = createMockDayDetail()
-      detail.warmup = [{ name: '开合跳', sets: 1, reps: 1 }]
+      // 添加一个 warmup slot 到 slots 数组中
+      detail.slots.unshift({
+        id: 3, day_id: 1, phase_type: 'warmup', sort_order: 0,
+        wger_id: null, exercise_name: '开合跳',
+        target_sets: 1, target_reps: 1, target_reps_max: 1,
+        weight_kg: 0, weight_suggestion: '', rest_seconds: 15,
+        actual_sets: 0, actual_reps: 0, actual_weight_kg: 0,
+        rpe: 0, notes: '',
+        exercise: null,
+      })
       store.dayDetail = detail as any
       store.selectedDate = '2026-07-06'
 
