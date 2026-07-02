@@ -107,22 +107,22 @@ function attachHoverListeners() {
 
 /**
  * wger 肌肉 ID → vue-human-muscle-anatomy 肌群名映射
+ * 与后端 wger_service.py MUSCLE_CN 保持一致
  */
 const WGER_TO_MUSCLE_GROUP: Record<number, string> = {
-  1:  'biceps',       // 肱二头肌
-  2:  'frontDelts',   // 三角肌（默认前束，推类为主）
-  3:  'lowerBack',    // 竖脊肌
-  4:  'chest',        // 胸大肌
-  5:  'triceps',      // 肱三头肌
-  6:  'abs',          // 腹肌
-  7:  'adductors',   // 内收肌
-  8:  'glutes',       // 臀大肌
-  9:  'traps',        // 斜方肌
-  10: 'quads',        // 股四头肌
-  11: 'hamstrings',   // 腘绳肌
-  12: 'lats',         // 背阔肌
-  13: 'calves',       // 小腿
-  14: 'forearms',     // 前臂
+  1:  'biceps',        // 肱二头肌
+  2:  'frontDelts',    // 三角肌（默认前束，推类为主）
+  4:  'chest',          // 胸大肌
+  5:  'triceps',        // 肱三头肌
+  6:  'abs',            // 腹直肌
+  7:  'calves',         // 腓肠肌（原错标为 adductors）
+  8:  'glutes',         // 臀大肌
+  9:  'traps',          // 斜方肌
+  10: 'quads',          // 股四头肌
+  11: 'hamstrings',     // 腘绳肌
+  12: 'lats',           // 背阔肌
+  14: 'obliques',       // 腹外斜肌（原错标为 forearms）
+  15: 'calves',         // 比目鱼肌 → 归入小腿组
 }
 
 /** SVG path id → 中文名映射（vue-human-muscle-anatomy 的肌群名 → 中文） */

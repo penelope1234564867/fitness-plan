@@ -723,6 +723,8 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
                 ex = get_or_fetch_exercise(slot.wger_id, db)
             except Exception:
                 pass
+        # 懒加载回填：ex 存在但缺图片，异步信号（前端的 ExerciseDrawer 会异步调 /api/wger/exercise/{id}）
+        # 去掉同步 HTTP 请求以解决加载慢的问题
         slot_dict = {
             "id": slot.id,
             "phase_type": slot.phase_type,

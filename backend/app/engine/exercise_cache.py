@@ -158,6 +158,9 @@ def search_and_cache(
                             target_muscle=item.get("target_muscle", ""),
                             description=item.get("description", ""),
                             equipment="",
+                            image_url=item.get("image_url", ""),
+                            muscle_group=item.get("muscle_group", ""),
+                            difficulty=item.get("difficulty", 1),
                         )
                         cache_db.add(ex)
                         new_count += 1

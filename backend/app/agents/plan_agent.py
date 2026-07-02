@@ -292,14 +292,22 @@ def assemble_one_day(
                 text = text.replace("```json", "").replace("```", "").strip()
                 result = json.loads(text)
                 main = result.get("main", [])
+                # LLM 输出不含 image_url，从原始选中数据回填
+                _img_map = {ex.get("wger_id"): ex.get("image_url", "") for ex in selected_exercises if ex.get("wger_id")}
+                for item in main:
+                    wid = item.get("wger_id")
+                    if wid and wid in _img_map:
+                        item["image_url"] = _img_map[wid]
             except Exception as e:
                 print(f"  ⚠️ LLM 排序失败: {e}，使用原始顺序")
                 main = [{"name": ex["name"], "target_muscle": ex.get("target_muscle", ""),
-                         "sets": 3, "reps": 12, "rest_seconds": 60, "wger_id": ex.get("wger_id")}
+                         "sets": 3, "reps": 12, "rest_seconds": 60, "wger_id": ex.get("wger_id"),
+                         "image_url": ex.get("image_url", "")}
                         for ex in selected_exercises]
         else:
             main = [{"name": ex["name"], "target_muscle": ex.get("target_muscle", ""),
-                     "sets": 3, "reps": 12, "rest_seconds": 60, "wger_id": ex.get("wger_id")}
+                     "sets": 3, "reps": 12, "rest_seconds": 60, "wger_id": ex.get("wger_id"),
+                     "image_url": ex.get("image_url", "")}
                     for ex in selected_exercises]
 
     # 3. 有氧收尾（根据目标）

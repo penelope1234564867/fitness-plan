@@ -53,7 +53,7 @@ SELECT_PROMPT = """你是一个专业健身教练。从每个肌群选出最适�
 用户: 目标={goal}, 经验={experience}, 地点={location}
 训练分化: {split_name}
 
-可用动作:
+可用动作（[有图]=该动作有展示图片，优先选择）:
 {grouped_data}
 
 选动作规则:
@@ -61,8 +61,9 @@ SELECT_PROMPT = """你是一个专业健身教练。从每个肌群选出最适�
 
 要求:
 1. 每个肌群选 {per_group} 个，不多选
-2. 同天训练的不同肌群间动作要有区分度（不同器材/模式）
-3. 只输出 JSON: {{"selected": [{{"wger_id": 123, "muscle_id": 4}}, ...]}}
+2. **优先选择标记了 [有图] 的动作**，以便用户在训练时能查看动作示范图片
+3. 同天训练的不同肌群间动作要有区分度（不同器材/模式）
+4. 只输出 JSON: {{"selected": [{{"wger_id": 123, "muscle_id": 4}}, ...]}}
    不要 markdown 代码块，不要多余文字
 """
 
@@ -84,7 +85,19 @@ def search_all_muscles(muscle_ids: List[int]) -> Dict[int, List[dict]]:
             if not name:
                 continue
             equip_ids = [e["id"] for e in ex.get("equipment", []) if isinstance(e, dict) and e.get("id")]
-            results.append({"wger_id": ex["id"], "name": name, "muscle_id": mid, "equipment": equip_ids})
+            # 提取第一张图片 URL
+            image_url = ""
+            for img in ex.get("images", []):
+                if isinstance(img, dict) and img.get("image"):
+                    image_url = img["image"]
+                    break
+            results.append({
+                "wger_id": ex["id"],
+                "name": name,
+                "muscle_id": mid,
+                "equipment": equip_ids,
+                "image_url": image_url,
+            })
         random.shuffle(results)
         return results[:15]
 
@@ -118,8 +131,8 @@ def _invoke_json_llm(llm, prompt: str, max_tokens: int = 4096, verbose: bool = F
         collected.append(chunk)
     text = "".join(collected)
     text = text.strip().rstrip(",")
-\\
-    
+
+
     
     if verbose:
         print(f"\n  ── 流式结束 (共 {len(text)} 字符) ──")
@@ -144,7 +157,10 @@ def llm_select(
         if not exs:
             continue
         name = id_to_name.get(mid, str(mid))
-        items = ", ".join(f"[{e['wger_id']}] {e['name']}" for e in exs)
+        items = ", ".join(
+            f"[{e['wger_id']}] {e['name']}{'[有图]' if e.get('image_url') else '[无图]'}"
+            for e in exs
+        )
         lines.append(f"  {name}(ID={mid}): {items}")
 
     prompt = SELECT_PROMPT.format(

@@ -18,12 +18,18 @@
           <div class="skeleton-block"></div>
         </a-skeleton>
 
-        <!-- 轮播（多图） -->
-        <a-carousel v-else-if="displayImages.length > 1">
-          <div v-for="(img, i) in displayImages" :key="i" class="carousel-slide">
-            <img :src="img" :alt="`${exerciseName} - ${i + 1}`" />
+        <!-- 多图展示（a-carousel 有渲染 bug 改用首图+缩略点切换） -->
+        <div v-else-if="displayImages.length > 1" class="multi-image-area">
+          <img :src="displayImages[activeImageIndex]" :alt="exerciseName" class="multi-image-main" @click="cycleImage()" />
+          <div class="image-thumbs">
+            <span
+              v-for="(img, i) in displayImages" :key="i"
+              class="thumb-dot"
+              :class="{ active: i === activeImageIndex }"
+              @click="activeImageIndex = i"
+            ></span>
           </div>
-        </a-carousel>
+        </div>
 
         <!-- 单图 -->
         <img v-else-if="displayImages.length === 1" :src="displayImages[0]" :alt="exerciseName" class="single-img" />
@@ -48,8 +54,7 @@
         <div class="muscle-section-label">🎯 主动肌</div>
         <div class="muscle-list">
           <div v-for="m in wgerPrimaryMuscles" :key="m.id" class="muscle-item">
-            <span class="muscle-en">{{ m.name_en }}</span>
-            <span v-if="m.name_cn" class="muscle-cn">{{ m.name_cn }}</span>
+            <span class="muscle-cn-only">{{ m.name_cn || m.name_en }}</span>
           </div>
         </div>
       </div>
@@ -59,8 +64,7 @@
         <div class="muscle-section-label">🤝 辅助肌</div>
         <div class="muscle-list">
           <div v-for="m in wgerSecondaryMuscles" :key="m.id" class="muscle-item">
-            <span class="muscle-en">{{ m.name_en }}</span>
-            <span v-if="m.name_cn" class="muscle-cn">{{ m.name_cn }}</span>
+            <span class="muscle-cn-only">{{ m.name_cn || m.name_en }}</span>
           </div>
         </div>
       </div>
@@ -72,10 +76,6 @@
           <span class="info-value">{{ volumeText }}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">🏋️ 重量</span>
-          <span class="info-value">{{ weightText }}</span>
-        </div>
-        <div class="info-row">
           <span class="info-label">⏱️ 组间休息</span>
           <span class="info-value">{{ exercise.rest_seconds ? `${exercise.rest_seconds}秒` : '—' }}</span>
         </div>
@@ -85,6 +85,16 @@
       <div v-if="displayDescription" class="desc-section">
         <div class="desc-label">📝 动作描述</div>
         <p class="desc-text">{{ displayDescription }}</p>
+      </div>
+
+      <!-- ═══ AI 加载中（wger 请求未完成时显示） ═══ -->
+      <div v-if="loadingLocal" class="ai-loading-section">
+        <a-spin :spinning="true" size="large">
+          <div class="ai-loading-content">
+            <div class="ai-loading-icon">🤖</div>
+            <div class="ai-loading-text">AI 正在生成详细描述…</div>
+          </div>
+        </a-spin>
       </div>
 
       <!-- ═══ 操作按钮 ═══ -->
@@ -133,6 +143,33 @@ const workoutStore = useWorkoutStore()
 
 const loadingLocal = ref(false)
 const displayImages = ref<string[]>([])
+const activeImageIndex = ref(0)
+/** 自动轮播定时器 */
+const autoSlideTimer = ref<ReturnType<typeof setInterval> | null>(null)
+/** 防止同一 wger_id 重复请求：记录当前正在请求的 id */
+const fetchingWgerId = ref<number | null>(null)
+
+function startAutoSlide() {
+  stopAutoSlide()
+  if (displayImages.value.length > 1) {
+    autoSlideTimer.value = setInterval(() => {
+      activeImageIndex.value = (activeImageIndex.value + 1) % displayImages.value.length
+    }, 3000)
+  }
+}
+
+function stopAutoSlide() {
+  if (autoSlideTimer.value !== null) {
+    clearInterval(autoSlideTimer.value)
+    autoSlideTimer.value = null
+  }
+}
+
+function cycleImage() {
+  if (displayImages.value.length > 1) {
+    activeImageIndex.value = (activeImageIndex.value + 1) % displayImages.value.length
+  }
+}
 const displayDescription = ref('')
 const wgerPrimaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
 const wgerSecondaryMuscles = ref<{id: number; name_en: string; name_cn: string}[]>([])
@@ -171,6 +208,9 @@ watch(
     wgerEquipmentList.value = []
     wgerMuscleGroup.value = ''
     loadingLocal.value = false
+    activeImageIndex.value = 0
+    // 注意：fetchingWgerId 不在这重置，让防重逻辑生效
+    // 只在关闭 drawer 时由 close handler 重置
 
     // 第一步：从本地 exercise 数据的 image_url 提取，立即显示
     const localImages = props.exercise.exercise?.image_url
@@ -192,11 +232,15 @@ watch(
 
     // 第二步：有 wgerId 时，异步获取 wger 高清图 + 全部肌肉/器材详情
     if (props.exercise.wger_id) {
+      // 防止同一 wger_id 重复请求
+      if (fetchingWgerId.value === props.exercise.wger_id) return
+      fetchingWgerId.value = props.exercise.wger_id
       loadingLocal.value = true
       try {
         const detail = await fetchExerciseDetail(props.exercise.wger_id)
         if (detail.images && detail.images.length > 0) {
           displayImages.value = detail.images
+          startAutoSlide()
         }
         if (detail.description) {
           displayDescription.value = detail.description
@@ -235,6 +279,9 @@ watch(
       workoutStore.activePrimaryMuscles = []
       workoutStore.activeSecondaryMuscles = []
       loadingLocal.value = false
+      activeImageIndex.value = 0
+      stopAutoSlide()
+      fetchingWgerId.value = null
       document.body.style.overflow = ''
     }
   },
@@ -259,20 +306,8 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* — a-carousel 轮播 — */
-.carousel-slide {
-  height: 280px;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-}
-.carousel-slide img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  /* wger 图片多为白底白描，加内阴影让图片区域边缘可见 */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
 /* — 单张图 — */
@@ -282,7 +317,49 @@ watch(
   object-fit: contain;
   display: block;
   background: #f5f5f5;
+  /* wger 图片白底白描，加边框使轮廓可见 */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
+
+/* — 多图展示（替代有 bug 的 a-carousel） — */
+.multi-image-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.multi-image-main {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  display: block;
+  background: #f5f5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  /* wger 图片白底白描，加边框使轮廓可见 */
+  border: 1px solid #e0e0e0;
+  box-sizing: border-box;
+}
+.multi-image-main:hover { opacity: 0.85; }
+.image-thumbs {
+  display: flex;
+  gap: 6px;
+  padding: 4px 0;
+}
+.thumb-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9d9d9;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.thumb-dot.active { background: #f97316; transform: scale(1.3); }
+.thumb-dot:hover { background: #fb923c; }
 
 /* — 无图占位 — */
 .no-image-placeholder {
@@ -347,15 +424,10 @@ watch(
   border: 1px solid #f0f0f0;
 }
 
-.muscle-en {
+.muscle-cn-only {
   font-size: 14px;
   font-weight: 600;
   color: #1a1a1a;
-}
-
-.muscle-cn {
-  font-size: 13px;
-  color: #999;
 }
 
 /* ══════════════════════════════════════════
@@ -415,9 +487,41 @@ watch(
 
 .desc-text {
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.8;
   color: #555;
   margin: 0;
+  white-space: pre-line;
+}
+
+/* ══════════════════════════════════════════
+   AI 加载中
+   ══════════════════════════════════════════ */
+.ai-loading-section {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 32px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ai-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.ai-loading-icon {
+  font-size: 28px;
+  animation: ai-pulse 1.5s ease-in-out infinite;
+}
+.ai-loading-text {
+  font-size: 13px;
+  color: #999;
+  letter-spacing: 0.5px;
+}
+@keyframes ai-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
 }
 
 /* ══════════════════════════════════════════
