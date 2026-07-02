@@ -118,9 +118,32 @@ async def init_plan(req: schemas.InitPlanRequest, db: Session = Depends(get_db))
                 start_date=req.start_date,
             )
 
-            # 构建响应数据
-            response = _build_week_response(week, db)
+            # 预创建第 2~4 周框架（路线图用）
+            try:
+                from app.engine.mesocycle_manager import generate_mesocycle_skeleton
+                skeleton_weeks = await generate_mesocycle_skeleton(
+                    mesocycle, ucs, db,
+                    start_date=req.start_date or week.start_date,
+                    event_queue=event_queue,
+                    start_week=2,
+                )
+                await event_queue.put(("progress", {
+                    "phase": "skeleton",
+                    "text": f"📅 预创建了 {len(skeleton_weeks)} 周框架"
+                }))
+            except Exception as e:
+                # 框架创建失败不应阻止主流程
+                print(f"[Fitness] 中周期框架预创建失败: {e}")
 
+            # 提交所有数据库变更
+            db.commit()
+
+            # 构建响应数据 + 宏周期详情
+            response = _build_week_response(week, db)
+            macrocycle_detail = _build_macrocycle_detail(macrocycle, db)
+
+            # 先发送 macrocycle_detail 再发送 done
+            await event_queue.put(("macrocycle_detail", macrocycle_detail))
             await event_queue.put(("__DONE__", response))
 
         except Exception as e:
@@ -180,6 +203,15 @@ async def generate_next(db: Session = Depends(get_db)):
                 return
 
             response = _build_week_response(new_week, db)
+
+            # 返回更新后的 macrocycle_detail
+            macrocycle = db.query(orm_models.Macrocycle).filter(
+                orm_models.Macrocycle.status == "active"
+            ).first()
+            if macrocycle:
+                macrocycle_detail = _build_macrocycle_detail(macrocycle, db)
+                await event_queue.put(("macrocycle_detail", macrocycle_detail))
+
             await event_queue.put(("__DONE__", response))
 
         except Exception as e:
@@ -673,12 +705,25 @@ def _build_macrocycle_detail(mc: orm_models.Macrocycle, db: Session) -> dict:
                 orm_models.Day.week_id == w.id
             ).order_by(orm_models.Day.day_order).all()
 
+            completed_days = sum(1 for d in days if d.is_completed)
+            total_days = len(days) or 1
+            week_completion_rate = round((completed_days / total_days) * 100)
+
             weeks_data.append({
                 "id": w.id,
                 "week_number": w.week_number,
                 "status": w.status,
                 "day_count": len(days),
+                "completed_days": completed_days,
+                "completion_rate": week_completion_rate,
             })
+
+        # mesocycle 级完成率（已有数据的周的均值）
+        active_weeks = [w for w in weeks_data if w["status"] != "pending"]
+        if active_weeks:
+            meso_completion = round(sum(w["completion_rate"] for w in active_weeks) / len(active_weeks))
+        else:
+            meso_completion = 0
 
         meso_data.append({
             "id": ms.id,
@@ -686,6 +731,7 @@ def _build_macrocycle_detail(mc: orm_models.Macrocycle, db: Session) -> dict:
             "week_count": ms.week_count,
             "sort_order": ms.sort_order,
             "status": ms.status,
+            "completion_rate": meso_completion,
             "weeks": weeks_data,
         })
 
