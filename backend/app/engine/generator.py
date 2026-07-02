@@ -182,13 +182,14 @@ async def generate_init_week(
                 "text": f"📡 肌群 ID={mid}: 获取到 {count} 个动作",
             })
 
-    # 2c: 汇总结果，构建 mid → [{wger_id, name, muscle_id, description, equipment}] 的映射
+    # 2c: 汇总结果，构建 mid → [{wger_id, name, muscle_id, description, equipment, image_url}] 的映射
     muscle_exercises = {}
     for mid, exercises in raw_results:
         muscle_exercises[mid] = [
             {"wger_id": e.get("id"), "name": e.get("name", ""),
              "muscle_id": mid, "description": e.get("description", ""),
-             "equipment": e.get("equipment", "")}
+             "equipment": e.get("equipment", ""),
+             "image_url": e.get("image_url", "")}
             for e in exercises if e.get("id")
         ]
 

@@ -69,7 +69,8 @@ onMounted(async () => {
       }
     }
   } catch {
-    // 没有计划 → 去个人信息页
+    // 没有计划 → 重置引导状态让用户重新设置 → 去个人信息页
+    userStore.resetOnboarding()
     router.replace('/')
   }
 
