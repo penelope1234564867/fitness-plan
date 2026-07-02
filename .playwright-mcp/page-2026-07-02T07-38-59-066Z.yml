@@ -1,0 +1,211 @@
+- generic [ref=f5e1]:
+  - generic [ref=f5e3]:
+    - banner [ref=f5e4]:
+      - generic [ref=f5e5]:
+        - generic [ref=f5e6] [cursor=pointer]:
+          - generic [ref=f5e7]: 💪
+          - heading "AI 智能健身助手" [level=1] [ref=f5e8]
+        - generic [ref=f5e11] [cursor=pointer]: ♀
+    - generic [ref=f5e13]:
+      - complementary [ref=f5e14]:
+        - generic [ref=f5e16]:
+          - generic [ref=f5e17]:
+            - button "‹" [ref=f5e18] [cursor=pointer]
+            - heading "2026年7月" [level=3] [ref=f5e19]
+            - button "›" [ref=f5e20] [cursor=pointer]
+            - button "今天" [ref=f5e21] [cursor=pointer]
+          - generic [ref=f5e22]:
+            - generic [ref=f5e23]: 日
+            - generic [ref=f5e24]: 一
+            - generic [ref=f5e25]: 二
+            - generic [ref=f5e26]: 三
+            - generic [ref=f5e27]: 四
+            - generic [ref=f5e28]: 五
+            - generic [ref=f5e29]: 六
+          - generic [ref=f5e30]:
+            - generic [ref=f5e32]: "28"
+            - generic [ref=f5e33] [cursor=pointer]:
+              - generic [ref=f5e34]: "29"
+              - generic "胸部 + 肩部 + 三头" [ref=f5e148]: 🏋️
+            - generic [ref=f5e36]: "30"
+            - generic [ref=f5e37] [cursor=pointer]:
+              - generic [ref=f5e38]: "1"
+              - generic "背部 + 二头" [ref=f5e149]: 🏋️
+            - generic [ref=f5e40] [cursor=pointer]: "2"
+            - generic [ref=f5e41] [cursor=pointer]:
+              - generic [ref=f5e42]: "3"
+              - generic "腿部 + 臀部" [ref=f5e150]: 🦵
+            - generic [ref=f5e44]: "4"
+            - generic [ref=f5e46]: "5"
+            - generic [ref=f5e48]: "6"
+            - generic [ref=f5e50]: "7"
+            - generic [ref=f5e52]: "8"
+            - generic [ref=f5e54]: "9"
+            - generic [ref=f5e56]: "10"
+            - generic [ref=f5e58]: "11"
+            - generic [ref=f5e60]: "12"
+            - generic [ref=f5e62]: "13"
+            - generic [ref=f5e64]: "14"
+            - generic [ref=f5e66]: "15"
+            - generic [ref=f5e68]: "16"
+            - generic [ref=f5e70]: "17"
+            - generic [ref=f5e72]: "18"
+            - generic [ref=f5e74]: "19"
+            - generic [ref=f5e76]: "20"
+            - generic [ref=f5e78]: "21"
+            - generic [ref=f5e80]: "22"
+            - generic [ref=f5e82]: "23"
+            - generic [ref=f5e84]: "24"
+            - generic [ref=f5e86]: "25"
+            - generic [ref=f5e88]: "26"
+            - generic [ref=f5e90]: "27"
+            - generic [ref=f5e92]: "28"
+            - generic [ref=f5e94]: "29"
+            - generic [ref=f5e96]: "30"
+            - generic [ref=f5e98]: "31"
+            - generic [ref=f5e100]: "1"
+        - generic [ref=f5e102]:
+          - generic [ref=f5e103]:
+            - generic [ref=f5e104]: 🎯
+            - generic [ref=f5e151]: 基础适应期
+          - generic [ref=f5e105]:
+            - generic [ref=f5e106]: 第1周 / 共4周
+            - generic [ref=f5e108]: 0%
+          - generic [ref=f5e109]:
+            - generic [ref=f5e110]: 📋 已完成 0%
+            - button "⚡ 生成下周" [disabled] [ref=f5e111]
+        - generic [ref=f5e113]:
+          - generic [ref=f5e115]: 💪 肌肉分布
+          - img [ref=f5e152]
+      - main [ref=f5e143]:
+        - generic [ref=f5e196]:
+          - generic [ref=f5e197]:
+            - heading "7月1日 周三" [level=2] [ref=f5e377]
+            - generic [ref=f5e199]: 背部 + 二头
+          - generic [ref=f5e200]:
+            - heading "🔥 热身" [level=3] [ref=f5e201]
+            - generic [ref=f5e202]:
+              - generic [ref=f5e381] [cursor=pointer]:
+                - generic [ref=f5e382]: 肩部环绕
+                - generic [ref=f5e383]: 10秒 · 向前向后各绕 10 圈
+              - generic [ref=f5e387] [cursor=pointer]:
+                - generic [ref=f5e388]: 手臂前后画圈
+                - generic [ref=f5e389]: 10秒 · 由小到大画圈
+              - generic [ref=f5e393] [cursor=pointer]:
+                - generic [ref=f5e394]: 抱膝提踵
+                - generic [ref=f5e395]: 8秒 · 单腿抱膝上提，同时另一脚踮起
+              - generic [ref=f5e399] [cursor=pointer]:
+                - generic [ref=f5e400]: 开合跳
+                - generic [ref=f5e401]: 15秒 · 手脚同步打开再收回
+              - generic [ref=f5e405] [cursor=pointer]:
+                - generic [ref=f5e406]: 高抬腿
+                - generic [ref=f5e407]: 15秒 · 膝盖抬高至腰部，保持核心收紧
+              - generic [ref=f5e411] [cursor=pointer]:
+                - generic [ref=f5e412]: 胯下击掌
+                - generic [ref=f5e413]: 15秒 · 抬腿至胯高，双手在大腿下击掌
+              - generic [ref=f5e417] [cursor=pointer]:
+                - generic [ref=f5e418]: 后踢腿
+                - generic [ref=f5e419]: 15秒 · 脚跟尽量踢到臀部
+              - generic [ref=f5e423] [cursor=pointer]:
+                - generic [ref=f5e424]: 弓步转体
+                - generic [ref=f5e425]: 8秒 · 前腿弓步同时上半身向同侧转
+              - generic [ref=f5e429] [cursor=pointer]:
+                - generic [ref=f5e430]: 侧弓步
+                - generic [ref=f5e431]: 8秒 · 向侧方迈步屈膝，另一腿伸直
+              - generic [ref=f5e435] [cursor=pointer]:
+                - generic [ref=f5e436]: 手腕脚踝活动
+                - generic [ref=f5e437]: 10秒 · 转动手腕和脚踝各 10 圈
+          - generic [ref=f5e263]:
+            - heading "💪 主训练" [level=3] [ref=f5e264]
+            - generic [ref=f5e265]:
+              - generic [ref=f5e438]:
+                - generic [ref=f5e441] [cursor=pointer]:
+                  - generic [ref=f5e442]: 中立握胸前下拉
+                  - generic [ref=f5e443]: 3组×10次
+                - generic [ref=f5e444]:
+                  - button "😊" [ref=f5e445] [cursor=pointer]
+                  - button "✔" [ref=f5e446] [cursor=pointer]
+                  - button "😰" [ref=f5e447] [cursor=pointer]
+              - generic [ref=f5e448]:
+                - generic [ref=f5e451] [cursor=pointer]:
+                  - generic [ref=f5e452]: 坐姿窄握划船
+                  - generic [ref=f5e453]: 3组×10次
+                - generic [ref=f5e454]:
+                  - button "😊" [ref=f5e455] [cursor=pointer]
+                  - button "✔" [ref=f5e456] [cursor=pointer]
+                  - button "😰" [ref=f5e457] [cursor=pointer]
+              - generic [ref=f5e458]:
+                - generic [ref=f5e461] [cursor=pointer]:
+                  - generic [ref=f5e462]: 上斜胸支撑哑铃划船
+                  - generic [ref=f5e463]: 3组×10次
+                - generic [ref=f5e464]:
+                  - button "😊" [ref=f5e465] [cursor=pointer]
+                  - button "✔" [ref=f5e466] [cursor=pointer]
+                  - button "😰" [ref=f5e467] [cursor=pointer]
+              - generic [ref=f5e468]:
+                - generic [ref=f5e471] [cursor=pointer]:
+                  - generic [ref=f5e472]: 哑铃二头弯举
+                  - generic [ref=f5e473]: 3组×10次
+                - generic [ref=f5e474]:
+                  - button "😊" [ref=f5e475] [cursor=pointer]
+                  - button "✔" [ref=f5e476] [cursor=pointer]
+                  - button "😰" [ref=f5e477] [cursor=pointer]
+              - generic [ref=f5e478]:
+                - generic [ref=f5e481] [cursor=pointer]:
+                  - generic [ref=f5e482]: 绳索集中弯举
+                  - generic [ref=f5e483]: 3组×10次
+                - generic [ref=f5e484]:
+                  - button "😊" [ref=f5e485] [cursor=pointer]
+                  - button "✔" [ref=f5e486] [cursor=pointer]
+                  - button "😰" [ref=f5e487] [cursor=pointer]
+              - generic [ref=f5e488]:
+                - generic [ref=f5e491] [cursor=pointer]:
+                  - generic [ref=f5e492]: TRX二头弯举
+                  - generic [ref=f5e493]: 3组×10次
+                - generic [ref=f5e494]:
+                  - button "😊" [ref=f5e495] [cursor=pointer]
+                  - button "✔" [ref=f5e496] [cursor=pointer]
+                  - button "😰" [ref=f5e497] [cursor=pointer]
+          - generic [ref=f5e336]:
+            - heading "🏃 有氧收尾" [level=3] [ref=f5e337]
+            - generic [ref=f5e342] [cursor=pointer]:
+              - generic [ref=f5e343]: 慢跑
+              - generic [ref=f5e344]: 1组×20次 · 跑步机慢跑 20 分钟，心率保持在最大心率的 60-70%
+          - generic [ref=f5e345]:
+            - heading "🧘 拉伸" [level=3] [ref=f5e346]
+            - generic [ref=f5e347]:
+              - generic [ref=f5e501] [cursor=pointer]:
+                - generic [ref=f5e502]: 婴儿式背部拉伸
+                - generic [ref=f5e503]: 1秒 · 跪姿，双手前伸，臀部坐脚跟，背部放松，保持 20 秒
+              - generic [ref=f5e507] [cursor=pointer]:
+                - generic [ref=f5e508]: 猫牛式脊柱活动
+                - generic [ref=f5e509]: 1秒 · 四足跪姿，交替弓背和塌腰，各做 5 次
+          - generic [ref=f5e372]:
+            - generic [ref=f5e373]: ℹ️
+            - generic [ref=f5e374]: 😊 太轻松 → 加重量 | ✔ 正常完成 → 加次数 | 😰 太重了 → 减量
+          - button "📝 提交打卡" [disabled] [ref=f5e375]
+          - paragraph [ref=f5e376]: 请至少完成一个动作再提交
+  - generic [ref=f5e512]:
+    - generic [ref=f5e514]:
+      - button "Close" [ref=f5e515] [cursor=pointer]:
+        - img "close" [ref=f5e516]:
+          - img [ref=f5e517]
+      - generic [ref=f5e519]: TRX二头弯举
+    - generic [ref=f5e521]:
+      - generic [ref=f5e524]: T
+      - generic [ref=f5e526]: ★
+      - generic [ref=f5e527]:
+        - generic [ref=f5e528]:
+          - generic [ref=f5e529]: ⚙️ 训练量
+          - generic [ref=f5e530]: 3组 × 10次
+        - generic [ref=f5e531]:
+          - generic [ref=f5e532]: 🏋️ 重量
+          - generic [ref=f5e533]: —
+        - generic [ref=f5e534]:
+          - generic [ref=f5e535]: ⏱️ 组间休息
+          - generic [ref=f5e536]: 60秒
+      - generic [ref=f5e537]:
+        - button "✅ 标记完成" [ref=f5e538] [cursor=pointer]:
+          - generic [ref=f5e539]: ✅ 标记完成
+        - button "😰 太重了，下次减轻" [ref=f5e540] [cursor=pointer]:
+          - generic [ref=f5e541]: 😰 太重了，下次减轻

@@ -426,11 +426,30 @@ async def get_calendar_data(from_date: str = "", to_date: str = "",
         raise HTTPException(status_code=400,
                             detail="请提供 from 和 to 参数 (YYYY-MM-DD)")
 
-    # 查询该日期范围内所有 Day
-    days = db.query(orm_models.Day).filter(
+    # 获取当前活跃大周期的所有 week_id（避免旧数据干扰）
+    active_macro = db.query(orm_models.Macrocycle).filter(
+        orm_models.Macrocycle.status == "active",
+    ).order_by(orm_models.Macrocycle.id.desc()).first()
+
+    valid_week_ids: list[int] = []
+    if active_macro:
+        mesocycles = db.query(orm_models.Mesocycle).filter(
+            orm_models.Mesocycle.macrocycle_id == active_macro.id,
+        ).all()
+        for meso in mesocycles:
+            weeks = db.query(orm_models.Week).filter(
+                orm_models.Week.mesocycle_id == meso.id,
+            ).all()
+            valid_week_ids.extend(w.id for w in weeks)
+
+    # 查询该日期范围内、属于当前大周期的 Day
+    query = db.query(orm_models.Day).filter(
         orm_models.Day.date >= from_date,
         orm_models.Day.date <= to_date,
-    ).order_by(orm_models.Day.date).all()
+    )
+    if valid_week_ids:
+        query = query.filter(orm_models.Day.week_id.in_(valid_week_ids))
+    days = query.order_by(orm_models.Day.date).all()
 
     # 构建 date → Day 的映射
     day_map = {d.date: d for d in days}
@@ -492,7 +511,26 @@ async def get_day_detail(date: str = "",
 
     day = db.query(orm_models.Day).filter(
         orm_models.Day.date == date
-    ).first()
+    )
+
+    # 同样只查当前活跃大周期的 Day（避免旧数据干扰）
+    active_macro = db.query(orm_models.Macrocycle).filter(
+        orm_models.Macrocycle.status == "active",
+    ).order_by(orm_models.Macrocycle.id.desc()).first()
+    if active_macro:
+        valid_week_ids = [
+            w.id
+            for meso in db.query(orm_models.Mesocycle).filter(
+                orm_models.Mesocycle.macrocycle_id == active_macro.id,
+            ).all()
+            for w in db.query(orm_models.Week).filter(
+                orm_models.Week.mesocycle_id == meso.id,
+            ).all()
+        ]
+        if valid_week_ids:
+            day = day.filter(orm_models.Day.week_id.in_(valid_week_ids))
+
+    day = day.first()
 
     if not day:
         return {
@@ -688,52 +726,76 @@ def _build_week_response(week: orm_models.Week, db: Session) -> dict:
 
 
 def _build_macrocycle_detail(mc: orm_models.Macrocycle, db: Session) -> dict:
-    """构建大周期的完整 JSON 响应（嵌套所有子数据）。"""
+    """构建大周期的完整 JSON 响应（嵌套所有子数据）。
+
+    始终返回完整 4 阶段（foundational → hypertrophy → strength → deload），
+    尚未生成的阶段以 placeholder 填充，供前端路线图展示。
+    """
     mesocycles = db.query(orm_models.Mesocycle).filter(
         orm_models.Mesocycle.macrocycle_id == mc.id
     ).order_by(orm_models.Mesocycle.sort_order).all()
 
+    # 已有阶段名 → 排序序号
+    existing_phases = {ms.phase: ms for ms in mesocycles}
+
+    # 完整阶段顺序
+    ALL_PHASES = ["foundational", "hypertrophy", "strength", "deload"]
+
     meso_data = []
-    for ms in mesocycles:
-        weeks = db.query(orm_models.Week).filter(
-            orm_models.Week.mesocycle_id == ms.id
-        ).order_by(orm_models.Week.week_number).all()
+    for idx, phase_name in enumerate(ALL_PHASES):
+        if phase_name in existing_phases:
+            # ── 数据库已有的真实 mesocycle ──
+            ms = existing_phases[phase_name]
+            weeks = db.query(orm_models.Week).filter(
+                orm_models.Week.mesocycle_id == ms.id
+            ).order_by(orm_models.Week.week_number).all()
 
-        weeks_data = []
-        for w in weeks:
-            days = db.query(orm_models.Day).filter(
-                orm_models.Day.week_id == w.id
-            ).order_by(orm_models.Day.day_order).all()
+            weeks_data = []
+            for w in weeks:
+                days = db.query(orm_models.Day).filter(
+                    orm_models.Day.week_id == w.id
+                ).order_by(orm_models.Day.day_order).all()
 
-            completed_days = sum(1 for d in days if d.is_completed)
-            total_days = len(days) or 1
-            week_completion_rate = round((completed_days / total_days) * 100)
+                completed_days = sum(1 for d in days if d.is_completed)
+                total_days = len(days) or 1
+                week_completion_rate = round((completed_days / total_days) * 100)
 
-            weeks_data.append({
-                "id": w.id,
-                "week_number": w.week_number,
-                "status": w.status,
-                "day_count": len(days),
-                "completed_days": completed_days,
-                "completion_rate": week_completion_rate,
+                weeks_data.append({
+                    "id": w.id,
+                    "week_number": w.week_number,
+                    "status": w.status,
+                    "day_count": len(days),
+                    "completed_days": completed_days,
+                    "completion_rate": week_completion_rate,
+                })
+
+            # mesocycle 级完成率（已有数据的周的均值）
+            active_weeks = [w for w in weeks_data if w["status"] != "pending"]
+            if active_weeks:
+                meso_completion = round(sum(w["completion_rate"] for w in active_weeks) / len(active_weeks))
+            else:
+                meso_completion = 0
+
+            meso_data.append({
+                "id": ms.id,
+                "phase": ms.phase,
+                "week_count": ms.week_count,
+                "sort_order": ms.sort_order,
+                "status": ms.status,
+                "completion_rate": meso_completion,
+                "weeks": weeks_data,
             })
-
-        # mesocycle 级完成率（已有数据的周的均值）
-        active_weeks = [w for w in weeks_data if w["status"] != "pending"]
-        if active_weeks:
-            meso_completion = round(sum(w["completion_rate"] for w in active_weeks) / len(active_weeks))
         else:
-            meso_completion = 0
-
-        meso_data.append({
-            "id": ms.id,
-            "phase": ms.phase,
-            "week_count": ms.week_count,
-            "sort_order": ms.sort_order,
-            "status": ms.status,
-            "completion_rate": meso_completion,
-            "weeks": weeks_data,
-        })
+            # ── 尚未生成的阶段 —— placeholder ──
+            meso_data.append({
+                "id": -(idx + 1),  # 负 ID 表示占位
+                "phase": phase_name,
+                "week_count": 4,
+                "sort_order": idx + 1,
+                "status": "pending",
+                "completion_rate": 0,
+                "weeks": [],
+            })
 
     return {
         "id": mc.id,
@@ -773,6 +835,7 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
         # 去掉同步 HTTP 请求以解决加载慢的问题
         slot_dict = {
             "id": slot.id,
+            "day_id": slot.day_id,
             "phase_type": slot.phase_type,
             "sort_order": slot.sort_order,
             "wger_id": slot.wger_id,
@@ -840,6 +903,7 @@ def _build_day_detail(day: orm_models.Day, db: Session) -> dict:
 
     return {
         "date": day.date or "",
+        "day_id": day.id,
         "day_status": day_status,
         "day_label": day.day_label or "",
         "focus": day.focus or "",

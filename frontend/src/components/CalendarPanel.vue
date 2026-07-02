@@ -5,7 +5,13 @@
       <button class="nav-btn" @click="prevMonth">‹</button>
       <h3 class="month-title">{{ monthLabel }}</h3>
       <button class="nav-btn" @click="nextMonth">›</button>
-      <button class="today-btn" @click="goToToday">今天</button>
+      <button
+        class="reschedule-toggle"
+        :class="{ active: rescheduleMode }"
+        @click="toggleRescheduleMode"
+      >
+        {{ rescheduleMode ? '退出调整' : '调整日期' }}
+      </button>
     </div>
 
     <!-- 星期头 -->
@@ -21,22 +27,25 @@
         :day="cd.day"
         :date="cd.date"
         :is-today="cd.isToday"
+        :is-selected="cd.isSelected"
         :is-current-month="cd.isCurrentMonth"
         :status="cd.status"
         :focus-icon="cd.focusIcon"
         :focus-label="cd.focusLabel"
         :phase-color="cd.phaseColor"
+        :reschedule-state="cd.rescheduleState"
         @click="onDayClick"
-      />
+    />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCycleStore } from '@/stores/cycle'
 import DayCell from './DayCell.vue'
 import dayjs from 'dayjs'
+import * as api from '@/services/api'
 import type { DayStatus } from '@/types'
 import { PHASE_COLORS } from '@/types'
 
@@ -47,6 +56,39 @@ const weekdays = ['日', '一', '二', '三', '四', '五', '六']
 const todayStr = dayjs().format('YYYY-MM-DD')
 
 const currentMonth = ref(dayjs().format('YYYY-MM'))
+const selectedDate = ref<string | null>(null)
+
+// 调整日期模式
+const rescheduleMode = ref(false)
+const sourceDate = ref<string | null>(null)
+const sourceDayId = ref<number | null>(null)
+
+/** 目标日映射：dateStr → 'available' | 'occupied' | 'expired' */
+const targetDates = computed<Map<string, string>>(() => {
+  const map = new Map<string, string>()
+  if (!rescheduleMode.value || !sourceDate.value) return map
+
+  const d = dayjs(sourceDate.value)
+  const jsDay = d.day()
+  const dayOfWeek = jsDay || 7
+  const monday = d.subtract(dayOfWeek - 1, 'day')
+
+  for (let i = 0; i < 7; i++) {
+    const date = monday.add(i, 'day').format('YYYY-MM-DD')
+    const entry = getEntry(date)
+    const hasPlan = entry?.has_plan || false
+
+    if (date === sourceDate.value) continue
+    if (hasPlan) {
+      map.set(date, 'occupied')
+    } else if (date < todayStr) {
+      map.set(date, 'expired')
+    } else {
+      map.set(date, 'available')
+    }
+  }
+  return map
+})
 
 const focusIcons: Record<string, string> = {
   '胸部': '🏋️', '背部': '🏋️', '腿部': '🦵', '肩部': '🏋️',
@@ -77,10 +119,12 @@ interface CalendarDay {
   date: string
   isCurrentMonth: boolean
   isToday: boolean
+  isSelected: boolean
   status: DayStatus
   focusIcon?: string
   focusLabel?: string
   phaseColor?: string
+  rescheduleState?: 'source' | 'target-available' | 'target-occupied' | 'target-expired'
 }
 const calendarDays = computed<CalendarDay[]>(() => {
   const start = dayjs(firstVisibleDate.value)
@@ -95,15 +139,31 @@ const calendarDays = computed<CalendarDay[]>(() => {
     const isCurrentMonth = d.format('YYYY-MM') === currentMonthStr
 
     const entry = getEntry(dateStr)
+
+    // 调整模式状态
+    let rescheduleState: CalendarDay['rescheduleState']
+    if (rescheduleMode.value && sourceDate.value) {
+      if (dateStr === sourceDate.value) {
+        rescheduleState = 'source'
+      } else {
+        const t = targetDates.value.get(dateStr)
+        if (t === 'available') rescheduleState = 'target-available'
+        else if (t === 'occupied') rescheduleState = 'target-occupied'
+        else if (t === 'expired') rescheduleState = 'target-expired'
+      }
+    }
+
     result.push({
       day: d.date(),
       date: dateStr,
       isCurrentMonth,
       isToday: dateStr === todayStr,
+      isSelected: dateStr === selectedDate.value,
       status: getCellStatus(dateStr),
       focusIcon: getFocusIcon(dateStr),
       focusLabel: getFocusLabel(dateStr),
       phaseColor: entry?.mesocycle_phase ? (PHASE_COLORS[entry.mesocycle_phase] || undefined) : undefined,
+      rescheduleState,
     })
   }
   return result
@@ -146,20 +206,104 @@ function getFocusLabel(date: string): string | undefined {
 }
 
 function onDayClick(date: string) {
+  selectedDate.value = date
+  if (rescheduleMode.value) {
+    handleRescheduleClick(date)
+  } else {
+    emit('select', date)
+  }
+}
+
+async function handleRescheduleClick(date: string) {
   const entry = getEntry(date)
-  if (entry?.has_plan) emit('select', date)
+
+  // 第一步：选源日（有训练的、未完成的）
+  if (!sourceDate.value) {
+    if (!entry?.has_plan) return
+    if (entry.day_status === 'completed') return
+
+    sourceDate.value = date
+    try {
+      const detail = await api.fetchDayDetail(date)
+      sourceDayId.value = detail.day_id
+    } catch {
+      exitRescheduleMode()
+    }
+    return
+  }
+
+  // 第二步：选目标日
+  const targetState = targetDates.value.get(date)
+  if (targetState === 'available') {
+    await doReschedule(date)
+  } else if (entry?.has_plan && entry.day_status !== 'completed') {
+    // 点击另一个训练日 → 重新选源
+    sourceDate.value = date
+    try {
+      const detail = await api.fetchDayDetail(date)
+      sourceDayId.value = detail.day_id
+    } catch {
+      exitRescheduleMode()
+    }
+  }
+}
+
+async function doReschedule(targetDate: string) {
+  if (!sourceDayId.value) { exitRescheduleMode(); return }
+
+  const d = dayjs(targetDate)
+  const jsDay = d.day()
+  const newDayOfWeek = jsDay || 7
+
+  try {
+    await api.rescheduleDay(sourceDayId.value, { day_of_week: newDayOfWeek })
+
+    // 刷新本周日历数据
+    const monday = dayjs(sourceDate.value!).subtract((dayjs(sourceDate.value!).day() || 7) - 1, 'day')
+    await cycleStore.fetchCalendarData(
+      monday.format('YYYY-MM-DD'),
+      monday.add(6, 'day').format('YYYY-MM-DD'),
+    )
+
+    exitRescheduleMode()
+    emit('select', targetDate)
+  } catch (e: any) {
+    console.error('[Reschedule] 调整失败:', e.message)
+    exitRescheduleMode()
+  }
+}
+
+function exitRescheduleMode() {
+  rescheduleMode.value = false
+  sourceDate.value = null
+  sourceDayId.value = null
+}
+
+function toggleRescheduleMode() {
+  if (rescheduleMode.value) {
+    exitRescheduleMode()
+  } else {
+    rescheduleMode.value = true
+  }
 }
 
 function prevMonth() {
+  if (rescheduleMode.value) exitRescheduleMode()
   currentMonth.value = dayjs(currentMonth.value).subtract(1, 'month').format('YYYY-MM')
 }
 function nextMonth() {
+  if (rescheduleMode.value) exitRescheduleMode()
   currentMonth.value = dayjs(currentMonth.value).add(1, 'month').format('YYYY-MM')
 }
-function goToToday() {
-  currentMonth.value = dayjs().format('YYYY-MM')
-  emit('select', todayStr)
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && rescheduleMode.value) {
+    exitRescheduleMode()
+  }
 }
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
@@ -187,8 +331,30 @@ function goToToday() {
 }
 .nav-btn:hover { border-color: #f97316; color: #f97316; }
 .month-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0; min-width: 100px; text-align: center; }
-.today-btn { margin-left: 4px; border-radius: 10px; font-size: 12px; height: 26px; padding: 0 10px; border: 1px solid #e8e8e8; background: #fff; cursor: pointer; }
-.today-btn:hover { border-color: #f97316; color: #f97316; }
+.reschedule-toggle {
+  margin-left: 4px;
+  border-radius: 10px;
+  font-size: 12px;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  color: #f97316;
+  white-space: nowrap;
+}
+.reschedule-toggle:hover {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+.reschedule-toggle.active {
+  background: #f97316;
+  color: #fff;
+  border-color: #f97316;
+  box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+}
 
 .weekday-header {
   display: grid;

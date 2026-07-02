@@ -1,0 +1,173 @@
+<h2>🖱️ 点击阶段切换说明（可交互）</h2>
+<p class="subtitle">点击下方 4 个阶段卡片，说明区域会实时切换</p>
+
+<div style="max-width:420px;margin:0 auto;">
+
+  <!-- 整合组件 Demo -->
+  <div style="border-radius:14px;border:1px solid #e8e8e8;padding:16px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+
+    <!-- 第1行 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div>
+        <span id="demoIcon" style="font-size:22px;">🌱</span>
+        <span id="demoTitle" style="font-size:16px;font-weight:800;color:#1a1a1a;margin-left:4px;">基础适应期</span>
+        <span style="font-size:11px;color:#888;margin-left:6px;">第 1/16 周</span>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:#888;">⏳ 剩余</div>
+        <div id="demoCountdown" style="font-size:18px;font-weight:800;color:#f97316;">4 周</div>
+      </div>
+    </div>
+
+    <!-- 大周期进度条 -->
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;">
+        <span>📊 大周期</span>
+        <span>1/16</span>
+      </div>
+      <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;display:flex;">
+        <div style="width:6%;height:100%;background:#3b82f6;border-radius:4px 0 0 4px;"></div>
+        <div style="flex:1;height:100%;background:#e8e8e8;border-radius:0 4px 4px 0;"></div>
+      </div>
+    </div>
+
+    <!-- 可点击的阶段胶囊 -->
+    <div style="display:flex;margin-bottom:14px;gap:0;">
+
+      <div id="phase-foundational"
+        onclick="selectPhase('foundational')"
+        style="flex:1;text-align:center;padding:8px 2px;background:#e8f5e9;border:2px solid #3b82f6;border-radius:8px 0 0 8px;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:11px;font-weight:700;color:#1a1a1a;">🌱 基础适应</div>
+        <div style="font-size:9px;color:#3b82f6;">◉ 当前</div>
+      </div>
+
+      <div id="phase-hypertrophy"
+        onclick="selectPhase('hypertrophy')"
+        style="flex:1;text-align:center;padding:8px 2px;background:#fafafa;border:1px solid #eee;opacity:0.5;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:11px;font-weight:600;color:#999;">🔥 燃脂强化</div>
+        <div style="font-size:9px;color:#bbb;">即将到来</div>
+      </div>
+
+      <div id="phase-metabolic"
+        onclick="selectPhase('metabolic')"
+        style="flex:1;text-align:center;padding:8px 2px;background:#fafafa;border:1px solid #eee;opacity:0.5;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:11px;font-weight:600;color:#999;">⚡ 代谢提升</div>
+        <div style="font-size:9px;color:#bbb;">即将到来</div>
+      </div>
+
+      <div id="phase-deload"
+        onclick="selectPhase('deload')"
+        style="flex:1;text-align:center;padding:8px 2px;background:#fafafa;border:1px solid #eee;border-radius:0 8px 8px 0;opacity:0.5;cursor:pointer;transition:all 0.2s;">
+        <div style="font-size:11px;font-weight:600;color:#999;">🔄 减载恢复</div>
+        <div style="font-size:9px;color:#bbb;">即将到来</div>
+      </div>
+
+    </div>
+
+    <!-- 本周打卡 + 下一页 -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <div style="flex:1;background:#f9f9f9;border-radius:8px;padding:10px;">
+        <div style="font-size:10px;color:#888;">✅ 本周训练</div>
+        <div style="font-size:16px;font-weight:800;color:#1a1a1a;">2/3</div>
+        <div style="font-size:10px;color:#f97316;">还剩 1 天</div>
+      </div>
+      <div style="flex:1;background:#f9f9f9;border-radius:8px;padding:10px;">
+        <div style="font-size:10px;color:#888;">🧭 下一阶段</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a1a;">🔥 燃脂强化期</div>
+        <div style="font-size:10px;color:#888;">约 4 周后</div>
+      </div>
+    </div>
+
+    <!-- 阶段说明区（点击切换） -->
+    <div id="descBox" style="background:#f0f5ff;border-radius:8px;padding:10px 12px;border:1px dashed #d0d9f0;min-height:70px;transition:all 0.3s;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span id="descTitle" style="font-size:12px;font-weight:600;color:#3b82f6;">📖 基础适应期：建立训练基础</span>
+      </div>
+      <div id="descContent" style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;border-top:1px solid #e8e8e8;padding-top:6px;">
+        以学习动作模式为主，使用轻-中等重量（60-70% 1RM）。此时神经系统适应优先于肌肉增长，正确的动作模式是后续所有阶段的基础。新手在此阶段可出现「新手红利」——在热量赤字下同时增肌减脂。
+      </div>
+    </div>
+
+  </div>
+
+  <p style="font-size:11px;color:#888;text-align:center;margin-top:10px;">👆 点击上面 4 个阶段胶囊切换说明</p>
+
+</div>
+
+<script>
+const PHASE_DATA = {
+  foundational: {
+    icon: '🌱',
+    title: '基础适应期',
+    countdown: '4 周',
+    color: '#3b82f6',
+    descTitle: '📖 基础适应期：建立训练基础',
+    desc: '以学习动作模式为主，使用轻-中等重量（60-70% 1RM）。此时神经系统适应优先于肌肉增长，正确的动作模式是后续所有阶段的基础。新手在此阶段可出现「新手红利」——在热量赤字下同时增肌减脂。'
+  },
+  hypertrophy: {
+    icon: '🔥',
+    title: '燃脂强化期',
+    countdown: '3 周',
+    color: '#22c55e',
+    descTitle: '📖 燃脂强化期：最大化能量消耗',
+    desc: '中高容量训练（8-12次，3-4组）+ 有氧/HIIT，配合中等热量赤字（15-20%）。训练给肌肉足够的机械张力信号，防止肌肉在赤字中分解。蛋白质摄入 1.6-2.4g/kg/天是关键。这是减脂的核心阶段。'
+  },
+  metabolic: {
+    icon: '⚡',
+    title: '代谢提升期',
+    countdown: '2 周',
+    color: '#f97316',
+    descTitle: '📖 代谢提升期：突破平台期',
+    desc: '混合次数范围训练（每周不同天数交替6-8次和15-20次），加入更多 HIIT。当身体适应赤字后代谢率可能下降，通过训练变化和 refeed 策略（碳水拉到维持水平）来突破平台期。'
+  },
+  deload: {
+    icon: '🔄',
+    title: '减载恢复周',
+    countdown: '1 周',
+    color: '#a855f7',
+    descTitle: '📖 减载恢复周：主动恢复',
+    desc: '容减少 50-60%，强度降至 50-60% 1RM，以主动恢复为主。持续 12-16 周的训练给 CNS 带来巨大疲劳，减载周让神经系统完全恢复，预防过度训练。研究显示每 4-8 周安排一次减载可提升后续力量表现 32%。'
+  }
+}
+
+let activePhase = 'foundational'
+
+function selectPhase(phase) {
+  activePhase = phase
+  const data = PHASE_DATA[phase]
+
+  // 更新标题区
+  document.getElementById('demoIcon').textContent = data.icon
+  document.getElementById('demoTitle').textContent = data.title
+  document.getElementById('demoCountdown').textContent = data.countdown
+
+  // 更新说明区
+  document.getElementById('descTitle').textContent = data.descTitle
+  document.getElementById('descContent').textContent = data.desc
+
+  // 更新胶囊样式
+  const phases = ['foundational', 'hypertrophy', 'metabolic', 'deload']
+  phases.forEach(p => {
+    const el = document.getElementById('phase-' + p)
+    if (p === phase) {
+      el.style.background = '#fff7ed'
+      el.style.border = '2px solid ' + data.color
+      el.style.opacity = '1'
+      el.querySelector('div:first-child').style.color = '#1a1a1a'
+      el.querySelector('div:first-child').style.fontWeight = '700'
+      const status = el.querySelector('div:last-child')
+      status.textContent = '◉ 当前'
+      status.style.color = data.color
+    } else {
+      el.style.background = '#fafafa'
+      el.style.border = '1px solid #eee'
+      el.style.opacity = '0.5'
+      el.querySelector('div:first-child').style.color = '#999'
+      el.querySelector('div:first-child').style.fontWeight = '600'
+      const status = el.querySelector('div:last-child')
+      status.textContent = '即将到来'
+      status.style.color = '#bbb'
+    }
+  })
+}
+</script>

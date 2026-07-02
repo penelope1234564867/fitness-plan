@@ -100,6 +100,20 @@ describe('workoutStore', () => {
       expect(slot!._rpeQuick).toBeNull()
       expect(slot!.rpe).toBe(0)
     })
+
+    it('toggle reflected in main array (same objects as slots)', () => {
+      const store = useWorkoutStore()
+      store.dayDetail = createMockDayDetail() as any
+      store.selectedDate = '2026-07-06'
+
+      store.toggleExercise(1)
+      // 从 main 数组中找同一个动作 — 应该和 slots 是同一个对象
+      const mainSlot = store.currentDay!.main.find(s => s.id === 1)
+      expect(mainSlot!._completed).toBe(true)
+      // 验证对象引用相同
+      const slot = store.currentDay!.slots.find(s => s.id === 1)
+      expect(mainSlot).toBe(slot)
+    })
   })
 
   describe('setRPEQuick', () => {

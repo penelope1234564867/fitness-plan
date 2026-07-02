@@ -5,7 +5,7 @@
  * 现在通过 dayDetail API 获取单日数据，不再从 currentWeek 推导。
  */
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { watch } from 'vue'
 import * as api from '@/services/api'
 import { RPE_QUICK_MAP, RPE_QUICK_DEFAULT } from '@/types'
@@ -32,8 +32,10 @@ export const useWorkoutStore = defineStore('workout', () => {
   const currentDay = computed<WorkoutDayGrouped | null>(() => {
     const dd = dayDetail.value
     if (!dd || !dd.has_plan) return null
+    // ★ 创建一次 mappedSlots，slots/warmup/main/cardio/stretch 共享同一组对象引用
+    const mappedSlots = dd.slots.map(s => _mapSlot(s, dd))
     return {
-      id: dd.slots[0]?.day_id || 0,
+      id: mappedSlots[0]?.day_id || 0,
       day_order: 0,
       day_of_week: dayjs(dd.date).day() || 7,
       date: dd.date,
@@ -43,28 +45,26 @@ export const useWorkoutStore = defineStore('workout', () => {
       is_completed: dd.day_status === 'completed',
       completed_date: dd.day_status === 'completed' ? dd.date : '',
       rpe_score: 0,
-      slots: (() => {
-        return dd.slots.map(s => _mapSlot(s, dd))
-      })(),
-      warmup: dd.slots.filter(s => s.phase_type === 'warmup').map(s => _mapSlot(s, dd)),
-      main: dd.slots.filter(s => s.phase_type === 'main').map(s => _mapSlot(s, dd)),
+      slots: mappedSlots,
+      warmup: mappedSlots.filter(s => s.phase_type === 'warmup'),
+      main: mappedSlots.filter(s => s.phase_type === 'main'),
       cardio: (() => {
-        const items = dd.slots.filter(s => s.phase_type === 'cardio').map(s => _mapSlot(s, dd))
+        const items = mappedSlots.filter(s => s.phase_type === 'cardio')
         return items[0] || null
       })(),
-      stretch: dd.slots.filter(s => s.phase_type === 'stretch').map(s => _mapSlot(s, dd)),
+      stretch: mappedSlots.filter(s => s.phase_type === 'stretch'),
     }
   })
 
   /** 为 slot 添加前端 UI 状态字段 */
   function _mapSlot(s: any, dd: any) {
-    return {
+    return reactive({
       ...s,
       day_id: dd?.slots?.[0]?.day_id || s.day_id || 0,
       _completed: false,
       _rpeQuick: null as RPEQuick | null,
       _loading: false,
-    }
+    })
   }
 
   // selectedDate 变化时自动获取 day detail

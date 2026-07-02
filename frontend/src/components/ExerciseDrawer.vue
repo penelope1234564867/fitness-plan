@@ -263,6 +263,7 @@ watch(
       }
     }
   },
+  { immediate: true },
 )
 
 // 关闭时重置

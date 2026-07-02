@@ -1,33 +1,37 @@
 <template>
   <div class="daily-plan-panel">
     <!-- 未选择日期 -->
-    <div v-if="!dateStr" class="empty-state">
+    <div v-if="!dateStr" :key="'empty'" class="empty-state">
       <span class="empty-icon">📅</span>
       <p>点击日历中的日期查看训练计划</p>
     </div>
 
-    <!-- 没有计划 -->
-    <div v-else-if="!dayPlan" class="empty-state">
-      <span class="empty-icon">📭</span>
-      <p>{{ dateStr }} 没有训练计划</p>
-    </div>
+    <!-- 内容区域（切换日期时淡入动画） -->
+    <template v-else>
+      <Transition name="fade-slide" mode="out-in">
+        <div :key="dateStr" class="panel-content">
+          <!-- 没有计划 -->
+          <div v-if="!dayPlan" class="empty-state">
+            <span class="empty-icon">📭</span>
+            <p>{{ dateStr }} 没有训练计划</p>
+          </div>
 
-    <!-- 休息日 -->
-    <div v-else-if="isRestDay" class="rest-day">
-      <span class="rest-icon">🎉</span>
-      <h2>休息日</h2>
-      <p>好好恢复，下次训练效果更好</p>
-    </div>
+          <!-- 休息日 -->
+          <div v-else-if="isRestDay" class="rest-day">
+            <span class="rest-icon">🎉</span>
+            <h2>休息日</h2>
+            <p>好好恢复，下次训练效果更好</p>
+          </div>
 
-    <!-- 未来日期 -->
-    <div v-else-if="isFuture" class="future-day">
-      <span class="future-icon">📅</span>
-      <h2>未来的计划</h2>
-      <p>到了那天再来完成吧</p>
-    </div>
+          <!-- 未来日期 -->
+          <div v-else-if="isFuture" class="future-day">
+            <span class="future-icon">📅</span>
+            <h2>未来的计划</h2>
+            <p>到了那天再来完成吧</p>
+          </div>
 
-    <!-- 计划内容 -->
-    <div v-else class="plan-content">
+          <!-- 计划内容 -->
+          <div v-else class="plan-content">
       <!-- 日期头部 -->
       <div class="plan-header">
         <h2 class="date-title">{{ dateTitle }}</h2>
@@ -101,6 +105,9 @@
         请至少完成一个动作再提交
       </p>
     </div>
+      </div>
+      </Transition>
+    </template>
 
     <!-- 错误提示 -->
     <div v-if="error" class="error-msg">{{ error }}</div>
@@ -142,9 +149,7 @@ const dayPlan = computed(() => workoutStore.currentDay)
 const dayDetail = computed(() => workoutStore.dayDetail)
 
 const isRestDay = computed(() => {
-  const dd = dayDetail.value
-  if (!dd) return false
-  return !dd.has_plan
+  return dayDetail.value?.is_rest_day === true
 })
 const isFuture = computed(() => {
   if (!props.dateStr) return false
@@ -206,6 +211,14 @@ function handleTooHeavy() {
 .daily-plan-panel::-webkit-scrollbar { width: 4px; }
 .daily-plan-panel::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
 .daily-plan-panel::-webkit-scrollbar-thumb:hover { background: #bbb; }
+
+/* Transition 包装容器——撑满剩余空间让子元素居中 */
+.panel-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 
 .empty-state {
   flex: 1;
@@ -281,4 +294,20 @@ function handleTooHeavy() {
 .checkin-btn:disabled { background: #d9d9d9; color: #999; cursor: not-allowed; }
 .checkin-hint { text-align: center; font-size: 12px; color: #999; margin: 6px 0 0; }
 .error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 8px; }
+
+/* ═══ 日期切换动画 ═══ */
+.fade-slide-enter-active {
+  animation: fade-slide-in 0.25s ease-out;
+}
+.fade-slide-leave-active {
+  animation: fade-slide-out 0.15s ease-in;
+}
+@keyframes fade-slide-in {
+  0% { opacity: 0; transform: translateX(12px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-slide-out {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-8px); }
+}
 </style>
