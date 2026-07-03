@@ -1,95 +1,112 @@
 <template>
   <div class="profile-page">
-    <!-- 左侧：原有个人信息 -->
+    <!-- ═══ 左侧 ═══ -->
     <div class="profile-left">
-      <div class="profile-card">
-        <div class="profile-avatar">
-          <span class="avatar-icon">{{ userStore.profile?.gender === 'male' ? '♂' : '♀' }}</span>
-        </div>
-        <h2 class="profile-name">{{ userStore.profile?.height || '?' }}cm · {{ userStore.profile?.weight || '?' }}kg</h2>
-        <p class="profile-goal">{{ userStore.profile?.goal || '未设置' }}</p>
 
-        <hr class="divider" />
-
-        <div v-if="!editing" class="info-list">
-          <div class="info-row"><span class="info-label">身高</span><span class="info-value">{{ profileData.height || '-' }} cm</span></div>
-          <div class="info-row"><span class="info-label">体重</span><span class="info-value">{{ profileData.weight || '-' }} kg</span></div>
-          <div class="info-row"><span class="info-label">年龄</span><span class="info-value">{{ profileData.age || '-' }} 岁</span></div>
-          <div class="info-row"><span class="info-label">性别</span><span class="info-value">{{ profileData.gender === 'male' ? '男' : profileData.gender === 'female' ? '女' : '-' }}</span></div>
-          <div class="info-row"><span class="info-label">目标</span><span class="info-value">{{ profileData.goal || '-' }}</span></div>
-          <button class="edit-btn" @click="startEditing">✏️ 编辑个人信息</button>
-        </div>
-
-        <div v-else class="edit-form">
-          <h3 class="section-title">✏️ 编辑个人信息</h3>
-          <p class="section-hint">💡 修改后将用于下次生成计划</p>
-          <div class="edit-row"><span class="info-label">身高 (cm)</span><input v-model.number="editData.height" type="number" min="100" max="250" class="edit-input" placeholder="165" /></div>
-          <div class="edit-row"><span class="info-label">体重 (kg)</span><input v-model.number="editData.weight" type="number" min="30" max="250" class="edit-input" placeholder="65" /></div>
-          <div class="edit-row"><span class="info-label">年龄</span><input v-model.number="editData.age" type="number" min="10" max="100" class="edit-input" placeholder="25" /></div>
-          <div class="edit-row">
-            <span class="info-label">性别</span>
-            <div class="gender-group">
-              <button class="gender-btn" :class="{ active: editData.gender === 'male' }" @click="editData.gender = 'male'">♂ 男</button>
-              <button class="gender-btn" :class="{ active: editData.gender === 'female' }" @click="editData.gender = 'female'">♀ 女</button>
-            </div>
-          </div>
-          <div class="edit-actions">
-            <button class="cancel-btn" @click="cancelEditing">取消</button>
-            <button class="save-btn" :disabled="saving" @click="handleSaveProfile">{{ saving ? '⏳ 保存中...' : '💾 保存' }}</button>
-          </div>
-        </div>
-
-        <div class="state-section">
-          <h3 class="section-title">⚙️ 当前训练状态</h3>
-          <p class="section-hint">💡 修改后将在下周生成时生效</p>
-          <div class="state-row">
-            <span class="info-label">经验等级</span>
-            <select v-model="stateData.experience_level" class="state-select">
-              <option value="新手">🌱 新手</option>
-              <option value="中级">💪 中级</option>
-              <option value="高级">🔥 高级</option>
-            </select>
-          </div>
-          <div class="state-row">
-            <span class="info-label">训练地点</span>
-            <select v-model="stateData.workout_location" class="state-select">
-              <option value="居家">🏠 居家</option>
-              <option value="健身房">🏋️ 健身房</option>
-              <option value="户外">🌳 户外</option>
-            </select>
-          </div>
-          <div class="state-row">
-            <span class="info-label">训练日</span>
-            <div class="day-picker-sm">
-              <span v-for="d in dayOptions" :key="d.value" class="day-chip-sm" :class="{ active: stateData.preferredDays.includes(String(d.value)) }" @click="toggleDay(d.value)">{{ d.label }}</span>
-            </div>
-          </div>
-          <p class="day-count-sm">每周 {{ stateData.preferredDays.split(',').filter(Boolean).length }} 天</p>
-          <button class="save-state-btn" :disabled="stateSaving" @click="handleSaveState">{{ stateSaving ? '⏳ 保存中...' : '💾 保存训练状态' }}</button>
-        </div>
-
-        <hr class="divider" />
-        <button class="regenerate-btn" @click="onRegenerate">🔄 重新生成计划</button>
+      <!-- 头像 + 名字行 -->
+      <div class="avatar-section">
+        <div class="avatar-icon">{{ userStore.profile?.gender === 'male' ? '♂' : '♀' }}</div>
+        <h2 class="profile-name">{{ displayName }}</h2>
+        <p class="profile-goal">{{ userStore.profile?.goal || '未设置目标' }}</p>
       </div>
+
+      <!-- 个人信息 -->
+      <div class="card">
+        <div class="card-header"><span>✏️</span> 个人信息</div>
+        <div class="info-grid">
+          <div class="field">
+            <label>身高 (cm)</label>
+            <input v-model.number="form.height" type="number" placeholder="180" />
+          </div>
+          <div class="field">
+            <label>体重 (kg)</label>
+            <input v-model.number="form.weight" type="number" placeholder="72" />
+          </div>
+          <div class="field">
+            <label>年龄</label>
+            <input v-model.number="form.age" type="number" placeholder="28" />
+          </div>
+          <div class="field">
+            <label>性别</label>
+            <div class="btn-pair">
+              <button class="opt-btn" :class="{ active: form.gender === 'male' }"
+                @click="form.gender = 'male'">♂ 男</button>
+              <button class="opt-btn" :class="{ active: form.gender === 'female' }"
+                @click="form.gender = 'female'">♀ 女</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 健身目标 -->
+      <div class="card">
+        <div class="card-header"><span>🎯</span> 健身目标</div>
+        <div class="goal-grid">
+          <button v-for="g in goalOptions" :key="g.value"
+            class="opt-btn goal-btn"
+            :class="{ active: form.goal === g.value }"
+            @click="form.goal = g.value">{{ g.label }}</button>
+        </div>
+      </div>
+
+      <!-- 训练状态 -->
+      <div class="card">
+        <div class="card-header"><span>⚙️</span> 训练状态</div>
+
+        <div class="state-row">
+          <label>经验</label>
+          <div class="btn-triple">
+            <button v-for="e in expOptions" :key="e.value"
+              class="opt-btn"
+              :class="{ active: form.experience_level === e.value }"
+              @click="form.experience_level = e.value">{{ e.label }}</button>
+          </div>
+        </div>
+
+        <div class="state-row">
+          <label>地点</label>
+          <div class="btn-triple">
+            <button v-for="l in locOptions" :key="l.value"
+              class="opt-btn"
+              :class="{ active: form.workout_location === l.value }"
+              @click="form.workout_location = l.value">{{ l.label }}</button>
+          </div>
+        </div>
+
+        <div class="state-row">
+          <label>训练日</label>
+          <div class="day-picker">
+            <span v-for="d in dayOptions" :key="d.value"
+              class="day-chip"
+              :class="{ active: selectedDays.includes(d.value) }"
+              @click="toggleDay(d.value)">{{ d.label }}</span>
+          </div>
+        </div>
+        <p class="day-count">每周 {{ selectedDays.length }} 天</p>
+      </div>
+
+      <!-- 保存按钮 -->
+      <button class="save-all-btn" :disabled="saving" @click="handleSave">
+        {{ saving ? '⏳ 保存中...' : '💾 保存全部设置' }}
+      </button>
     </div>
 
-    <!-- 右侧：训练周期总览 -->
+    <!-- ═══ 右侧 ═══ -->
     <div class="profile-right">
-      <template v-if="cycleStore.roadmapData">
-        <CycleRoadmapNew
-          :data="cycleStore.roadmapData"
-          :goal="cycleStore.macrocycle?.goal || '增肌'"
-          :completed-days="completedDays"
-          :total-days="totalDays"
-          :next-phase-label="cycleStore.nextPhaseLabel ?? undefined"
-        />
-      </template>
-      <div v-else class="profile-empty">
-        <div class="empty-hint">
-          <p>暂无训练计划</p>
-          <p class="empty-sub">完成引导设置后，这里将显示您的训练周期路线图</p>
-        </div>
+      <CycleRoadmapNew
+        v-if="cycleStore.roadmapData"
+        :data="cycleStore.roadmapData"
+        :goal="cycleStore.macrocycle?.goal || '增肌'"
+        :completed-days="completedDays"
+        :total-days="totalDays"
+        :next-phase-label="cycleStore.nextPhaseLabel ?? undefined"
+      />
+      <div v-else class="empty-state">
+        <p>暂无训练计划</p>
+        <p class="empty-sub">完成引导设置后，这里将显示您的训练周期路线图</p>
       </div>
+
+      <TrainingKnowledgeCard />
     </div>
   </div>
 </template>
@@ -99,45 +116,94 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useCycleStore } from '@/stores/cycle'
-import { createOrUpdateProfile } from '@/services/api'
+import { saveProfileCombined } from '@/services/api'
 import CycleRoadmapNew from '@/components/CycleRoadmapNew.vue'
+import TrainingKnowledgeCard from '@/components/TrainingKnowledgeCard.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const cycleStore = useCycleStore()
 
-const editing = ref(false)
 const saving = ref(false)
-const stateSaving = ref(false)
 
+const goalOptions = [
+  { value: '增肌', label: '💪 增肌' },
+  { value: '减脂', label: '🔥 减脂' },
+  { value: '塑形', label: '✨ 塑形' },
+  { value: '保持健康', label: '❤️ 保持健康' },
+]
+const expOptions = [
+  { value: '新手', label: '🌱 新手' },
+  { value: '中级', label: '💪 中级' },
+  { value: '高级', label: '🔥 高级' },
+]
+const locOptions = [
+  { value: '居家', label: '🏠 居家' },
+  { value: '健身房', label: '🏋️ 健身房' },
+  { value: '户外', label: '🌳 户外' },
+]
 const dayOptions = [
   { value: 1, label: '一' }, { value: 2, label: '二' }, { value: 3, label: '三' },
   { value: 4, label: '四' }, { value: 5, label: '五' }, { value: 6, label: '六' }, { value: 7, label: '日' },
 ]
 
-const profileData = computed(() => ({
-  height: userStore.profile?.height,
-  weight: userStore.profile?.weight,
-  age: userStore.profile?.age,
-  gender: userStore.profile?.gender,
-  goal: userStore.profile?.goal,
-}))
-
-const editData = reactive({
+const form = reactive({
   height: undefined as number | undefined,
   weight: undefined as number | undefined,
   age: undefined as number | undefined,
   gender: undefined as string | undefined,
-})
-
-const stateData = reactive({
+  goal: undefined as string | undefined,
   experience_level: '新手',
   workout_location: '居家',
   preferredDays: '1,3,5',
 })
 
-const completedDays = computed(() => cycleStore.currentWeek?.days.filter(d => d.is_completed).length ?? 0)
-const totalDays = computed(() => cycleStore.currentWeek?.days.length ?? 0)
+const selectedDays = computed(() =>
+  form.preferredDays.split(',').map(Number).filter(Boolean)
+)
+
+const displayName = computed(() => {
+  const p = userStore.profile
+  if (!p) return '设置你的个人信息'
+  return `${p.gender === 'male' ? '♂' : '♀'} ${p.height || '?'}cm · ${p.weight || '?'}kg`
+})
+
+const completedDays = computed(() =>
+  cycleStore.currentWeek?.days.filter((d: any) => d.is_completed).length ?? 0
+)
+const totalDays = computed(() =>
+  cycleStore.currentWeek?.days.length ?? 0
+)
+
+function toggleDay(value: number) {
+  const arr = selectedDays.value.slice()
+  const idx = arr.indexOf(value)
+  if (idx >= 0) arr.splice(idx, 1)
+  else { arr.push(value); arr.sort() }
+  form.preferredDays = arr.join(',')
+}
+
+async function handleSave() {
+  saving.value = true
+  try {
+    await saveProfileCombined({
+      height: form.height ?? null,
+      weight: form.weight ?? null,
+      age: form.age ?? null,
+      gender: form.gender ?? null,
+      goal: form.goal ?? null,
+      experience_level: form.experience_level,
+      workout_location: form.workout_location,
+      preferred_days: form.preferredDays,
+    })
+    await userStore.fetchProfile()
+    await userStore.fetchCurrentState()
+  } catch (e: any) {
+    console.error('保存失败:', e)
+  } finally {
+    saving.value = false
+  }
+}
 
 onMounted(async () => {
   await userStore.fetchProfile().catch(() => {})
@@ -145,117 +211,294 @@ onMounted(async () => {
   cycleStore.fetchMacrocycles().catch(() => {})
 
   if (userStore.profile) {
-    editData.height = userStore.profile.height ?? undefined
-    editData.weight = userStore.profile.weight ?? undefined
-    editData.age = userStore.profile.age ?? undefined
-    editData.gender = userStore.profile.gender ?? undefined
+    form.height = userStore.profile.height ?? undefined
+    form.weight = userStore.profile.weight ?? undefined
+    form.age = userStore.profile.age ?? undefined
+    form.gender = userStore.profile.gender ?? undefined
+    form.goal = userStore.profile.goal ?? undefined
   }
   if (userStore.currentState) {
-    stateData.experience_level = userStore.currentState.experience_level
-    stateData.workout_location = userStore.currentState.workout_location
-    stateData.preferredDays = userStore.currentState.preferred_days || stateData.preferredDays
+    form.experience_level = userStore.currentState.experience_level || '新手'
+    form.workout_location = userStore.currentState.workout_location || '居家'
+    form.preferredDays = userStore.currentState.preferred_days || '1,3,5'
   }
 })
-
-function startEditing() {
-  editData.height = userStore.profile?.height ?? undefined
-  editData.weight = userStore.profile?.weight ?? undefined
-  editData.age = userStore.profile?.age ?? undefined
-  editData.gender = userStore.profile?.gender ?? undefined
-  editing.value = true
-}
-function cancelEditing() { editing.value = false }
-
-async function handleSaveProfile() {
-  saving.value = true
-  try {
-    await createOrUpdateProfile({
-      height: editData.height, weight: editData.weight, age: editData.age,
-      gender: editData.gender, goal: userStore.profile?.goal,
-      experience: userStore.profile?.experience, city: userStore.profile?.city,
-      workout_location: userStore.profile?.workout_location,
-      days_per_week: userStore.profile?.days_per_week,
-    })
-    await userStore.fetchProfile()
-    editing.value = false
-  } catch {} finally { saving.value = false }
-}
-
-function toggleDay(value: number) {
-  const arr = stateData.preferredDays.split(',').map(Number).filter(Boolean)
-  const idx = arr.indexOf(value)
-  if (idx >= 0) arr.splice(idx, 1)
-  else { arr.push(value); arr.sort() }
-  stateData.preferredDays = arr.join(',')
-}
-
-async function handleSaveState() {
-  stateSaving.value = true
-  try {
-    await userStore.saveCurrentState({
-      experience_level: stateData.experience_level,
-      workout_location: stateData.workout_location,
-      preferred_days: stateData.preferredDays,
-    })
-  } catch {} finally { stateSaving.value = false }
-}
-
-function onRegenerate() { router.push('/?force=true') }
 </script>
 
 <style scoped>
-.profile-page { display: flex; gap: 20px; max-width: 900px; margin: 0 auto; padding: 20px; align-items: flex-start; }
-.profile-left { width: 380px; flex-shrink: 0; }
-.profile-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
-.profile-empty { background: #fff; border-radius: 14px; padding: 40px; text-align: center; border: 1px solid #f0f0f0; }
-.empty-hint p { font-size: 15px; color: #888; margin: 0 0 8px; }
-.empty-sub { font-size: 13px; color: #bbb; }
-
-@media (max-width: 768px) {
-  .profile-page { flex-direction: column; }
-  .profile-left { width: 100%; }
+.profile-page {
+  display: flex;
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  align-items: stretch;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.profile-card { background: #fff; border-radius: 20px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-.profile-avatar { text-align: center; margin-bottom: 12px; }
-.avatar-icon { display: inline-flex; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #f97316, #fb923c); color: #fff; font-size: 28px; align-items: center; justify-content: center; }
-.profile-name { text-align: center; font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px 0; }
-.profile-goal { text-align: center; font-size: 14px; color: #f97316; font-weight: 500; margin: 0; }
-.divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
-.info-list { display: flex; flex-direction: column; gap: 12px; }
-.info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
-.info-row:last-child { border-bottom: none; }
-.info-label { font-size: 14px; color: #888; }
-.info-value { font-size: 14px; font-weight: 600; color: #333; }
-.edit-btn { width: 100%; margin-top: 12px; padding: 10px; border-radius: 10px; border: 1px solid #f97316; background: #fff; color: #f97316; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.edit-btn:hover { background: #fff7ed; }
-.edit-form { display: flex; flex-direction: column; gap: 14px; }
-.section-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px 0; }
-.section-hint { font-size: 12px; color: #f97316; margin: 0 0 8px 0; }
-.edit-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
-.edit-input { width: 120px; padding: 8px 12px; border: 1.5px solid #e8e8e8; border-radius: 8px; font-size: 14px; text-align: right; outline: none; transition: border-color 0.2s; }
-.edit-input:focus { border-color: #f97316; }
-.gender-group { display: flex; gap: 6px; }
-.gender-btn { padding: 6px 14px; border: 1.5px solid #e8e8e8; border-radius: 8px; background: #fff; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-.gender-btn:hover { border-color: #f97316; }
-.gender-btn.active { border-color: #f97316; background: #fff7ed; color: #f97316; font-weight: 600; }
-.edit-actions { display: flex; gap: 10px; margin-top: 4px; }
-.cancel-btn { flex: 1; padding: 10px; border: 1.5px solid #e8e8e8; border-radius: 10px; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-.cancel-btn:hover { border-color: #999; }
-.save-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(135deg, #f97316, #fb923c); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-.save-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
-.save-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
-.state-section { margin: 16px 0; }
-.state-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
-.state-select { padding: 6px 12px; border: 1px solid #e8e8e8; border-radius: 8px; font-size: 14px; background: #fff; cursor: pointer; }
-.day-picker-sm { display: flex; gap: 4px; }
-.day-chip-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 1.5px solid #e8e8e8; background: #fff; cursor: pointer; transition: all 0.15s; user-select: none; }
-.day-chip-sm:hover { border-color: #f97316; }
-.day-chip-sm.active { background: #f97316; border-color: #f97316; color: #fff; }
-.day-count-sm { font-size: 12px; color: #888; margin: 8px 0 12px; }
-.save-state-btn { width: 100%; padding: 10px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; background: linear-gradient(135deg, #f97316, #fb923c); color: #fff; cursor: pointer; transition: all 0.2s; }
-.save-state-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
-.save-state-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
-.regenerate-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #22c55e; background: #fff; color: #22c55e; font-size: 15px; font-weight: 600; cursor: pointer; }
-.regenerate-btn:hover { background: #f0fdf4; }
+/* ── 左侧 ── */
+.profile-left {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.avatar-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+.avatar-icon {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff;
+  font-size: 26px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+}
+
+.profile-goal {
+  font-size: 13px;
+  color: #f97316;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* ── 卡片 ── */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 14px;
+}
+
+/* ── 个人信息 2×2 ── */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.field input {
+  width: 100%;
+  border: 1.5px solid #eee;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.field input:focus {
+  border-color: #f97316;
+}
+
+/* ── 按钮通用 ── */
+.opt-btn {
+  padding: 7px 0;
+  border-radius: 8px;
+  border: 1.5px solid #eee;
+  background: #f8f8f8;
+  color: #999;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  font-family: inherit;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+.opt-btn.active {
+  background: #fff7ed;
+  border-color: #f97316;
+  color: #f97316;
+  font-weight: 700;
+}
+
+.opt-btn:hover:not(.active) {
+  border-color: #ddd;
+}
+
+.btn-pair {
+  display: flex;
+  gap: 6px;
+}
+.btn-pair .opt-btn {
+  flex: 1;
+}
+
+/* ── 健身目标 2×2 ── */
+.goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.goal-btn {
+  padding: 10px 0;
+  font-size: 14px;
+}
+
+/* ── 训练状态 ── */
+.state-row {
+  margin-bottom: 12px;
+}
+.state-row:last-child {
+  margin-bottom: 0;
+}
+.state-row > label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.btn-triple {
+  display: flex;
+  gap: 6px;
+}
+.btn-triple .opt-btn {
+  flex: 1;
+}
+
+.day-picker {
+  display: flex;
+  gap: 6px;
+}
+
+.day-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid #eee;
+  background: #fff;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.day-chip:hover {
+  border-color: #f97316;
+}
+
+.day-chip.active {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
+.day-count {
+  font-size: 12px;
+  color: #888;
+  margin: 8px 0 0;
+}
+
+/* ── 保存按钮 ── */
+.save-all-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.save-all-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(249,115,22,0.3);
+}
+
+.save-all-btn:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+/* ── 右侧 ── */
+.profile-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-state {
+  background: #fff;
+  border-radius: 14px;
+  padding: 40px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+}
+
+.empty-state p {
+  font-size: 15px;
+  color: #888;
+  margin: 0 0 8px;
+}
+
+.empty-sub {
+  font-size: 13px;
+  color: #bbb;
+}
+
+/* ── 响应式 ── */
+@media (max-width: 768px) {
+  .profile-page {
+    flex-direction: column;
+  }
+  .profile-left {
+    width: 100%;
+  }
+}
 </style>
