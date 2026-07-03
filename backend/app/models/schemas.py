@@ -299,3 +299,19 @@ class ExerciseVariationResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ═══════════════════════════════════════════════════════════════
+#  合并保存（Task 1）
+# ═══════════════════════════════════════════════════════════════
+
+class ProfileCombinedRequest(BaseModel):
+    """合并保存用户个人信息 + 训练状态"""
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    goal: Optional[str] = None
+    experience_level: Optional[str] = None
+    workout_location: Optional[str] = None
+    preferred_days: Optional[str] = None
