@@ -225,6 +225,7 @@ onMounted(async () => {
   gap: 16px;
   align-items: stretch;
   padding-bottom: 16px;
+  background: #f0f2f5;
 }
 
 /* ── 左侧 ── */
