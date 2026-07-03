@@ -254,6 +254,17 @@ export interface UserCurrentStateUpdate {
   preferred_days?: string
 }
 
+export interface ProfileCombined {
+  height?: number | null
+  weight?: number | null
+  age?: number | null
+  gender?: string | null
+  goal?: string | null
+  experience_level?: string | null
+  workout_location?: string | null
+  preferred_days?: string | null
+}
+
 // ═════════════════════════════════════════════════════════
 //  API 请求类型
 // ═════════════════════════════════════════════════════════
