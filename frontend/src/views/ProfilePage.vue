@@ -10,79 +10,76 @@
         <p class="profile-goal">{{ userStore.profile?.goal || '未设置目标' }}</p>
       </div>
 
-      <!-- 个人信息 -->
-      <div class="card">
-        <div class="card-header"><span>✏️</span> 个人信息</div>
-        <div class="info-grid">
-          <div class="field">
-            <label>身高 (cm)</label>
-            <input v-model.number="form.height" type="number" placeholder="180" />
-          </div>
-          <div class="field">
-            <label>体重 (kg)</label>
-            <input v-model.number="form.weight" type="number" placeholder="72" />
-          </div>
-          <div class="field">
-            <label>年龄</label>
-            <input v-model.number="form.age" type="number" placeholder="28" />
-          </div>
-          <div class="field">
-            <label>性别</label>
-            <div class="btn-pair">
-              <button class="opt-btn" :class="{ active: form.gender === 'male' }"
-                @click="form.gender = 'male'">♂ 男</button>
-              <button class="opt-btn" :class="{ active: form.gender === 'female' }"
-                @click="form.gender = 'female'">♀ 女</button>
+      <!-- 中间卡片区（flex:1 撑满，保持左右齐平） -->
+      <div class="cards-area">
+        <div class="card">
+          <div class="card-header"><span>✏️</span> 个人信息</div>
+          <div class="info-grid">
+            <div class="field">
+              <label>身高 (cm)</label>
+              <input v-model.number="form.height" type="number" placeholder="180" />
+            </div>
+            <div class="field">
+              <label>体重 (kg)</label>
+              <input v-model.number="form.weight" type="number" placeholder="72" />
+            </div>
+            <div class="field">
+              <label>年龄</label>
+              <input v-model.number="form.age" type="number" placeholder="28" />
+            </div>
+            <div class="field">
+              <label>性别</label>
+              <div class="btn-pair">
+                <button class="opt-btn" :class="{ active: form.gender === 'male' }"
+                  @click="form.gender = 'male'">♂ 男</button>
+                <button class="opt-btn" :class="{ active: form.gender === 'female' }"
+                  @click="form.gender = 'female'">♀ 女</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 健身目标 -->
-      <div class="card">
-        <div class="card-header"><span>🎯</span> 健身目标</div>
-        <div class="goal-grid">
-          <button v-for="g in goalOptions" :key="g.value"
-            class="opt-btn goal-btn"
-            :class="{ active: form.goal === g.value }"
-            @click="form.goal = g.value">{{ g.label }}</button>
-        </div>
-      </div>
-
-      <!-- 训练状态 -->
-      <div class="card">
-        <div class="card-header"><span>⚙️</span> 训练状态</div>
-
-        <div class="state-row">
-          <label>经验</label>
-          <div class="btn-triple">
-            <button v-for="e in expOptions" :key="e.value"
-              class="opt-btn"
-              :class="{ active: form.experience_level === e.value }"
-              @click="form.experience_level = e.value">{{ e.label }}</button>
+        <div class="card">
+          <div class="card-header"><span>🎯</span> 健身目标</div>
+          <div class="goal-grid">
+            <button v-for="g in goalOptions" :key="g.value"
+              class="opt-btn goal-btn"
+              :class="{ active: form.goal === g.value }"
+              @click="form.goal = g.value">{{ g.label }}</button>
           </div>
         </div>
 
-        <div class="state-row">
-          <label>地点</label>
-          <div class="btn-triple">
-            <button v-for="l in locOptions" :key="l.value"
-              class="opt-btn"
-              :class="{ active: form.workout_location === l.value }"
-              @click="form.workout_location = l.value">{{ l.label }}</button>
+        <div class="card card-state">
+          <div class="card-header"><span>⚙️</span> 训练状态</div>
+          <div class="state-row">
+            <label>经验</label>
+            <div class="btn-triple">
+              <button v-for="e in expOptions" :key="e.value"
+                class="opt-btn"
+                :class="{ active: form.experience_level === e.value }"
+                @click="form.experience_level = e.value">{{ e.label }}</button>
+            </div>
           </div>
-        </div>
-
-        <div class="state-row">
-          <label>训练日</label>
-          <div class="day-picker">
-            <span v-for="d in dayOptions" :key="d.value"
-              class="day-chip"
-              :class="{ active: selectedDays.includes(d.value) }"
-              @click="toggleDay(d.value)">{{ d.label }}</span>
+          <div class="state-row">
+            <label>地点</label>
+            <div class="btn-triple">
+              <button v-for="l in locOptions" :key="l.value"
+                class="opt-btn"
+                :class="{ active: form.workout_location === l.value }"
+                @click="form.workout_location = l.value">{{ l.label }}</button>
+            </div>
           </div>
+          <div class="state-row">
+            <label>训练日</label>
+            <div class="day-picker">
+              <span v-for="d in dayOptions" :key="d.value"
+                class="day-chip"
+                :class="{ active: selectedDays.includes(d.value) }"
+                @click="toggleDay(d.value)">{{ d.label }}</span>
+            </div>
+          </div>
+          <p class="day-count">每周 {{ selectedDays.length }} 天</p>
         </div>
-        <p class="day-count">每周 {{ selectedDays.length }} 天</p>
       </div>
 
       <!-- 保存按钮 -->
@@ -241,6 +238,26 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+/* 中间卡片区撑满，保持左右齐平 */
+.cards-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cards-area .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.cards-area .card-state {
+  flex: 1.3;
+}
+.cards-area .goal-grid {
+  flex: 1;
+  align-content: center;
 }
 
 .avatar-section {
@@ -469,6 +486,10 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+.profile-right > :deep(.cycle-roadmap-wrap),
+.profile-right > :first-child {
+  flex: 1;
 }
 
 .empty-state {
