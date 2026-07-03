@@ -3,17 +3,19 @@
     <!-- ═══ 左侧 ═══ -->
     <div class="profile-left">
 
-      <!-- 头像 + 名字行 -->
+      <!-- 头像 + 名字行（紧凑） -->
       <div class="avatar-section">
         <div class="avatar-icon">{{ userStore.profile?.gender === 'male' ? '♂' : '♀' }}</div>
-        <h2 class="profile-name">{{ displayName }}</h2>
-        <p class="profile-goal">{{ userStore.profile?.goal || '未设置目标' }}</p>
+        <div class="avatar-info">
+          <h2 class="profile-name">{{ displayName }}</h2>
+          <p class="profile-goal">{{ userStore.profile?.goal || '未设置目标' }}</p>
+        </div>
       </div>
 
-      <!-- 中间卡片区（flex:1 撑满，保持左右齐平） -->
+      <!-- 中间卡片区 -->
       <div class="cards-area">
-        <div class="card">
-          <div class="card-header"><span>✏️</span> 个人信息</div>
+        <div class="card card-info">
+          <div class="card-header">✏️ 个人信息</div>
           <div class="info-grid">
             <div class="field">
               <label>身高 (cm)</label>
@@ -30,17 +32,15 @@
             <div class="field">
               <label>性别</label>
               <div class="btn-pair">
-                <button class="opt-btn" :class="{ active: form.gender === 'male' }"
-                  @click="form.gender = 'male'">♂ 男</button>
-                <button class="opt-btn" :class="{ active: form.gender === 'female' }"
-                  @click="form.gender = 'female'">♀ 女</button>
+                <button class="opt-btn" :class="{ active: form.gender === 'male' }" @click="form.gender = 'male'">♂ 男</button>
+                <button class="opt-btn" :class="{ active: form.gender === 'female' }" @click="form.gender = 'female'">♀ 女</button>
               </div>
             </div>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-header"><span>🎯</span> 健身目标</div>
+          <div class="card-header">🎯 健身目标</div>
           <div class="goal-grid">
             <button v-for="g in goalOptions" :key="g.value"
               class="opt-btn goal-btn"
@@ -50,7 +50,7 @@
         </div>
 
         <div class="card card-state">
-          <div class="card-header"><span>⚙️</span> 训练状态</div>
+          <div class="card-header">⚙️ 训练状态</div>
           <div class="state-row">
             <label>经验</label>
             <div class="btn-triple">
@@ -78,11 +78,10 @@
                 @click="toggleDay(d.value)">{{ d.label }}</span>
             </div>
           </div>
-          <p class="day-count">每周 {{ selectedDays.length }} 天</p>
+          <p class="day-count">共 {{ selectedDays.length }} 天/周</p>
         </div>
       </div>
 
-      <!-- 保存按钮 -->
       <button class="save-all-btn" :disabled="saving" @click="handleSave">
         {{ saving ? '⏳ 保存中...' : '💾 保存全部设置' }}
       </button>
@@ -100,7 +99,7 @@
       />
       <div v-else class="empty-state">
         <p>暂无训练计划</p>
-        <p class="empty-sub">完成引导设置后，这里将显示您的训练周期路线图</p>
+        <p class="empty-sub">完成引导设置后显示训练周期路线图</p>
       </div>
 
       <TrainingKnowledgeCard />
@@ -223,212 +222,192 @@ onMounted(async () => {
 <style scoped>
 .profile-page {
   display: flex;
-  gap: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px;
+  gap: 16px;
   align-items: stretch;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ── 左侧 ── */
 .profile-left {
-  width: 340px;
+  width: 380px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
-/* 中间卡片区撑满，保持左右齐平 */
+/* 头像行 —— 紧凑横排 */
+.avatar-section {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.avatar-info {
+  flex: 1;
+  min-width: 0;
+}
+.profile-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
+}
+.profile-goal {
+  font-size: 12px;
+  color: #f97316;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 中间卡片区撑满 */
 .cards-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+}
+
+/* ── 卡片 ── */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  border: 1px solid #f0f0f0;
 }
 .cards-area .card {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-.cards-area .card-state {
-  flex: 1.3;
-}
-.cards-area .goal-grid {
-  flex: 1;
-  align-content: center;
-}
-
-.avatar-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f0;
-  text-align: center;
-}
-
-.avatar-icon {
-  display: inline-flex;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f97316, #fb923c);
-  color: #fff;
-  font-size: 26px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.profile-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 4px;
-}
-
-.profile-goal {
-  font-size: 13px;
-  color: #f97316;
-  font-weight: 500;
-  margin: 0;
-}
-
-/* ── 卡片 ── */
-.card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f0;
+.cards-area .card.card-state {
+  flex: 1.4;
 }
 
 .card-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+  line-height: 1;
 }
 
-/* ── 个人信息 2×2 ── */
+/* ── 个人信息 ── */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
-
 .field label {
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   display: block;
 }
-
 .field input {
   width: 100%;
   border: 1.5px solid #eee;
   background: #f8f8f8;
   border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 14px;
+  padding: 7px 9px;
+  font-size: 13px;
   font-weight: 600;
   color: #1a1a1a;
   outline: none;
-  font-family: inherit;
   box-sizing: border-box;
 }
-
 .field input:focus {
   border-color: #f97316;
 }
 
-/* ── 按钮通用 ── */
+/* ── 按钮 ── */
 .opt-btn {
-  padding: 7px 0;
   border-radius: 8px;
   border: 1.5px solid #eee;
   background: #f8f8f8;
   color: #999;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
   text-align: center;
-  font-family: inherit;
-  box-sizing: border-box;
+  padding: 6px 0;
   line-height: 1;
 }
-
 .opt-btn.active {
   background: #fff7ed;
   border-color: #f97316;
   color: #f97316;
   font-weight: 700;
 }
-
 .opt-btn:hover:not(.active) {
   border-color: #ddd;
 }
 
-.btn-pair {
-  display: flex;
-  gap: 6px;
-}
-.btn-pair .opt-btn {
-  flex: 1;
-}
+.btn-pair { display: flex; gap: 6px; }
+.btn-pair .opt-btn { flex: 1; }
 
-/* ── 健身目标 2×2 ── */
+/* ── 健身目标 ── */
 .goal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
+  flex: 1;
+  align-content: center;
 }
 .goal-btn {
-  padding: 10px 0;
-  font-size: 14px;
+  padding: 8px 0;
+  font-size: 13px;
 }
 
 /* ── 训练状态 ── */
 .state-row {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
-.state-row:last-child {
+.state-row:last-of-type {
   margin-bottom: 0;
 }
 .state-row > label {
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   display: block;
 }
-
 .btn-triple {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
-.btn-triple .opt-btn {
-  flex: 1;
-}
+.btn-triple .opt-btn { flex: 1; }
 
 .day-picker {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
-
 .day-chip {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   border: 1.5px solid #eee;
   background: #fff;
@@ -437,43 +416,32 @@ onMounted(async () => {
   transition: all 0.15s;
   user-select: none;
 }
-
-.day-chip:hover {
-  border-color: #f97316;
-}
-
-.day-chip.active {
-  background: #f97316;
-  border-color: #f97316;
-  color: #fff;
-}
+.day-chip:hover { border-color: #f97316; }
+.day-chip.active { background: #f97316; border-color: #f97316; color: #fff; }
 
 .day-count {
-  font-size: 12px;
+  font-size: 11px;
   color: #888;
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
 
 /* ── 保存按钮 ── */
 .save-all-btn {
   width: 100%;
-  padding: 13px;
+  padding: 11px;
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #f97316, #fb923c);
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   box-sizing: border-box;
   transition: box-shadow 0.2s;
-  font-family: inherit;
 }
-
 .save-all-btn:hover:not(:disabled) {
-  box-shadow: 0 4px 14px rgba(249,115,22,0.3);
+  box-shadow: 0 3px 10px rgba(249,115,22,0.3);
 }
-
 .save-all-btn:disabled {
   background: #d9d9d9;
   cursor: not-allowed;
@@ -485,7 +453,7 @@ onMounted(async () => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .profile-right > :deep(.cycle-roadmap-wrap),
 .profile-right > :first-child {
@@ -495,29 +463,28 @@ onMounted(async () => {
 .empty-state {
   background: #fff;
   border-radius: 14px;
-  padding: 40px;
+  padding: 30px;
   text-align: center;
   border: 1px solid #f0f0f0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
 .empty-state p {
-  font-size: 15px;
+  font-size: 14px;
   color: #888;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
 }
-
 .empty-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: #bbb;
 }
 
 /* ── 响应式 ── */
 @media (max-width: 768px) {
-  .profile-page {
-    flex-direction: column;
-  }
-  .profile-left {
-    width: 100%;
-  }
+  .profile-page { flex-direction: column; }
+  .profile-left { width: 100%; }
 }
 </style>
