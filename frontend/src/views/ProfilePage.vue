@@ -113,14 +113,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useCycleStore } from '@/stores/cycle'
 import { saveProfileCombined } from '@/services/api'
 import CycleRoadmapNew from '@/components/CycleRoadmapNew.vue'
 import TrainingKnowledgeCard from '@/components/TrainingKnowledgeCard.vue'
 
-const router = useRouter()
 const userStore = useUserStore()
 const cycleStore = useCycleStore()
 
