@@ -224,6 +224,7 @@ onMounted(async () => {
   display: flex;
   gap: 16px;
   align-items: stretch;
+  padding-bottom: 16px;
 }
 
 /* ── 左侧 ── */
@@ -240,8 +241,8 @@ onMounted(async () => {
   background: #fff;
   border-radius: 14px;
   padding: 14px 18px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #eee;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -286,8 +287,8 @@ onMounted(async () => {
   background: #fff;
   border-radius: 14px;
   padding: 16px 18px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #eee;
 }
 .cards-area .card {
   flex: 1;
@@ -442,7 +443,8 @@ onMounted(async () => {
   border-radius: 14px;
   padding: 30px;
   text-align: center;
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #eee;
   flex: 1;
   display: flex;
   flex-direction: column;

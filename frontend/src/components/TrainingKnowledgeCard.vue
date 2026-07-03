@@ -100,8 +100,8 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   background: #fff;
   border-radius: 14px;
   padding: 18px 20px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #eee;
   display: flex;
   flex-direction: column;
 }
