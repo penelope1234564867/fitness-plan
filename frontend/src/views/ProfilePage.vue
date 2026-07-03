@@ -228,27 +228,27 @@ onMounted(async () => {
 
 /* ── 左侧 ── */
 .profile-left {
-  width: 380px;
+  width: 340px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* 头像行 —— 紧凑横排 */
+/* 头像行 */
 .avatar-section {
   background: #fff;
   border-radius: 14px;
-  padding: 12px 16px;
+  padding: 14px 18px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.05);
   border: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 .avatar-icon {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: linear-gradient(135deg, #f97316, #fb923c);
   color: #fff;
@@ -258,37 +258,34 @@ onMounted(async () => {
   justify-content: center;
   flex-shrink: 0;
 }
-.avatar-info {
-  flex: 1;
-  min-width: 0;
-}
+.avatar-info { flex: 1; min-width: 0; }
 .profile-name {
   font-size: 16px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 .profile-goal {
-  font-size: 12px;
+  font-size: 13px;
   color: #f97316;
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* 中间卡片区撑满 */
+/* 中间卡片区 */
 .cards-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* ── 卡片 ── */
 .card {
   background: #fff;
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.05);
   border: 1px solid #f0f0f0;
 }
@@ -297,28 +294,27 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
 }
-.cards-area .card.card-state {
-  flex: 1.4;
+.cards-area .card-state {
+  flex: 1.3;
 }
 
 .card-header {
   font-size: 14px;
   font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 10px;
-  line-height: 1;
+  margin-bottom: 12px;
 }
 
 /* ── 个人信息 ── */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 .field label {
-  font-size: 11px;
-  color: #888;
-  margin-bottom: 3px;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
   display: block;
 }
 .field input {
@@ -326,29 +322,27 @@ onMounted(async () => {
   border: 1.5px solid #eee;
   background: #f8f8f8;
   border-radius: 8px;
-  padding: 7px 9px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 14px;
   font-weight: 600;
   color: #1a1a1a;
   outline: none;
   box-sizing: border-box;
 }
-.field input:focus {
-  border-color: #f97316;
-}
+.field input:focus { border-color: #f97316; }
 
 /* ── 按钮 ── */
 .opt-btn {
   border-radius: 8px;
   border: 1.5px solid #eee;
   background: #f8f8f8;
-  color: #999;
-  font-size: 12px;
+  color: #666;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
   text-align: center;
-  padding: 6px 0;
+  padding: 7px 0;
   line-height: 1;
 }
 .opt-btn.active {
@@ -357,9 +351,7 @@ onMounted(async () => {
   color: #f97316;
   font-weight: 700;
 }
-.opt-btn:hover:not(.active) {
-  border-color: #ddd;
-}
+.opt-btn:hover:not(.active) { border-color: #ddd; }
 
 .btn-pair { display: flex; gap: 6px; }
 .btn-pair .opt-btn { flex: 1; }
@@ -368,46 +360,34 @@ onMounted(async () => {
 .goal-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   align-content: center;
 }
-.goal-btn {
-  padding: 8px 0;
-  font-size: 13px;
-}
+.goal-btn { padding: 9px 0; font-size: 14px; }
 
 /* ── 训练状态 ── */
-.state-row {
-  margin-bottom: 10px;
-}
-.state-row:last-of-type {
-  margin-bottom: 0;
-}
+.state-row { margin-bottom: 12px; }
+.state-row:last-of-type { margin-bottom: 0; }
 .state-row > label {
-  font-size: 11px;
-  color: #888;
-  margin-bottom: 3px;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 4px;
   display: block;
 }
-.btn-triple {
-  display: flex;
-  gap: 5px;
-}
+
+.btn-triple { display: flex; gap: 6px; }
 .btn-triple .opt-btn { flex: 1; }
 
-.day-picker {
-  display: flex;
-  gap: 5px;
-}
+.day-picker { display: flex; gap: 6px; }
 .day-chip {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   border: 1.5px solid #eee;
   background: #fff;
@@ -420,15 +400,15 @@ onMounted(async () => {
 .day-chip.active { background: #f97316; border-color: #f97316; color: #fff; }
 
 .day-count {
-  font-size: 11px;
-  color: #888;
-  margin: 6px 0 0;
+  font-size: 12px;
+  color: #999;
+  margin: 8px 0 0;
 }
 
 /* ── 保存按钮 ── */
 .save-all-btn {
   width: 100%;
-  padding: 11px;
+  padding: 12px;
   border: none;
   border-radius: 12px;
   background: linear-gradient(135deg, #f97316, #fb923c);
@@ -442,10 +422,7 @@ onMounted(async () => {
 .save-all-btn:hover:not(:disabled) {
   box-shadow: 0 3px 10px rgba(249,115,22,0.3);
 }
-.save-all-btn:disabled {
-  background: #d9d9d9;
-  cursor: not-allowed;
-}
+.save-all-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
 
 /* ── 右侧 ── */
 .profile-right {
@@ -453,7 +430,7 @@ onMounted(async () => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 .profile-right > :deep(.cycle-roadmap-wrap),
 .profile-right > :first-child {
@@ -473,13 +450,13 @@ onMounted(async () => {
   justify-content: center;
 }
 .empty-state p {
-  font-size: 14px;
-  color: #888;
+  font-size: 13px;
+  color: #666;
   margin: 0 0 4px;
 }
 .empty-sub {
   font-size: 12px;
-  color: #bbb;
+  color: #999;
 }
 
 /* ── 响应式 ── */
