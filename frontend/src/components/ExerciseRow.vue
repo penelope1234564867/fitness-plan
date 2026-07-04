@@ -18,7 +18,10 @@
     <div class="exercise-info" @click.stop="$emit('show-detail')">
       <span class="exercise-name">{{ exercise.exercise_name }}</span>
       <span class="exercise-detail">
-        <template v-if="exercise.phase_type === 'warmup' || exercise.phase_type === 'stretch'">
+        <template v-if="exercise.phase_type === 'warmup'">
+          {{ exercise.target_reps }}次
+        </template>
+        <template v-else-if="exercise.phase_type === 'stretch'">
           {{ exercise.target_reps }}秒
         </template>
         <template v-else>
@@ -101,43 +104,43 @@ const markerClass = computed(() => {
   gap: 8px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   transition: all 0.2s ease;
 }
-.exercise-row:hover { border-color: #f97316; }
-.exercise-row.completed { background: #f0fdf4; border-color: #22c55e; }
-.exercise-row.rpe-easy { background: #eff6ff; border-color: #3b82f6; }
-.exercise-row.rpe-hard { background: #fef2f2; border-color: #ef4444; }
+.exercise-row:hover { border-color: var(--brand-orange); }
+.exercise-row.completed { background: var(--color-success-subtle); border-color: var(--color-success); }
+.exercise-row.rpe-easy { background: var(--color-info-subtle); border-color: var(--color-info); }
+.exercise-row.rpe-hard { background: var(--color-error-subtle); border-color: var(--color-error); }
 
 .exercise-check { cursor: pointer; padding: 2px; }
 .checkbox {
   width: 22px; height: 22px; border-radius: 50%;
-  border: 2px solid #d9d9d9;
+  border: 2px solid var(--border-color);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700;
   transition: all 0.2s; color: transparent;
 }
-.checkbox:hover { border-color: #f97316; }
-.checkbox.checked { background: #22c55e; border-color: #22c55e; color: #fff; }
+.checkbox:hover { border-color: var(--brand-orange); }
+.checkbox.checked { background: var(--color-success); border-color: var(--color-success); color: #fff; }
 
 .exercise-info { flex: 1; display: flex; flex-direction: column; gap: 2px; cursor: pointer; min-width: 0; }
-.exercise-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
-.exercise-row.completed .exercise-name { color: #22c55e; text-decoration: line-through; }
-.exercise-detail { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exercise-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.exercise-row.completed .exercise-name { color: var(--color-success); text-decoration: line-through; }
+.exercise-detail { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .rpe-buttons { display: flex; gap: 2px; flex-shrink: 0; }
 .rpe-btn {
   width: 28px; height: 28px; border-radius: 50%;
-  border: 1px solid #e5e5e5; background: #fff;
+  border: 1px solid var(--border-color); background: var(--bg-card);
   font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s; padding: 0; line-height: 1;
 }
 .rpe-btn:hover { transform: scale(1.15); }
-.rpe-btn-easy.active { background: #dbeafe; border-color: #3b82f6; }
-.rpe-btn-normal.active { background: #dcfce7; border-color: #22c55e; }
-.rpe-btn-hard.active { background: #fecaca; border-color: #ef4444; }
+.rpe-btn-easy.active { background: var(--color-info-subtle); border-color: var(--color-info); }
+.rpe-btn-normal.active { background: var(--color-success-subtle); border-color: var(--color-success); }
+.rpe-btn-hard.active { background: var(--color-error-subtle); border-color: var(--color-error); }
 
 .change-marker {
   font-size: 11px;
@@ -147,7 +150,7 @@ const markerClass = computed(() => {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.marker-up { background: #dcfce7; color: #16a34a; }
-.marker-down { background: #fff7ed; color: #ea580c; }
-.marker-new { background: #dbeafe; color: #2563eb; }
+.marker-up { background: var(--color-success-subtle); color: var(--color-success-deep); }
+.marker-down { background: var(--brand-orange-subtle); color: var(--brand-orange-deep); }
+.marker-new { background: var(--color-info-subtle); color: var(--color-info-deep); }
 </style>

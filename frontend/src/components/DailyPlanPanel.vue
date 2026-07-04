@@ -257,16 +257,16 @@ function handleTooHeavy() {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e8e8e8;
+  box-shadow: var(--shadow-card-lg);
+  border: 1px solid var(--border-color);
   padding: 20px;
   overflow-y: auto;
 }
 .daily-plan-panel::-webkit-scrollbar { width: 4px; }
-.daily-plan-panel::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
-.daily-plan-panel::-webkit-scrollbar-thumb:hover { background: #bbb; }
+.daily-plan-panel::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+.daily-plan-panel::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* Transition 包装容器——撑满剩余空间让子元素居中 */
 .panel-content {
@@ -282,7 +282,7 @@ function handleTooHeavy() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #bbb;
+  color: var(--text-muted);
   text-align: center;
 }
 .empty-icon { font-size: 48px; margin-bottom: 12px; }
@@ -297,8 +297,8 @@ function handleTooHeavy() {
   text-align: center;
 }
 .rest-icon, .future-icon { font-size: 56px; margin-bottom: 12px; }
-.rest-day h2, .future-day h2 { font-size: 20px; color: #333; margin: 0 0 8px 0; }
-.rest-day p, .future-day p { color: #999; margin: 0; }
+.rest-day h2, .future-day h2 { font-size: 20px; color: var(--text-primary); margin: 0 0 8px 0; }
+.rest-day p, .future-day p { color: var(--text-muted); margin: 0; }
 
 .plan-header {
   display: flex;
@@ -317,10 +317,10 @@ function handleTooHeavy() {
   align-items: flex-end;
   gap: 4px;
 }
-.date-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0; }
+.date-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0; }
 .focus-tag {
   padding: 3px 12px; border-radius: 20px;
-  background: #fff7ed; color: #f97316;
+  background: var(--brand-orange-subtle); color: var(--brand-orange);
   font-size: 12px; font-weight: 600;
 }
 .phase-badge {
@@ -335,33 +335,33 @@ function handleTooHeavy() {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 12px;
-  background: #f9fafb;
+  background: var(--bg-subtle);
   font-weight: 500;
 }
-.trend-up { color: #16a34a; }
-.trend-down { color: #ea580c; }
-.trend-stable { color: #6b7280; }
+.trend-up { color: var(--color-success-deep); }
+.trend-down { color: var(--brand-orange-deep); }
+.trend-stable { color: var(--text-secondary); }
 
 .change-summary {
   display: flex;
   gap: 8px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: var(--bg-subtle);
   border-radius: 8px;
   margin: 8px 0 12px;
   font-size: 12px;
-  color: #555;
+  color: var(--text-secondary);
   flex-wrap: wrap;
 }
 .change-summary span { font-weight: 600; }
-.cs-up { color: #16a34a; }
-.cs-down { color: #ea580c; }
-.cs-new { color: #2563eb; }
-.cs-same { color: #9ca3af; }
+.cs-up { color: var(--color-success-deep); }
+.cs-down { color: var(--brand-orange-deep); }
+.cs-new { color: var(--color-info-deep); }
+.cs-same { color: var(--text-muted); }
 
 .section-block { margin-bottom: 14px; }
 .section-title {
-  font-size: 14px; font-weight: 700; color: #555;
+  font-size: 14px; font-weight: 700; color: var(--text-secondary);
   margin: 0 0 6px 4px;
 }
 .exercise-list { display: flex; flex-direction: column; gap: 4px; }
@@ -371,11 +371,11 @@ function handleTooHeavy() {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: var(--bg-subtle);
   border-radius: 8px;
   margin: 8px 0 12px;
   font-size: 11px;
-  color: #888;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 .rpe-hint-icon { font-size: 14px; flex-shrink: 0; }
@@ -388,14 +388,14 @@ function handleTooHeavy() {
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   color: #fff;
   transition: all 0.2s;
 }
-.checkin-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(249,115,22,0.35); transform: translateY(-1px); }
-.checkin-btn:disabled { background: #d9d9d9; color: #999; cursor: not-allowed; }
-.checkin-hint { text-align: center; font-size: 12px; color: #999; margin: 6px 0 0; }
-.error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 8px; }
+.checkin-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(217,119,6,0.35); transform: translateY(-1px); }
+.checkin-btn:disabled { background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed; }
+.checkin-hint { text-align: center; font-size: 12px; color: var(--text-muted); margin: 6px 0 0; }
+.error-msg { color: var(--color-error); font-size: 13px; text-align: center; margin-top: 8px; }
 
 /* ═══ 日期切换动画 ═══ */
 .fade-slide-enter-active {
