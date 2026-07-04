@@ -3,9 +3,9 @@
 纯函数模块，无副作用。
 提供给 get_day_detail() 调用，为每个 slot 计算 change_type。
 """
-from typing import Dict, List, Optional
+from typing import Dict
 from sqlalchemy.orm import Session
-from app.models.orm_models import ExerciseSlot, Day
+from app.models.orm_models import Day
 
 
 def compute_slot_diffs(
@@ -38,7 +38,6 @@ def compute_slot_diffs(
         return {}
 
     # 2. 获取上周所有 main slot，按 exercise_id 分组取最近一天
-    from collections import OrderedDict
     prev_by_exercise: Dict[int, dict] = {}
     for day in prev_days:
         for slot in (day.slots or []):
