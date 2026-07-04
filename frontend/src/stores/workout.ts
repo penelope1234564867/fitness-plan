@@ -56,14 +56,51 @@ export const useWorkoutStore = defineStore('workout', () => {
     }
   })
 
-  /** 为 slot 添加前端 UI 状态字段 */
+  /** 当天变化摘要统计 */
+  const changeSummary = computed(() => {
+    const day = currentDay.value
+    if (!day || !day.main.length) {
+      return { increased: 0, newExercise: 0, same: 0, decreased: 0, total: 0 }
+    }
+    let increased = 0
+    let newExercise = 0
+    let same = 0
+    let decreased = 0
+    for (const s of day.main) {
+      const ct = (s as any).change_type
+      if (ct === 'increased_weight' || ct === 'increased_reps') increased++
+      else if (ct === 'new_exercise') newExercise++
+      else if (ct === 'same' || ct === 'none') same++
+      else if (ct === 'decreased_weight') decreased++
+    }
+    return { increased, newExercise, same, decreased, total: day.main.length }
+  })
+
+  /** 为 slot 添加前端 UI 状态字段
+   *
+   *  _completed 从后端 actual_* 字段派生：
+   *  如果 actual_sets>0 或 actual_reps>0 或 rpe>0，认为该动作已完成。
+   *  这样打卡后重新拉取数据时 checkmark 不会消失。
+   */
   function _mapSlot(s: any, dd: any) {
+    const completed = s.actual_sets > 0 || s.actual_reps > 0 || s.rpe > 0
+    let rpeQuick: RPEQuick | null = null
+    if (completed) {
+      if (s.rpe === 4) rpeQuick = 'easy'
+      else if (s.rpe === 7) rpeQuick = 'normal'
+      else if (s.rpe === 9) rpeQuick = 'hard'
+      else rpeQuick = 'normal'  // 其他 RPE 值默认 normal
+    }
     return reactive({
       ...s,
       day_id: dd?.slots?.[0]?.day_id || s.day_id || 0,
-      _completed: false,
-      _rpeQuick: null as RPEQuick | null,
+      _completed: completed,
+      _rpeQuick: rpeQuick,
       _loading: false,
+      change_type: s.change_type || 'none',
+      weight_diff: s.weight_diff || 0,
+      prev_weight_kg: s.prev_weight_kg || 0,
+      prev_target_reps: s.prev_target_reps || 0,
     })
   }
 
@@ -170,6 +207,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     selectedDate, dayDetail, currentDay, todayStr,
     dayDetailLoading, checkinLoading, error,
     activePrimaryMuscles, activeSecondaryMuscles,
+    changeSummary,
     toggleExercise, setRPEQuick, rescheduleDay, submitCheckin, reloadDayDetail,
   }
 })
