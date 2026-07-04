@@ -1,0 +1,85 @@
+/* ========== 亮色模式（:root） ========== */
+:root {
+  /* 背景色 */
+  --bg-page: #f0f2f5;
+  --bg-card: #ffffff;
+  --bg-subtle: #f5f5f5;
+  --bg-hover: #fafafa;
+
+  /* 文字色 */
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #999999;
+  --text-inverse: #ffffff;
+
+  /* 品牌/功能色 */
+  --brand-orange: #f97316;
+  --brand-orange-light: #fb923c;
+  --brand-orange-deep: #ea580c;
+  --brand-orange-subtle: #fff7ed;
+  --color-success: #22c55e;
+  --color-success-deep: #16a34a;
+  --color-success-subtle: #f0fdf4;
+  --color-error: #ef4444;
+  --color-error-deep: #dc2626;
+  --color-error-subtle: #fef2f2;
+  --color-info: #3b82f6;
+  --color-info-deep: #2563eb;
+  --color-info-subtle: #dbeafe;
+  --color-purple: #a855f7;
+
+  /* 阶段色 */
+  --phase-foundational: #3b82f6;
+  --phase-hypertrophy: #22c55e;
+  --phase-strength: #f97316;
+  --phase-deload: #a855f7;
+
+  /* 边框/阴影 */
+  --border-color: #e8e8e8;
+  --border-subtle: #f0f0f0;
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-card-lg: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* ========== 暗色模式（:root.dark） ========== */
+:root.dark {
+  /* 背景色 */
+  --bg-page: #141414;
+  --bg-card: #1f1f1f;
+  --bg-subtle: #2a2a2a;
+  --bg-hover: #333333;
+
+  /* 文字色 */
+  --text-primary: #e5e5e5;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  --text-inverse: #1a1a1a;
+
+  /* 品牌/功能色（降低饱和度） */
+  --brand-orange: #d97706;
+  --brand-orange-light: #b45309;
+  --brand-orange-deep: #92400e;
+  --brand-orange-subtle: #2a1f0e;
+  --color-success: #16a34a;
+  --color-success-deep: #15803d;
+  --color-success-subtle: #0a1f0f;
+  --color-error: #dc2626;
+  --color-error-deep: #b91c1c;
+  --color-error-subtle: #1f0a0a;
+  --color-info: #2563eb;
+  --color-info-deep: #1d4ed8;
+  --color-info-subtle: #0a1428;
+  --color-purple: #9333ea;
+
+  /* 阶段色（提高亮度，深色背景上可见） */
+  --phase-foundational: #60a5fa;
+  --phase-hypertrophy: #4ade80;
+  --phase-strength: #fb923c;
+  --phase-deload: #c084fc;
+
+  /* 边框/阴影 */
+  --border-color: #333333;
+  --border-subtle: #2a2a2a;
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-card-lg: 0 2px 12px rgba(0,0,0,0.4);
+}
