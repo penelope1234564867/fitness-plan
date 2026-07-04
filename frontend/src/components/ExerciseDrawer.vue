@@ -302,12 +302,11 @@ watch(
 .image-area {
   border-radius: 12px;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--bg-subtle);
   min-height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* wger 图片多为白底白描，加内阴影让图片区域边缘可见 */
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
@@ -317,14 +316,13 @@ watch(
   max-height: 280px;
   object-fit: contain;
   display: block;
-  background: #f5f5f5;
-  /* wger 图片白底白描，加边框使轮廓可见 */
-  border: 1px solid #e0e0e0;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   box-sizing: border-box;
 }
 
-/* — 多图展示（替代有 bug 的 a-carousel） — */
+/* — 多图展示 — */
 .multi-image-area {
   width: 100%;
   display: flex;
@@ -337,12 +335,11 @@ watch(
   max-height: 280px;
   object-fit: contain;
   display: block;
-  background: #f5f5f5;
+  background: var(--bg-subtle);
   border-radius: 8px;
   cursor: pointer;
   transition: opacity 0.2s;
-  /* wger 图片白底白描，加边框使轮廓可见 */
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
 }
 .multi-image-main:hover { opacity: 0.85; }
@@ -355,12 +352,12 @@ watch(
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #d9d9d9;
+  background: var(--border-color);
   cursor: pointer;
   transition: all 0.2s;
 }
-.thumb-dot.active { background: #f97316; transform: scale(1.3); }
-.thumb-dot:hover { background: #fb923c; }
+.thumb-dot.active { background: var(--brand-orange); transform: scale(1.3); }
+.thumb-dot:hover { background: var(--brand-orange-light); }
 
 /* — 无图占位 — */
 .no-image-placeholder {
@@ -369,7 +366,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   font-size: 64px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.3);
@@ -380,7 +377,7 @@ watch(
 .skeleton-block {
   width: 100%;
   height: 260px;
-  background: #f0f0f0;
+  background: var(--bg-subtle);
   border-radius: 12px;
 }
 
@@ -397,7 +394,7 @@ watch(
    肌群展示
    ══════════════════════════════════════════ */
 .muscle-section {
-  background: #fafafa;
+  background: var(--bg-hover);
   border-radius: 12px;
   padding: 14px 16px;
 }
@@ -405,7 +402,7 @@ watch(
 .muscle-section-label {
   font-size: 13px;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
@@ -420,22 +417,22 @@ watch(
   align-items: baseline;
   gap: 8px;
   padding: 6px 10px;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 8px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-subtle);
 }
 
 .muscle-cn-only {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 /* ══════════════════════════════════════════
    训练参数卡片
    ══════════════════════════════════════════ */
 .info-card {
-  background: #fafafa;
+  background: var(--bg-hover);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -452,7 +449,7 @@ watch(
 .info-label {
   font-size: 13px;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
   min-width: 80px;
   flex-shrink: 0;
 }
@@ -460,12 +457,12 @@ watch(
 .info-value {
   font-size: 15px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .info-divider {
   height: 1px;
-  background: #e8e8e8;
+  background: var(--border-color);
   margin: 2px 0;
 }
 
@@ -473,8 +470,8 @@ watch(
    动作描述
    ══════════════════════════════════════════ */
 .desc-section {
-  background: #fff;
-  border: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 16px;
 }
@@ -482,14 +479,14 @@ watch(
 .desc-label {
   font-size: 13px;
   font-weight: 600;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
 .desc-text {
   font-size: 14px;
   line-height: 1.8;
-  color: #555;
+  color: var(--text-secondary);
   margin: 0;
   white-space: pre-line;
 }
@@ -498,7 +495,7 @@ watch(
    AI 加载中
    ══════════════════════════════════════════ */
 .ai-loading-section {
-  background: #fafafa;
+  background: var(--bg-hover);
   border-radius: 12px;
   padding: 32px 16px;
   display: flex;
@@ -517,7 +514,7 @@ watch(
 }
 .ai-loading-text {
   font-size: 13px;
-  color: #999;
+  color: var(--text-muted);
   letter-spacing: 0.5px;
 }
 @keyframes ai-pulse {
@@ -536,7 +533,7 @@ watch(
 }
 
 .btn-done {
-  background: #22c55e;
+  background: var(--color-success);
   border: none;
   border-radius: 12px;
   height: 48px;
@@ -544,11 +541,11 @@ watch(
   font-weight: 600;
 }
 .btn-done:hover {
-  background: #16a34a;
+  background: var(--color-success-deep);
 }
 
 .btn-undo {
-  background: #666;
+  background: var(--text-secondary);
   border: none;
   border-radius: 12px;
   height: 48px;
@@ -557,16 +554,16 @@ watch(
 }
 
 .btn-heavy {
-  border-color: #f97316;
-  color: #f97316;
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
   border-radius: 12px;
   height: 44px;
   font-size: 14px;
 }
 .btn-heavy:hover {
-  background: #fff7ed;
-  border-color: #f97316;
-  color: #f97316;
+  background: var(--brand-orange-subtle);
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
 }
 
 /* ══════════════════════════════════════════

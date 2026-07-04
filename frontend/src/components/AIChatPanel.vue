@@ -73,10 +73,10 @@ function scrollToBottom() {
 
 <style scoped>
 .ai-chat-panel {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e8e8e8;
+  box-shadow: var(--shadow-card-lg);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -87,10 +87,10 @@ function scrollToBottom() {
   align-items: center;
   gap: 6px;
   padding: 10px 14px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-subtle);
   font-size: 13px;
   font-weight: 600;
-  color: #444;
+  color: var(--text-primary);
 }
 .chat-icon { font-size: 16px; }
 .chat-messages {
@@ -104,7 +104,7 @@ function scrollToBottom() {
 }
 .chat-empty {
   text-align: center;
-  color: #bbb;
+  color: var(--text-muted);
   font-size: 13px;
   padding: 12px 0;
 }
@@ -112,14 +112,14 @@ function scrollToBottom() {
 .suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .chip {
   padding: 4px 12px;
-  background: #fff7ed;
-  color: #f97316;
+  background: var(--brand-orange-subtle);
+  color: var(--brand-orange);
   border-radius: 12px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s;
 }
-.chip:hover { background: #f97316; color: #fff; }
+.chip:hover { background: var(--brand-orange); color: #fff; }
 .msg-row { display: flex; }
 .msg-row.user { justify-content: flex-end; }
 .msg-row.ai { justify-content: flex-start; }
@@ -132,18 +132,18 @@ function scrollToBottom() {
   word-break: break-word;
 }
 .msg-row.user .msg-bubble {
-  background: #f97316;
+  background: var(--brand-orange);
   color: #fff;
   border-bottom-right-radius: 4px;
 }
 .msg-row.ai .msg-bubble {
-  background: #f5f5f5;
-  color: #333;
+  background: var(--bg-subtle);
+  color: var(--text-primary);
   border-bottom-left-radius: 4px;
 }
-.msg-bubble.typing { color: #999; }
+.msg-bubble.typing { color: var(--text-muted); }
 .chat-input-row {
   padding: 8px 14px 10px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-subtle);
 }
 </style>
