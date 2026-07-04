@@ -227,7 +227,7 @@ onMounted(async () => {
   gap: 16px;
   align-items: stretch;
   padding-bottom: 16px;
-  background: #f0f2f5;
+  background: var(--bg-page);
 }
 
 /* ── 左侧 ── */
@@ -241,11 +241,11 @@ onMounted(async () => {
 
 /* 头像行 */
 .avatar-section {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 14px 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   gap: 14px;
@@ -254,7 +254,7 @@ onMounted(async () => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   color: #fff;
   font-size: 20px;
   display: flex;
@@ -266,13 +266,13 @@ onMounted(async () => {
 .profile-name {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
 }
 .profile-goal {
   font-size: 13px;
-  color: #f97316;
+  color: var(--brand-orange);
   margin: 0;
   font-weight: 600;
 }
@@ -287,11 +287,11 @@ onMounted(async () => {
 
 /* ── 卡片 ── */
 .card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 16px 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
 }
 .cards-area .card {
   flex: 1;
@@ -305,7 +305,7 @@ onMounted(async () => {
 .card-header {
   font-size: 14px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
@@ -317,30 +317,30 @@ onMounted(async () => {
 }
 .field label {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 4px;
   display: block;
 }
 .field input {
   width: 100%;
-  border: 1.5px solid #eee;
-  background: #f8f8f8;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-hover);
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary);
   outline: none;
   box-sizing: border-box;
 }
-.field input:focus { border-color: #f97316; }
+.field input:focus { border-color: var(--brand-orange); }
 
 /* ── 按钮 ── */
 .opt-btn {
   border-radius: 8px;
-  border: 1.5px solid #eee;
-  background: #f8f8f8;
-  color: #666;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -350,12 +350,12 @@ onMounted(async () => {
   line-height: 1;
 }
 .opt-btn.active {
-  background: #fff7ed;
-  border-color: #f97316;
-  color: #f97316;
+  background: var(--brand-orange-subtle);
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
   font-weight: 700;
 }
-.opt-btn:hover:not(.active) { border-color: #ddd; }
+.opt-btn:hover:not(.active) { border-color: var(--border-color); }
 
 .btn-pair { display: flex; gap: 6px; }
 .btn-pair .opt-btn { flex: 1; }
@@ -375,7 +375,7 @@ onMounted(async () => {
 .state-row:last-of-type { margin-bottom: 0; }
 .state-row > label {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 4px;
   display: block;
 }
@@ -393,19 +393,19 @@ onMounted(async () => {
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
-  border: 1.5px solid #eee;
-  background: #fff;
-  color: #999;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s;
   user-select: none;
 }
-.day-chip:hover { border-color: #f97316; }
-.day-chip.active { background: #f97316; border-color: #f97316; color: #fff; }
+.day-chip:hover { border-color: var(--brand-orange); }
+.day-chip.active { background: var(--brand-orange); border-color: var(--brand-orange); color: #fff; }
 
 .day-count {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin: 8px 0 0;
 }
 
@@ -415,7 +415,7 @@ onMounted(async () => {
   padding: 12px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -424,9 +424,9 @@ onMounted(async () => {
   transition: box-shadow 0.2s;
 }
 .save-all-btn:hover:not(:disabled) {
-  box-shadow: 0 3px 10px rgba(249,115,22,0.3);
+  box-shadow: 0 3px 10px rgba(217,119,6,0.3);
 }
-.save-all-btn:disabled { background: #d9d9d9; cursor: not-allowed; }
+.save-all-btn:disabled { background: var(--bg-subtle); cursor: not-allowed; color: var(--text-muted); }
 
 /* ── 右侧 ── */
 .profile-right {
@@ -442,12 +442,12 @@ onMounted(async () => {
 }
 
 .empty-state {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 30px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -456,12 +456,12 @@ onMounted(async () => {
 }
 .empty-state p {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 4px;
 }
 .empty-sub {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 /* ── 响应式 ── */

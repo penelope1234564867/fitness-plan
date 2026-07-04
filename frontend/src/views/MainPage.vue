@@ -156,9 +156,9 @@ async function handleGenerateNext() {
   width: 100%;
   padding: 10px 16px;
   border-radius: 12px;
-  border: 2px dashed #f97316;
-  background: #fff7ed;
-  color: #f97316;
+  border: 2px dashed var(--brand-orange);
+  background: var(--brand-orange-subtle);
+  color: var(--brand-orange);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -169,18 +169,18 @@ async function handleGenerateNext() {
   gap: 6px;
 }
 .gen-next-btn:hover {
-  background: #ffedd5;
-  border-color: #ea580c;
-  color: #ea580c;
+  background: var(--brand-orange-subtle);
+  border-color: var(--brand-orange-deep);
+  color: var(--brand-orange-deep);
 }
 
 /* ── 进度卡片（生成态）── */
 .gen-progress-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-card);
 }
 
 .gen-header-row {
@@ -190,7 +190,7 @@ async function handleGenerateNext() {
   margin-bottom: 8px;
 }
 .gen-header-icon { font-size: 18px; }
-.gen-header-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.gen-header-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 
 /* 进度条 */
 .gen-progress-bar {
@@ -202,21 +202,21 @@ async function handleGenerateNext() {
 .gen-progress-bg {
   flex: 1;
   height: 10px;
-  background: #f0f0f0;
+  background: var(--bg-subtle);
   border-radius: 5px;
   overflow: hidden;
 }
 .gen-progress-fill {
   height: 100%;
   border-radius: 5px;
-  background: linear-gradient(90deg, #f97316, #fb923c);
+  background: linear-gradient(90deg, var(--brand-orange), var(--brand-orange-light));
   transition: width 0.4s ease;
 }
-.gen-progress-fill.complete { background: #22c55e; }
+.gen-progress-fill.complete { background: var(--color-success); }
 .gen-progress-pct {
   font-size: 13px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   min-width: 36px;
   text-align: right;
 }
@@ -224,7 +224,7 @@ async function handleGenerateNext() {
 /* 当前状态文字 */
 .gen-current-status {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -237,7 +237,7 @@ async function handleGenerateNext() {
 .gen-log-container {
   max-height: 260px;
   overflow-y: auto;
-  background: #f8f9fb;
+  background: var(--bg-hover);
   border-radius: 8px;
   padding: 6px 8px;
   font-size: 11px;
@@ -245,16 +245,16 @@ async function handleGenerateNext() {
   font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
 }
 .gen-log-container::-webkit-scrollbar { width: 4px; }
-.gen-log-container::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+.gen-log-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
 
 .gen-log-entry {
   display: flex;
   gap: 6px;
   padding: 1px 0;
-  color: #444;
+  color: var(--text-secondary);
 }
 .gen-log-time {
-  color: #999;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 .gen-log-text {
@@ -262,7 +262,7 @@ async function handleGenerateNext() {
   word-break: break-all;
 }
 
-/* 不同阶段颜色 */
+/* 不同阶段颜色（亮色） */
 .gen-log-init .gen-log-text { color: #666; }
 .gen-log-analysis .gen-log-text { color: #7c3aed; }
 .gen-log-read .gen-log-text,
@@ -281,6 +281,26 @@ async function handleGenerateNext() {
 .gen-log-done .gen-log-text { color: #16a34a; font-weight: 600; }
 .gen-log-error .gen-log-text { color: #dc2626; font-weight: 600; }
 .gen-log-day_done .gen-log-text { color: #16a34a; }
+
+/* 不同阶段颜色（暗色 — 提高亮度） */
+:root.dark .gen-log-init .gen-log-text { color: #999; }
+:root.dark .gen-log-analysis .gen-log-text { color: #a78bfa; }
+:root.dark .gen-log-read .gen-log-text,
+:root.dark .gen-log-decision .gen-log-text { color: #60a5fa; }
+:root.dark .gen-log-mesocycle .gen-log-text,
+:root.dark .gen-log-pool .gen-log-text { color: #fb923c; }
+:root.dark .gen-log-create .gen-log-text,
+:root.dark .gen-log-config .gen-log-text { color: #818cf8; }
+:root.dark .gen-log-llm .gen-log-text { color: #a78bfa; }
+:root.dark .gen-log-candidates .gen-log-text { color: #22d3ee; }
+:root.dark .gen-log-select .gen-log-text { color: #fbbf24; }
+:root.dark .gen-log-assemble .gen-log-text { color: #34d399; }
+:root.dark .gen-log-overload .gen-log-text { color: #a3e635; }
+:root.dark .gen-log-save .gen-log-text { color: #60a5fa; }
+:root.dark .gen-log-finalize .gen-log-text { color: #a78bfa; }
+:root.dark .gen-log-done .gen-log-text { color: #4ade80; font-weight: 600; }
+:root.dark .gen-log-error .gen-log-text { color: #f87171; font-weight: 600; }
+:root.dark .gen-log-day_done .gen-log-text { color: #4ade80; }
 
 .muscle-section { flex: 1; display: flex; flex-direction: column; min-height: 100px; }
 .right-column { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
