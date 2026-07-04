@@ -128,6 +128,11 @@ class ExerciseSlotResponse(BaseModel):
     actual_weight_kg: float = 0.0
     rpe: int = 0
     notes: str = ""
+    # ── 变化标记（对比上周） ──
+    change_type: str = "none"               # none / increased_weight / increased_reps / decreased_weight / new_exercise / same
+    weight_diff: float = 0.0                # 重量差值（千克，正=加重，负=减重）
+    prev_weight_kg: float = 0.0             # 上周该动作的重量（对比基准）
+    prev_target_reps: int = 0               # 上周该动作的目标次数
 
     class Config:
         from_attributes = True
@@ -260,6 +265,11 @@ class DayDetailResponse(BaseModel):
     focus: str = ""
     week_id: int = 0
     mesocycle_phase: str = ""
+    # ── 阶段信息 ──
+    week_number: int = 0                    # 当前是第几周（从 1 开始）
+    phase_label: str = ""                   # 阶段中文名：如"肌肥大期"
+    phase_color: str = ""                   # 阶段颜色：如 "#22c55e"
+    rpe_trend: str = "stable"               # rising / stable / falling
     is_rest_day: bool = False
     has_plan: bool = False
     slots: List[ExerciseSlotResponse] = []
@@ -315,3 +325,4 @@ class ProfileCombinedRequest(BaseModel):
     experience_level: Optional[str] = None
     workout_location: Optional[str] = None
     preferred_days: Optional[str] = None
+    days_per_week: Optional[int] = None
