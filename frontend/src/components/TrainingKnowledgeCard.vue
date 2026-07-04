@@ -97,11 +97,11 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
 <style scoped>
 .knowledge-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 14px;
   padding: 18px 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #eee;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
@@ -111,7 +111,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   gap: 8px;
   font-size: 14px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin-bottom: 14px;
 }
 .knowledge-controls {
@@ -122,18 +122,18 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 }
 .slide-num {
   font-size: 12px;
-  color: #f97316;
+  color: var(--brand-orange);
   font-weight: 600;
 }
 .dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #ddd;
+  background: var(--border-color);
   cursor: pointer;
   transition: background 0.2s;
 }
-.dot.active { background: #f97316; }
+.dot.active { background: var(--brand-orange); }
 
 .slides-container { overflow: hidden; border-radius: 10px; }
 .slides-track { display: flex; transition: transform 0.4s ease; }
@@ -144,8 +144,9 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   border-radius: 10px;
   box-sizing: border-box;
 }
-.slide:first-child { background: #fffcf5; border: 1px solid #fde68a; }
-.slide:last-child { background: #fffcf5; border: 1px solid #fde68a; }
+.slide { background: var(--brand-orange-subtle); border: 1px solid #3d2e14; }
+:root .slide { background: #fffcf5; border: 1px solid #fde68a; }
+:root.dark .slide { background: var(--brand-orange-subtle); border: 1px solid #3d2e14; }
 
 .slide-icon {
   width: 32px; height: 32px; border-radius: 8px;
@@ -153,13 +154,13 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   font-size: 16px; margin-bottom: 10px;
 }
 .slide-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.slide-title { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.slide-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
 .slide-tag {
   font-size: 12px; font-weight: 600; padding: 2px 8px;
-  border-radius: 4px; color: #f97316; background: #fff7ed;
+  border-radius: 4px; color: var(--brand-orange); background: var(--brand-orange-subtle);
 }
 .slide-text {
-  font-size: 13px; color: #666; line-height: 1.7;
+  font-size: 13px; color: var(--text-secondary); line-height: 1.7;
   margin: 0 0 12px;
 }
 
@@ -171,18 +172,22 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 .period-grid { grid-template-columns: 1fr 1fr; }
 
 .ppl-cell {
-  background: #fff7ed; border-radius: 8px; padding: 8px 6px;
-  text-align: center; border: 1px solid #fde68a;
+  background: var(--brand-orange-subtle); border-radius: 8px; padding: 8px 6px;
+  text-align: center; border: 1px solid #3d2e14;
 }
+:root .ppl-cell { border: 1px solid #fde68a; }
+:root.dark .ppl-cell { border: 1px solid #3d2e14; }
 .ppl-emoji { font-size: 18px; display: block; margin-bottom: 2px; }
-.ppl-name { font-size: 13px; font-weight: 700; color: #1a1a1a; display: block; }
-.ppl-detail { font-size: 12px; color: #999; display: block; margin-top: 1px; }
+.ppl-name { font-size: 13px; font-weight: 700; color: var(--text-primary); display: block; }
+.ppl-detail { font-size: 12px; color: var(--text-muted); display: block; margin-top: 1px; }
 
 .period-cell {
-  background: #fff7ed; border-radius: 8px; padding: 8px 10px;
-  border: 1px solid #fde68a;
+  background: var(--brand-orange-subtle); border-radius: 8px; padding: 8px 10px;
+  border: 1px solid #3d2e14;
 }
+:root .period-cell { border: 1px solid #fde68a; }
+:root.dark .period-cell { border: 1px solid #3d2e14; }
 .period-emoji { font-size: 16px; display: block; margin-bottom: 2px; }
-.period-name { font-size: 13px; font-weight: 700; color: #1a1a1a; display: block; }
-.period-detail { font-size: 12px; color: #999; display: block; margin-top: 1px; }
+.period-name { font-size: 13px; font-weight: 700; color: var(--text-primary); display: block; }
+.period-detail { font-size: 12px; color: var(--text-muted); display: block; margin-top: 1px; }
 </style>
