@@ -1,15 +1,20 @@
 """健身计划路由 — 周期化训练引擎 API"""
 
 import json
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import orm_models, schemas
 from app.engine.generator import generate_init_week, generate_next_week, _sse_event
+from app.engine.diff_calculator import compute_slot_diffs
 from app.engine.exercise_cache import get_or_fetch_exercise
+from app.services.plan_service import PlanService
 from typing import Optional
 import asyncio
+
+logger = logging.getLogger("fitness.routes")
 
 router = APIRouter(prefix="/fitness", tags=["健身计划"])
 
@@ -178,11 +183,13 @@ async def init_plan(req: schemas.InitPlanRequest, db: Session = Depends(get_db))
 @router.post("/generate-next", response_class=StreamingResponse)
 async def generate_next(db: Session = Depends(get_db)):
     """基于前一周打卡数据，生成下一周（SSE 流式）。"""
+    logger.info("======== /generate-next 请求进入 ========")
     event_queue: asyncio.Queue = asyncio.Queue()
 
     async def event_stream():
         try:
             # 找当前活跃的 week
+            await event_queue.put(("progress", {"phase": "init", "progress": 0, "text": "🔍 查找当前活跃周..."}))
             current_week = db.query(orm_models.Week).filter(
                 orm_models.Week.status == "active"
             ).order_by(orm_models.Week.id.desc()).first()
@@ -192,16 +199,64 @@ async def generate_next(db: Session = Depends(get_db)):
                 await event_queue.put(("__END__", None))
                 return
 
+            await event_queue.put(("progress", {"phase": "init", "progress": 1, "text": f"✅ 当前: 第{current_week.week_number}周, 标记为 completed"}))
+
             # 标记前一周完成
             current_week.status = "completed"
 
+            # ── AnalystAgent 分析前一周打卡数据 ──
+            await event_queue.put(("progress", {"phase": "analysis", "progress": 2, "text": "🤖 AnalystAgent 正在分析前一周打卡数据..."}))
+            try:
+                plan_service = PlanService()
+                days = db.query(orm_models.Day).filter(
+                    orm_models.Day.week_id == current_week.id
+                ).order_by(orm_models.Day.day_order).all()
+                for d in days:
+                    d.slots = db.query(orm_models.ExerciseSlot).filter(
+                        orm_models.ExerciseSlot.day_id == d.id
+                    ).all()
+                slot_count = sum(len(d.slots) for d in days)
+
+                await event_queue.put(("progress", {"phase": "analysis", "progress": 3, "text": f"📊 分析 {len(days)} 天, {slot_count} 个动作..."}))
+
+                # 获取用户画像
+                user_info = db.query(orm_models.User).first()
+                profile = {
+                    "profile_summary": f"{user_info.experience or '新手'}{user_info.goal or '健身'}"
+                    if user_info else f"用户健身",
+                }
+
+                await event_queue.put(("progress", {"phase": "analysis", "progress": 4, "text": "🧠 AnalystAgent LLM 分析中 (打卡质量/异常检测)..."}))
+                analysis_result = await plan_service.analyze_week_and_adjust(
+                    days, profile, lambda e, d: event_queue.put_nowait((e, d)),
+                )
+                analysis = analysis_result.get("analysis", {})
+                adjustments = analysis_result.get("adjustments", {})
+                await event_queue.put(("week_analysis", analysis))
+                await event_queue.put(("adjustments", adjustments))
+
+                # 检测异常
+                anomalies = plan_service.analyst.detect_anomalies(days)
+                if anomalies:
+                    for a in anomalies:
+                        await event_queue.put(("anomaly", a))
+
+                await event_queue.put(("progress", {"phase": "analysis", "progress": 5, "text": "✅ AnalystAgent 分析完成，准备生成下一周"}))
+            except Exception as e:
+                logger.info(f"[🔍 /generate-next] ⚠️ AnalystAgent 分析失败: {e}")
+                import traceback
+                traceback.print_exc()
+                await event_queue.put(("progress", {"phase": "analysis", "progress": 5, "text": "⚠️ AnalystAgent 分析跳过 (不影响生成)"}))
+
             # 生成下一周
+            await event_queue.put(("progress", {"phase": "generate", "progress": 5, "text": "🚀 开始 generate_next_week()..."}))
             new_week = await generate_next_week(current_week, db, event_queue)
 
             if new_week is None:
                 await event_queue.put(("__END__", None))
                 return
 
+            await event_queue.put(("progress", {"phase": "response", "progress": 97, "text": "📦 构建响应数据..."}))
             response = _build_week_response(new_week, db)
 
             # 返回更新后的 macrocycle_detail
@@ -212,10 +267,12 @@ async def generate_next(db: Session = Depends(get_db)):
                 macrocycle_detail = _build_macrocycle_detail(macrocycle, db)
                 await event_queue.put(("macrocycle_detail", macrocycle_detail))
 
+            logger.info("[🔍 /generate-next] ✅ 全部完成，发送 __DONE__")
             await event_queue.put(("__DONE__", response))
 
         except Exception as e:
             import traceback
+            logger.info(f"[🔍 /generate-next] ❌ 异常: {e}")
             traceback.print_exc()
             await event_queue.put(("error", {"text": f"生成失败: {str(e)}"}))
         finally:
@@ -410,6 +467,64 @@ async def reschedule_day(day_id: int, data: schemas.RescheduleRequest,
             "day_of_week": data.day_of_week, "date": day.date}
 
 
+@router.get("/coach-summary/{week_id}")
+async def get_coach_summary(week_id: int, db: Session = Depends(get_db)):
+    """获取指定周的教练总结（AnalystAgent + CoachAgent）。"""
+    week = db.query(orm_models.Week).filter(
+        orm_models.Week.id == week_id
+    ).first()
+    if not week:
+        raise HTTPException(status_code=404, detail="周计划不存在")
+
+    # 获取该周所有 days + slots
+    days = db.query(orm_models.Day).filter(
+        orm_models.Day.week_id == week.id
+    ).order_by(orm_models.Day.day_order).all()
+    for d in days:
+        d.slots = db.query(orm_models.ExerciseSlot).filter(
+            orm_models.ExerciseSlot.day_id == d.id
+        ).all()
+
+    # 获取用户画像
+    user_info = db.query(orm_models.User).first()
+    profile = {
+        "profile_summary": f"{user_info.experience or '新手'}{user_info.goal or '健身'}"
+        if user_info else "用户健身",
+    }
+
+    plan_service = PlanService()
+
+    try:
+        # AnalystAgent 分析
+        analysis_result = await plan_service.analyze_week_and_adjust(
+            days, profile, lambda e, d: None,
+        )
+
+        # CoachAgent 生成总结
+        week_data = {
+            "completion_rate": analysis_result["analysis"].get("completion_rate", 0) * 100,
+            "high_rpe_ratio": analysis_result["analysis"].get("high_rpe_ratio", 0),
+            "days_completed": sum(1 for d in days if d.is_completed),
+            "days_total": len(days),
+            "days": [{"day_label": d.day_label, "focus": d.focus,
+                      "is_completed": d.is_completed} for d in days],
+        }
+        summary = await plan_service.generate_weekly_summary(
+            profile, week_data, lambda e, d: None,
+        )
+
+        return {
+            "week_id": week_id,
+            "week_number": week.week_number,
+            "analysis": analysis_result.get("analysis", {}),
+            "adjustments": analysis_result.get("adjustments", {}),
+            "summary": summary,
+            "anomalies": plan_service.analyst.detect_anomalies(days),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"分析失败: {str(e)}")
+
+
 # ═══════════════════════════════════════════════════════════════
 #  日历 API（新增）
 # ═══════════════════════════════════════════════════════════════
@@ -505,7 +620,7 @@ async def get_calendar_data(from_date: str = "", to_date: str = "",
 @router.get("/day-detail")
 async def get_day_detail(date: str = "",
                           db: Session = Depends(get_db)):
-    """获取某天的完整训练内容（含 slots + exercise 详情）。"""
+    """获取某天的完整训练内容（含 slots + exercise 详情 + 变化标记）。"""
     if not date:
         raise HTTPException(status_code=400, detail="请提供 date 参数 (YYYY-MM-DD)")
 
@@ -540,6 +655,10 @@ async def get_day_detail(date: str = "",
             "focus": "",
             "week_id": 0,
             "mesocycle_phase": "",
+            "week_number": 0,
+            "phase_label": "",
+            "phase_color": "",
+            "rpe_trend": "stable",
             "is_rest_day": False,
             "has_plan": False,
             "slots": [],
@@ -549,19 +668,74 @@ async def get_day_detail(date: str = "",
             "stretch": [],
         }
 
-    # 获取中周期阶段
+    # 获取中周期阶段 + 周信息
     week = db.query(orm_models.Week).filter(orm_models.Week.id == day.week_id).first()
     mesocycle_phase = ""
+    week_number = 1
+    prev_week_id = 0
     if week:
+        week_number = week.week_number or 1
         meso = db.query(orm_models.Mesocycle).filter(
             orm_models.Mesocycle.id == week.mesocycle_id
         ).first()
         if meso:
             mesocycle_phase = meso.phase
+            # 找上一周（用于 diff 对比）
+            if week_number > 1:
+                prev_week = db.query(orm_models.Week).filter(
+                    orm_models.Week.mesocycle_id == meso.id,
+                    orm_models.Week.week_number == week_number - 1,
+                ).first()
+                if prev_week:
+                    prev_week_id = prev_week.id
 
-    # 构建 slots 数据（复用 _build_week_response 中的逻辑）
+    # 构建 slots 数据
     response = _build_day_detail(day, db)
+
+    # ── 阶段信息 ──
     response["mesocycle_phase"] = mesocycle_phase
+    response["week_number"] = week_number
+
+    # 阶段中文名（按目标映射）
+    goal = "增肌"
+    if active_macro:
+        goal = active_macro.goal or "增肌"
+    goal_phase_labels = {
+        "增肌": {"foundational": "基础适应期", "hypertrophy": "肌肥大期", "strength": "力量提升期", "deload": "减载恢复周"},
+        "减脂": {"foundational": "基础适应期", "hypertrophy": "燃脂强化期", "strength": "代谢提升期", "deload": "减载恢复周"},
+        "塑形": {"foundational": "基础适应期", "hypertrophy": "塑形雕刻期", "strength": "紧致提升期", "deload": "减载恢复周"},
+        "保持健康": {"foundational": "基础适应期", "hypertrophy": "综合维持期", "strength": "活跃恢复期", "deload": "减载恢复周"},
+    }
+    phase_colors = {
+        "foundational": "#3b82f6",
+        "hypertrophy": "#22c55e",
+        "strength": "#f97316",
+        "deload": "#a855f7",
+    }
+    labels = goal_phase_labels.get(goal, goal_phase_labels["增肌"])
+    response["phase_label"] = labels.get(mesocycle_phase, "")
+    response["phase_color"] = phase_colors.get(mesocycle_phase, "#999")
+
+    # RPE 趋势
+    ucs = db.query(orm_models.UserCurrentState).first()
+    response["rpe_trend"] = ucs.rpe_trend if ucs else "stable"
+
+    # ── 计算 slots diff ──
+    if prev_week_id and response.get("slots"):
+        slots_orm = (
+            db.query(orm_models.ExerciseSlot)
+            .filter(orm_models.ExerciseSlot.day_id == day.id)
+            .all()
+        )
+        diffs = compute_slot_diffs(slots_orm, prev_week_id, db)
+        for slot_dict in response.get("slots", []):
+            sid = slot_dict.get("id")
+            if sid in diffs:
+                slot_dict["change_type"] = diffs[sid]["change_type"]
+                slot_dict["weight_diff"] = diffs[sid]["weight_diff"]
+                slot_dict["prev_weight_kg"] = diffs[sid]["prev_weight_kg"]
+                slot_dict["prev_target_reps"] = diffs[sid]["prev_target_reps"]
+
     return response
 
 
