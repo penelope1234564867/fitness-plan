@@ -62,26 +62,26 @@ const phaseIcon = computed(() => {
 
 <style scoped>
 .week-progress {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 16px 18px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
 }
 .wp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .wp-phase { display: flex; align-items: center; gap: 6px; }
 .wp-phase-icon { font-size: 18px; }
-.wp-phase-label { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-.wp-week-info { font-size: 12px; color: #888; font-weight: 400; }
-.wp-pct { font-size: 18px; font-weight: 800; color: #1a1a1a; }
+.wp-phase-label { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.wp-week-info { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+.wp-pct { font-size: 18px; font-weight: 800; color: var(--text-primary); }
 .wp-bar { margin-bottom: 12px; }
-.wp-bar-bg { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
-.wp-bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #f97316, #fb923c); transition: width 0.5s ease; }
+.wp-bar-bg { height: 10px; background: var(--bg-subtle); border-radius: 5px; overflow: hidden; }
+.wp-bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-orange-light)); transition: width 0.5s ease; }
 .wp-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .wp-stats { display: flex; flex-direction: column; gap: 2px; }
-.wp-stat { font-size: 12px; color: #888; }
-.wp-next { font-size: 11px; color: #f97316; font-weight: 500; }
-.wp-generate-btn { padding: 7px 18px; border-radius: 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #f97316, #fb923c); color: #fff; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
-.wp-generate-btn:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(249,115,22,0.35); transform: translateY(-1px); }
-.wp-generate-btn:disabled { background: #d9d9d9; color: #999; cursor: not-allowed; }
+.wp-stat { font-size: 12px; color: var(--text-muted); }
+.wp-next { font-size: 11px; color: var(--brand-orange); font-weight: 500; }
+.wp-generate-btn { padding: 7px 18px; border-radius: 20px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light)); color: #fff; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+.wp-generate-btn:hover:not(:disabled) { box-shadow: 0 4px 12px rgba(217,119,6,0.35); transform: translateY(-1px); }
+.wp-generate-btn:disabled { background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed; }
 </style>

@@ -214,27 +214,27 @@ function selectPhase(phase: string) {
 
 <style scoped>
 .cycle-roadmap-new {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 18px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
 }
 
 /* ── 第1行：我在哪 + 倒计时 ── */
 .cr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .cr-phase { display: flex; align-items: center; gap: 6px; }
 .cr-icon { font-size: 22px; }
-.cr-name { font-size: 16px; font-weight: 800; color: #1a1a1a; }
-.cr-week { font-size: 12px; color: #888; font-weight: 400; }
+.cr-name { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+.cr-week { font-size: 12px; color: var(--text-muted); font-weight: 400; }
 .cr-countdown { text-align: right; }
-.cr-countdown-label { font-size: 11px; color: #888; }
-.cr-countdown-num { font-size: 20px; font-weight: 800; color: #f97316; }
+.cr-countdown-label { font-size: 11px; color: var(--text-muted); }
+.cr-countdown-num { font-size: 20px; font-weight: 800; color: var(--brand-orange); }
 
 /* ── 大周期进度条 ── */
 .cr-bar-wrap { margin-bottom: 16px; }
-.cr-bar-header { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 4px; }
-.cr-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; display: flex; }
+.cr-bar-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.cr-bar { height: 10px; background: var(--bg-subtle); border-radius: 5px; overflow: hidden; display: flex; }
 .cr-bar-seg { height: 100%; transition: all 0.3s; }
 
 /* ── 阶段胶囊 ── */
@@ -242,10 +242,10 @@ function selectPhase(phase: string) {
   display: flex;
   gap: 0;
   margin-bottom: 16px;
-  background: #fafafa;
+  background: var(--bg-hover);
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
 }
 .cr-phase-btn {
   flex: 1;
@@ -254,39 +254,43 @@ function selectPhase(phase: string) {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  border-right: 1px solid #eee;
+  border-right: 1px solid var(--border-color);
   background: transparent;
   font-family: inherit;
 }
 .cr-phase-btn:last-child { border-right: none; }
-.cr-phase-btn:hover { background: #fff7ed; }
-.cr-phase-btn.active-tab { background: #fff7ed; box-shadow: inset 0 -2px 0 #f97316; }
+.cr-phase-btn:hover { background: var(--brand-orange-subtle); }
+.cr-phase-btn.active-tab { background: var(--brand-orange-subtle); box-shadow: inset 0 -2px 0 var(--brand-orange); }
 .cr-pb-icon { font-size: 12px; font-weight: 600; display: block; }
-.cr-pb-icon.dim { color: #999; }
-.cr-pb-weeks { font-size: 9px; color: #888; display: block; margin: 1px 0; }
+.cr-pb-icon.dim { color: var(--text-muted); }
+.cr-pb-weeks { font-size: 9px; color: var(--text-muted); display: block; margin: 1px 0; }
 .cr-pb-status { font-size: 10px; display: block; }
-.cr-pb-status.active { color: #f97316; font-weight: 500; }
-.cr-pb-status.completed { color: #22c55e; font-weight: 500; }
-.cr-pb-status.pending { color: #bbb; }
+.cr-pb-status.active { color: var(--brand-orange); font-weight: 500; }
+.cr-pb-status.completed { color: var(--color-success); font-weight: 500; }
+.cr-pb-status.pending { color: var(--text-muted); }
 
 /* ── 卡片区 ── */
 .cr-cards { display: flex; gap: 8px; margin-bottom: 12px; }
-.cr-sub-card { flex: 1; background: #f9f9f9; border-radius: 10px; padding: 10px; }
-.cr-sub-label { font-size: 10px; color: #888; margin-bottom: 4px; }
-.cr-sub-value { font-size: 16px; font-weight: 800; color: #1a1a1a; }
+.cr-sub-card { flex: 1; background: var(--bg-hover); border-radius: 10px; padding: 10px; }
+.cr-sub-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.cr-sub-value { font-size: 16px; font-weight: 800; color: var(--text-primary); }
 .cr-sub-value.next { font-size: 14px; }
-.cr-sub-hint { font-size: 10px; color: #f97316; margin-top: 2px; }
-.cr-sub-hint.cal { color: #888; }
+.cr-sub-hint { font-size: 10px; color: var(--brand-orange); margin-top: 2px; }
+.cr-sub-hint.cal { color: var(--text-muted); }
 
 /* ── 说明区 ── */
 .cr-desc {
-  background: linear-gradient(135deg, #fef7e6 0%, #fff5f5 100%);
+  background: linear-gradient(135deg, var(--brand-orange-subtle) 0%, #1f0f0f 100%);
   border-radius: 10px;
   padding: 12px 14px;
-  border: 1px solid #ffe8cc;
+  border: 1px solid #3d2e14;
   min-height: 72px;
   transition: all 0.3s ease;
 }
-.cr-desc-title { font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 6px; }
-.cr-desc-text { font-size: 12px; color: #555; line-height: 1.7; border-top: 1px solid #ffe8cc; padding-top: 6px; }
+:root .cr-desc { background: linear-gradient(135deg, #fef7e6 0%, #fff5f5 100%); border: 1px solid #ffe8cc; }
+:root.dark .cr-desc { background: linear-gradient(135deg, #1a1505 0%, #1f0f0f 100%); border: 1px solid #3d2e14; }
+.cr-desc-title { font-size: 13px; font-weight: 600; color: var(--brand-orange); margin-bottom: 6px; }
+.cr-desc-text { font-size: 12px; color: var(--text-secondary); line-height: 1.7; border-top: 1px solid #3d2e14; padding-top: 6px; }
+:root .cr-desc-text { border-top: 1px solid #ffe8cc; }
+:root.dark .cr-desc-text { border-top: 1px solid #3d2e14; }
 </style>
