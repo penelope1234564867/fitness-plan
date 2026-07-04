@@ -32,10 +32,30 @@
 
           <!-- 计划内容 -->
           <div v-else class="plan-content">
-      <!-- 日期头部 -->
+      <!-- 日期头部 + 阶段标识 -->
       <div class="plan-header">
-        <h2 class="date-title">{{ dateTitle }}</h2>
-        <span class="focus-tag">{{ dayPlan.focus }}</span>
+        <div class="plan-header-left">
+          <h2 class="date-title">{{ dateTitle }}</h2>
+          <span class="focus-tag">{{ dayPlan.focus }}</span>
+        </div>
+        <div class="plan-header-right">
+          <span
+            v-if="phaseInfo.label"
+            class="phase-badge"
+            :style="{ background: phaseInfo.color + '20', color: phaseInfo.color, borderColor: phaseInfo.color + '40' }"
+          >
+            {{ phaseInfo.emoji }} {{ phaseInfo.label }} · 第{{ phaseInfo.week }}周
+          </span>
+          <span v-if="phaseInfo.rpeTrend === 'rising'" class="rpe-trend-badge trend-up">
+            📈 RPE 趋势：上升中
+          </span>
+          <span v-else-if="phaseInfo.rpeTrend === 'falling'" class="rpe-trend-badge trend-down">
+            📉 RPE 趋势：下降中
+          </span>
+          <span v-else-if="phaseInfo.rpeTrend === 'stable'" class="rpe-trend-badge trend-stable">
+            📊 RPE 趋势：稳定
+          </span>
+        </div>
       </div>
 
       <!-- 训练区块 -->
@@ -82,6 +102,23 @@
             @toggle="workoutStore.toggleExercise(ex.id)"
           />
         </div>
+      </div>
+
+      <!-- 变化摘要 -->
+      <div v-if="workoutStore.changeSummary.total > 0" class="change-summary">
+        📊 变化摘要：
+        <span v-if="workoutStore.changeSummary.increased" class="cs-up">
+          {{ workoutStore.changeSummary.increased }} 个动作加重
+        </span>
+        <span v-if="workoutStore.changeSummary.decreased" class="cs-down">
+          {{ workoutStore.changeSummary.decreased }} 个动作减载
+        </span>
+        <span v-if="workoutStore.changeSummary.newExercise" class="cs-new">
+          {{ workoutStore.changeSummary.newExercise }} 个新动作
+        </span>
+        <span v-if="workoutStore.changeSummary.same" class="cs-same">
+          {{ workoutStore.changeSummary.same }} 个动作保持
+        </span>
       </div>
 
       <!-- RPE 说明 -->
@@ -167,6 +204,25 @@ const dateTitle = computed(() => {
   return `${d.format('M月D日')} ${weekdays[d.day()]}`
 })
 
+/** 阶段标识信息 */
+const phaseInfo = computed(() => {
+  const dd = dayDetail.value
+  if (!dd) return { label: '', color: '', week: 0, emoji: '', rpeTrend: 'stable' }
+  const phaseEmoji: Record<string, string> = {
+    foundational: '🌱',
+    hypertrophy: '🔥',
+    strength: '💪',
+    deload: '🧘',
+  }
+  return {
+    label: dd.phase_label || '',
+    color: dd.phase_color || '#999',
+    week: dd.week_number || 0,
+    emoji: phaseEmoji[dd.mesocycle_phase] || '🏋️',
+    rpeTrend: dd.rpe_trend || 'stable',
+  }
+})
+
 const checkinLoading = computed(() => workoutStore.checkinLoading)
 const noFeedback = computed(() => {
   if (!dayPlan.value) return true
@@ -246,9 +302,20 @@ function handleTooHeavy() {
 
 .plan-header {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.plan-header-left {
+  display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+}
+.plan-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 .date-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0; }
 .focus-tag {
@@ -256,6 +323,41 @@ function handleTooHeavy() {
   background: #fff7ed; color: #f97316;
   font-size: 12px; font-weight: 600;
 }
+.phase-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rpe-trend-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: #f9fafb;
+  font-weight: 500;
+}
+.trend-up { color: #16a34a; }
+.trend-down { color: #ea580c; }
+.trend-stable { color: #6b7280; }
+
+.change-summary {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 8px 0 12px;
+  font-size: 12px;
+  color: #555;
+  flex-wrap: wrap;
+}
+.change-summary span { font-weight: 600; }
+.cs-up { color: #16a34a; }
+.cs-down { color: #ea580c; }
+.cs-new { color: #2563eb; }
+.cs-same { color: #9ca3af; }
 
 .section-block { margin-bottom: 14px; }
 .section-title {
