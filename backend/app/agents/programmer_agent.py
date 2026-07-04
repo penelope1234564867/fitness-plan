@@ -300,13 +300,25 @@ class ProgrammerAgent:
                 f"连续完成={user_state.get('consecutive_weeks_completed', 0)}周"
             )
 
-        prompt = f"""你是一个专业健身教练。从候选动作中精选最适合当天训练的动作。
+        # 阶段 → 组/次数范围
+        PHASE_REP_RANGES = {
+                   "foundational": "每组 12-15 次，2-3 组，选轻/中等重量，以学会动作为主",
+                   "hypertrophy": "每组 8-12 次，3-4 组，选中等重量，追求训练容量",
+                   "strength": "每组 5-8 次，4-5 组，选大重量（75-85% 1RM），组间休息 2-3 分钟",
+                   "deload": "每组 10-12 次，2 组，重量降低 50%，以恢复为主",
+               }
+        rep_guide = PHASE_REP_RANGES.get(goal, PHASE_REP_RANGES["foundational"])
+
+               prompt = f"""你是一个专业健身教练。从候选动作中精选最适合当天训练的动作。
 
 训练日: {day_spec.get('day_label', '')} — {day_spec.get('focus', '')}
-目标: {goal}
-经验: {experience}
-地点: {location}
+当前阶段: {goal}
+用户经验: {experience}
+训练地点: {location}
 用户画像: {profile.get('profile_summary', '')}
+
+当前阶段训练参数指导:
+{rep_guide}
 
 候选动作:
 {items}
@@ -318,7 +330,8 @@ class ProgrammerAgent:
 4. 每个肌群选 {per_group} 个{exclude_text}{user_state_text}
 5. 请选择与上周不同的组合，保持训练的多样性
 
-提示：动作名请翻译成中文，如 "Leg Press" → "腿举"，"Lat Pull Down" → "高位下拉"。
+输出的 sets 和 reps 必须符合当前阶段的训练参数指导。
+动作名请翻译成中文，如 "Leg Press" → "腿举"，"Lat Pull Down" → "高位下拉"。
 
 只输出 JSON: {{"selected": [{{"wger_id": 123, "name": "中文动作名", "sort_order": 1, "sets": 3, "reps": 10, "rest_seconds": 60}}, ...]}}
 不要 markdown 代码块，不要多余文字。"""

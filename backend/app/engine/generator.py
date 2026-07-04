@@ -19,7 +19,7 @@ from app.models.orm_models import (
 )
 from app.models.schemas import InitPlanRequest
 from app.services.wger_service import search_exercises as wger_search
-from app.engine.progressive_overload import calc_next_week_params, calc_deload_params
+from app.engine.progressive_overload import calc_next_week_params, calc_deload_params, PHASE_PARAMS
 from app.engine.adaptive_adjustment import analyze_slot, analyze_week, update_user_state, update_blacklist
 from app.engine.exercise_rotation import rotate_slots_for_new_mesocycle
 from app.engine.exercise_pool import PoolManager, _muscle_id_to_group
@@ -426,7 +426,7 @@ async def generate_init_week(
         db.add(day)
         db.flush()
 
-        _write_slots(day.id, day_plan, selected, db, event_queue, day_order)
+        _write_slots(day.id, day_plan, selected, db, event_queue, day_order, phase=mesocycle.phase)
         db.flush()
 
         await _emit_sse(event_queue, "day_done", {
@@ -844,7 +844,7 @@ async def generate_next_week(
         db.add(new_day)
         db.flush()
 
-        _write_slots(new_day.id, day_plan, selected, db, event_queue, day_order)
+        _write_slots(new_day.id, day_plan, selected, db, event_queue, day_order, phase=mesocycle.phase)
         db.flush()
 
         await _emit_sse(event_queue, "day_done", {
@@ -880,14 +880,19 @@ def _write_slots(
     db: Session,
     event_queue: asyncio.Queue,
     day_order: int,
+    phase: str = "foundational",
 ):
     """按科学流程写入 exercise_slot 表。
 
     流程: 动态热身 → 无氧主项 → 有氧收尾 → 静态拉伸
+
+    从 PHASE_PARAMS 读取当前阶段的组/次/休息参数，
+    确保第 1 周就使用合理的基线值（不再全部 3×10）。
     """
+    params = PHASE_PARAMS.get(phase, PHASE_PARAMS["foundational"])
     sort_order = 0
 
-    # 1. 动态热身
+    # 1. 动态热身（reps 代表次数，前端显示 "N次" / "N秒" 由 phase_type 决定）
     warmup_list = day_plan.get("warmup", [])
     for ex in warmup_list:
         sort_order += 1
@@ -899,12 +904,12 @@ def _write_slots(
             target_sets=ex.get("sets", 2),
             target_reps=ex.get("reps", 12),
             target_reps_max=15,
-            rest_seconds=15,
+            rest_seconds=0,
             weight_suggestion=ex.get("instruction", ""),
         )
         db.add(slot)
 
-    # 2. 无氧主项（缓存到 Exercise 表，便于获取 target_muscle 等详情）
+    # 2. 无氧主项 — 用阶段参数作为基线
     main_list = day_plan.get("main", [])
     for ex in main_list:
         sort_order += 1
@@ -938,12 +943,12 @@ def _write_slots(
             exercise_name=ex.get("name", ""),
             phase_type="main",
             sort_order=sort_order,
-            target_sets=ex.get("sets", 3),
-            target_reps=ex.get("reps", 10),
-            target_reps_max=12,
+            target_sets=ex.get("sets", params["sets"]),
+            target_reps=ex.get("reps", params["rep_lower"]),
+            target_reps_max=ex.get("reps_max", params["rep_upper"]),
             weight_kg=ex.get("weight_kg", 0.0),
             weight_suggestion=ex.get("weight_suggestion", ""),
-            rest_seconds=ex.get("rest_seconds", 60),
+            rest_seconds=ex.get("rest_seconds", params["rest_seconds"]),
         )
         db.add(slot)
 
@@ -965,19 +970,24 @@ def _write_slots(
         )
         db.add(slot)
 
-    # 4. 静态拉伸（对应训练肌群）
+    # 4. 静态拉伸（target_reps = 保持秒数，不再硬编码 1 秒）
     for ex in day_plan.get("stretch", []):
         sort_order += 1
+        # 从 instruction 中提取保持秒数（如 "保持20秒" → 20），默认 20
+        inst = ex.get("instruction", "")
+        import re
+        dur_match = re.search(r"(\d+)\s*秒", inst)
+        hold_sec = int(dur_match.group(1)) if dur_match else 20
         slot = ExerciseSlot(
             day_id=day_id,
             exercise_id=_get_or_create_general_exercise(ex, db),
             phase_type="stretch",
             sort_order=sort_order,
             target_sets=1,
-            target_reps=1,
-            target_reps_max=20,
-            weight_suggestion=ex.get("instruction", ""),
-            rest_seconds=5,
+            target_reps=hold_sec,
+            target_reps_max=hold_sec,
+            weight_suggestion=inst,
+            rest_seconds=0,
         )
         db.add(slot)
 
