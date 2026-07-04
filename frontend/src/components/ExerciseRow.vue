@@ -28,6 +28,11 @@
       </span>
     </div>
 
+    <!-- 变化标记（仅主项显示） -->
+    <span v-if="exercise.phase_type === 'main' && markerText" class="change-marker" :class="markerClass">
+      {{ markerText }}
+    </span>
+
     <!-- RPE 快捷按钮（仅主项动作显示） -->
     <div v-if="exercise.phase_type === 'main'" class="rpe-buttons">
       <button
@@ -53,14 +58,40 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { ExerciseSlot, RPEQuick } from '@/types'
 
-defineProps<{ exercise: ExerciseSlot }>()
+const props = defineProps<{ exercise: ExerciseSlot }>()
 defineEmits<{
   toggle: []
   'set-rpe-quick': [value: RPEQuick]
   'show-detail': []
 }>()
+
+/** 变化标记文字 */
+const markerText = computed(() => {
+  const ct = props.exercise.change_type
+  if (!ct || ct === 'none' || ct === 'same') return ''
+  const wd = props.exercise.weight_diff || 0
+  switch (ct) {
+    case 'increased_weight': return `↑${wd}kg`
+    case 'increased_reps': {
+      const diff = props.exercise.target_reps - props.exercise.prev_target_reps
+      return diff > 0 ? `+${diff}次` : ''
+    }
+    case 'decreased_weight': return `⬇${Math.abs(wd)}kg`
+    case 'new_exercise': return '🔄 新动作'
+    default: return ''
+  }
+})
+
+const markerClass = computed(() => {
+  const ct = props.exercise.change_type
+  if (ct === 'increased_weight' || ct === 'increased_reps') return 'marker-up'
+  if (ct === 'decreased_weight') return 'marker-down'
+  if (ct === 'new_exercise') return 'marker-new'
+  return ''
+})
 </script>
 
 <style scoped>
@@ -107,4 +138,16 @@ defineEmits<{
 .rpe-btn-easy.active { background: #dbeafe; border-color: #3b82f6; }
 .rpe-btn-normal.active { background: #dcfce7; border-color: #22c55e; }
 .rpe-btn-hard.active { background: #fecaca; border-color: #ef4444; }
+
+.change-marker {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.marker-up { background: #dcfce7; color: #16a34a; }
+.marker-down { background: #fff7ed; color: #ea580c; }
+.marker-new { background: #dbeafe; color: #2563eb; }
 </style>
