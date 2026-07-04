@@ -365,11 +365,14 @@ async function handleGenerate() {
 <style scoped>
 .setup-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  background: linear-gradient(135deg, var(--bg-page) 0%, #d0d4d8 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
+}
+:root.dark .setup-page {
+  background: linear-gradient(135deg, #141414 0%, #1a1a2e 100%);
 }
 
 /* ── 进度条 ── */
@@ -379,9 +382,9 @@ async function handleGenerate() {
   gap: 0;
   margin: 24px auto 32px;
   padding: 20px 32px;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-card-lg);
   width: 100%;
   max-width: 560px;
   justify-content: space-between;
@@ -402,14 +405,14 @@ async function handleGenerate() {
   left: 60%;
   width: 80%;
   height: 3px;
-  background: #e8e8e8;
+  background: var(--border-color);
   z-index: 0;
 }
 .progress-step:last-child::after {
   display: none;
 }
 .progress-step.done::after {
-  background: #22c55e;
+  background: var(--color-success);
 }
 .step-dot {
   width: 24px;
@@ -420,33 +423,33 @@ async function handleGenerate() {
   justify-content: center;
   font-size: 11px;
   font-weight: 700;
-  background: #e8e8e8;
-  color: #999;
+  background: var(--border-color);
+  color: var(--text-muted);
   position: relative;
   z-index: 1;
   transition: all 0.3s ease;
 }
 .progress-step.active .step-dot {
-  background: #f97316;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+  background: var(--brand-orange);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px rgba(217,119,6,0.3);
 }
 .progress-step.done .step-dot {
-  background: #22c55e;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--text-inverse);
 }
 .step-label {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   font-weight: 500;
   white-space: nowrap;
 }
 .progress-step.active .step-label {
-  color: #f97316;
+  color: var(--brand-orange);
   font-weight: 600;
 }
 .progress-step.done .step-label {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 /* ── 卡片容器 ── */
@@ -457,10 +460,10 @@ async function handleGenerate() {
 }
 
 .wizard-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 24px;
   padding: 36px 32px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-card-lg);
   display: flex;
   flex-direction: column;
 }
@@ -473,13 +476,13 @@ async function handleGenerate() {
 .card-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   text-align: center;
   margin: 0 0 4px 0;
 }
 .card-desc {
   font-size: 14px;
-  color: #888;
+  color: var(--text-muted);
   text-align: center;
   margin: 0 0 28px 0;
 }
@@ -510,26 +513,27 @@ async function handleGenerate() {
 .form-item label {
   font-size: 13px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-secondary);
 }
 .form-input {
   padding: 12px 14px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 16px;
   font-weight: 500;
   outline: none;
   transition: border-color 0.2s;
-  background: #fafafa;
+  background: var(--bg-hover);
   width: 100%;
   box-sizing: border-box;
+  color: var(--text-primary);
 }
 .form-input:focus {
-  border-color: #f97316;
-  background: #fff;
+  border-color: var(--brand-orange);
+  background: var(--bg-card);
 }
 .form-input::placeholder {
-  color: #ccc;
+  color: var(--text-muted);
   font-weight: 400;
 }
 
@@ -540,24 +544,24 @@ async function handleGenerate() {
 .gender-btn {
   flex: 1;
   padding: 12px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
-  background: #fafafa;
+  background: var(--bg-hover);
   font-size: 15px;
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
 }
 .gender-btn:hover {
-  border-color: #f97316;
-  color: #f97316;
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
 }
 .gender-btn.active {
-  border-color: #f97316;
-  background: #fff7ed;
-  color: #f97316;
-  box-shadow: 0 2px 8px rgba(249,115,22,0.15);
+  border-color: var(--brand-orange);
+  background: var(--brand-orange-subtle);
+  color: var(--brand-orange);
+  box-shadow: 0 2px 8px rgba(217,119,6,0.15);
 }
 
 /* ── Option cards (experience / location) ── */
@@ -565,7 +569,7 @@ async function handleGenerate() {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #444;
+  color: var(--text-secondary);
   margin-bottom: 10px;
 }
 .option-row {
@@ -578,21 +582,21 @@ async function handleGenerate() {
   flex-direction: column;
   align-items: center;
   padding: 18px 10px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
-  background: #fafafa;
+  background: var(--bg-hover);
   text-align: center;
 }
 .option-card:hover {
-  border-color: #f97316;
+  border-color: var(--brand-orange);
   transform: translateY(-2px);
 }
 .option-card.active {
-  border-color: #f97316;
-  background: #fff7ed;
-  box-shadow: 0 4px 16px rgba(249,115,22,0.15);
+  border-color: var(--brand-orange);
+  background: var(--brand-orange-subtle);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.15);
 }
 .option-icon {
   font-size: 28px;
@@ -601,11 +605,11 @@ async function handleGenerate() {
 .option-title {
   font-size: 15px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 .option-desc {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 4px;
   line-height: 1.3;
 }
@@ -621,21 +625,21 @@ async function handleGenerate() {
   flex-direction: column;
   align-items: center;
   padding: 28px 16px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
-  background: #fafafa;
+  background: var(--bg-hover);
   text-align: center;
 }
 .goal-card:hover {
-  border-color: #f97316;
+  border-color: var(--brand-orange);
   transform: translateY(-2px);
 }
 .goal-card.active {
-  border-color: #f97316;
-  background: #fff7ed;
-  box-shadow: 0 4px 16px rgba(249,115,22,0.15);
+  border-color: var(--brand-orange);
+  background: var(--brand-orange-subtle);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.15);
 }
 .goal-icon-big {
   font-size: 40px;
@@ -644,11 +648,11 @@ async function handleGenerate() {
 .goal-label {
   font-size: 17px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 .goal-desc {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 
@@ -668,26 +672,27 @@ async function handleGenerate() {
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
-  border: 2px solid #e8e8e8;
-  background: #fafafa;
+  border: 2px solid var(--border-color);
+  background: var(--bg-hover);
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
+  color: var(--text-primary);
 }
 .day-chip:hover {
-  border-color: #f97316;
-  color: #f97316;
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
 }
 .day-chip.active {
-  background: #f97316;
-  border-color: #f97316;
-  color: #fff;
-  box-shadow: 0 3px 10px rgba(249,115,22,0.3);
+  background: var(--brand-orange);
+  border-color: var(--brand-orange);
+  color: var(--text-inverse);
+  box-shadow: 0 3px 10px rgba(217,119,6,0.3);
 }
 .day-summary {
   text-align: center;
   font-size: 15px;
-  color: #666;
+  color: var(--text-secondary);
   margin-top: 20px;
 }
 
@@ -696,7 +701,7 @@ async function handleGenerate() {
   padding: 12px 32px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f97316, #fb923c);
+  background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -704,35 +709,36 @@ async function handleGenerate() {
   transition: all 0.2s;
 }
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.3);
   transform: translateY(-1px);
 }
 .btn-primary:disabled {
-  background: #d9d9d9;
+  background: var(--bg-subtle);
   cursor: not-allowed;
+  color: var(--text-muted);
 }
 
 .btn-secondary {
   padding: 12px 24px;
-  border: 2px solid #e8e8e8;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
-  background: #fff;
-  color: #666;
+  background: var(--bg-card);
+  color: var(--text-secondary);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 .btn-secondary:hover {
-  border-color: #f97316;
-  color: #f97316;
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
 }
 
 .btn-generate {
   padding: 12px 32px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, var(--color-success), var(--color-success-deep));
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -740,12 +746,13 @@ async function handleGenerate() {
   transition: all 0.2s;
 }
 .btn-generate:hover:not(:disabled) {
-  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+  box-shadow: 0 4px 16px rgba(22,163,74,0.3);
   transform: translateY(-1px);
 }
 .btn-generate:disabled {
-  background: #d9d9d9;
+  background: var(--bg-subtle);
   cursor: not-allowed;
+  color: var(--text-muted);
 }
 
 /* ── Card slide transition ── */

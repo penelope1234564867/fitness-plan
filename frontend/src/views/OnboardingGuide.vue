@@ -115,7 +115,7 @@ onMounted(() => {
 <style scoped>
 .onboarding-container {
   min-height: calc(100vh - 64px);
-  background: #f5f7fa;
+  background: var(--bg-page);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,16 +137,16 @@ onMounted(() => {
 .logo-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .card-wrapper {
   width: 100%;
   max-width: 480px;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-card-lg);
   padding: 36px 32px;
 }
 

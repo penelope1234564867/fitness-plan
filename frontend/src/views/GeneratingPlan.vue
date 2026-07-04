@@ -123,7 +123,7 @@ async function loadProfileAndGenerate() {
 <style scoped>
 .generating-container {
   min-height: calc(100vh - 40px);
-  background: #f5f7fa;
+  background: var(--bg-page);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -149,7 +149,7 @@ async function loadProfileAndGenerate() {
 }
 .gen-loading h2 {
   font-size: 20px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
@@ -157,46 +157,46 @@ async function loadProfileAndGenerate() {
   width: 100%; max-width: 600px;
   display: flex; justify-content: space-between; align-items: center;
   padding: 16px 24px;
-  background: #fff; border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: var(--bg-card); border-radius: 12px;
+  box-shadow: var(--shadow-card);
 }
 .gen-header-left { display: flex; align-items: center; gap: 10px; }
 .gen-header-icon { font-size: 28px; }
-.gen-header-left h2 { margin: 0; font-size: 20px; font-weight: 700; color: #1a1a1a; }
-.gen-header-right { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666; }
-.gen-divider { color: #ddd; }
-.gen-progress-text { color: #f97316; font-weight: 600; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gen-header-left h2 { margin: 0; font-size: 20px; font-weight: 700; color: var(--text-primary); }
+.gen-header-right { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.gen-divider { color: var(--border-color); }
+.gen-progress-text { color: var(--brand-orange); font-weight: 600; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .gen-progress-bar {
   width: 100%; max-width: 600px;
   display: flex; align-items: center; gap: 12px;
 }
-.progress-bg { flex: 1; height: 12px; background: #f0f0f0; border-radius: 6px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #f97316, #fb923c); transition: width 0.5s ease; }
-.progress-fill.complete { background: #22c55e; }
-.progress-pct { font-size: 16px; font-weight: 700; color: #1a1a1a; min-width: 40px; text-align: right; }
+.progress-bg { flex: 1; height: 12px; background: var(--bg-subtle); border-radius: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--brand-orange), var(--brand-orange-light)); transition: width 0.5s ease; }
+.progress-fill.complete { background: var(--color-success); }
+.progress-pct { font-size: 16px; font-weight: 700; color: var(--text-primary); min-width: 40px; text-align: right; }
 
 .gen-status-text {
-  font-size: 16px; color: #555; text-align: center;
-  padding: 20px; background: #fff; border-radius: 12px;
+  font-size: 16px; color: var(--text-secondary); text-align: center;
+  padding: 20px; background: var(--bg-card); border-radius: 12px;
   width: 100%; max-width: 600px; min-height: 60px;
   display: flex; align-items: center; justify-content: center;
 }
 
 .gen-error {
   display: flex; align-items: center; gap: 12px;
-  padding: 12px 20px; background: #fff2f0; border: 1px solid #ffccc7; border-radius: 8px;
-  color: #cf1322; font-size: 14px;
+  padding: 12px 20px; background: var(--color-error-subtle); border: 1px solid var(--color-error); border-radius: 8px;
+  color: var(--color-error-deep); font-size: 14px;
 }
 .retry-btn {
-  padding: 6px 16px; border: 1px solid #ff4d4f; border-radius: 6px;
-  background: #fff; color: #ff4d4f; font-size: 13px; cursor: pointer;
+  padding: 6px 16px; border: 1px solid var(--color-error); border-radius: 6px;
+  background: var(--bg-card); color: var(--color-error); font-size: 13px; cursor: pointer;
 }
-.retry-btn:hover { background: #ff4d4f; color: #fff; }
+.retry-btn:hover { background: var(--color-error); color: #fff; }
 
 .gen-done {
-  font-size: 20px; font-weight: 700; color: #22c55e;
-  padding: 40px; background: #f0fdf4; border-radius: 12px;
+  font-size: 20px; font-weight: 700; color: var(--color-success);
+  padding: 40px; background: var(--color-success-subtle); border-radius: 12px;
   width: 100%; max-width: 600px; text-align: center;
 }
 </style>
