@@ -99,19 +99,51 @@ function _parseSSEBlock(block: string): { eventType: string; dataStr: string } |
 /**
  * 生成进度估算（根据 phase 估算 0-100）
  *
- * 后端 phase 序列：
- *   init → coordinator → search → llm_parallel → select(per-day) → assemble(per-day) → save → done
+ * 新引擎 (init-plan):
+ *   init → coordinator → search → llm_parallel → select → assemble → save → done
+ *
+ * 新引擎 (generate-next):
+ *   init → analysis → read → decision → mesocycle → pool → create → config
+ *   → llm → candidates → select → assemble → overload → save → finalize → done
+ *
+ * 若事件自带 progress 字段 (后端 v2+)，优先使用 data.progress；
+ * 否则用此函数按 phase 名称估算。
  */
 export function estimateProgress(phase: string): number {
   const phases: Record<string, number> = {
+    // init-plan
     'init': 5,
     'coordinator': 8,
     'search': 20,
     'llm_parallel': 30,
+    // generate-next
+    'analysis': 8,
+    'read': 7,
+    'decision': 12,
+    'mesocycle': 15,
+    'pool': 22,
+    'create': 26,
+    'config': 29,
+    'candidates': 34,
+    'overload': 58,
+    'finalize': 96,
+    // shared
     'select': 45,
     'assemble': 55,
     'save': 75,
     'done': 100,
+    // fallback
   }
-  return phases[phase] ?? 55
+  return phases[phase] ?? 50
+}
+
+/**
+ * 从进度事件获取最佳进度值。
+ * 优先使用后端传来的 progress 字段，否则按 phase 估算。
+ */
+export function getProgress(data: { progress?: number; phase?: string }): number {
+  if (typeof data.progress === 'number') {
+    return Math.min(100, Math.max(0, data.progress))
+  }
+  return estimateProgress(data.phase || '')
 }

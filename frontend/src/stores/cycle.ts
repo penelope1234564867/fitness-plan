@@ -7,7 +7,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as api from '@/services/api'
-import { estimateProgress } from '@/services/sse'
+import { estimateProgress, getProgress } from '@/services/sse'
 import dayjs from 'dayjs'
 import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
 import { PHASE_LABEL_MAP, PHASE_COLORS } from '@/types'
@@ -23,6 +23,9 @@ export const useCycleStore = defineStore('cycle', () => {
   const generationProgress = ref(0)
   const generationStatus = ref('')
   const generationPhase = ref('')
+  /** 实时日志列表 { time, phase, text, day?, progress? } */
+  const generationLog = ref<{ time: string; phase: string; text: string; day?: number; progress: number }[]>([])
+  const MAX_LOG_ENTRIES = 200
 
   // 日历数据（按日期索引）
   const calendarEntries = ref<Map<string, CalendarEntry>>(new Map())
@@ -116,34 +119,54 @@ export const useCycleStore = defineStore('cycle', () => {
 
   // ── Actions ──
 
+  /** 添加一条日志 + 更新进度 */
+  function _addLog(data: { phase: string; text: string; progress?: number; day?: number }) {
+    const now = new Date()
+    const time = now.toLocaleTimeString('zh-CN', { hour12: false })
+    const pct = getProgress(data)
+    generationLog.value.push({ time, phase: data.phase, text: data.text, day: data.day, progress: pct })
+    if (generationLog.value.length > MAX_LOG_ENTRIES) {
+      generationLog.value = generationLog.value.slice(-MAX_LOG_ENTRIES)
+    }
+  }
+
   async function initPlan(req: InitPlanRequest) {
     isGenerating.value = true
     generationProgress.value = 0
     generationStatus.value = '🚀 开始初始化...'
+    generationLog.value = []
     error.value = null
+
+    _addLog({ phase: 'init', text: '🚀 开始生成训练计划...', progress: 0 })
 
     try {
       const result = await api.initPlan(req, {
         onProgress: (data) => {
           generationStatus.value = data.text
           generationPhase.value = data.phase
-          generationProgress.value = estimateProgress(data.phase)
+          const pct = getProgress(data)
+          generationProgress.value = pct
+          _addLog({ ...data, progress: pct })
         },
         onDayDone: (data) => {
           generationStatus.value = `✅ 第${data.day}天生成完成`
+          _addLog({ phase: 'day_done', text: `✅ 第${data.day}天 (${data.focus}) 完成 — ${data.main_count} 个主项`, day: data.day, progress: generationProgress.value })
         },
         onError: (data) => {
           error.value = data.text
+          _addLog({ phase: 'error', text: `❌ ${data.text}`, progress: generationProgress.value })
         },
       })
 
       currentWeek.value = result
       generationProgress.value = 100
       generationStatus.value = '✅ 计划生成成功！'
+      _addLog({ phase: 'done', text: '✅ 计划生成成功！', progress: 100 })
       await fetchMacrocycles()
       return result
     } catch (e: any) {
       error.value = e.message || '初始化失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
       throw e
     } finally {
       setTimeout(() => { isGenerating.value = false }, 500)
@@ -154,30 +177,39 @@ export const useCycleStore = defineStore('cycle', () => {
     isGenerating.value = true
     generationProgress.value = 0
     generationStatus.value = '📋 分析前一周打卡数据...'
+    generationLog.value = []
     error.value = null
+
+    _addLog({ phase: 'init', text: '📋 开始生成下周计划...', progress: 0 })
 
     try {
       const result = await api.generateNextWeek({
         onProgress: (data) => {
           generationStatus.value = data.text
           generationPhase.value = data.phase
-          generationProgress.value = estimateProgress(data.phase)
+          const pct = getProgress(data)
+          generationProgress.value = pct
+          _addLog({ ...data, progress: pct })
         },
         onDayDone: (data) => {
           generationStatus.value = `✅ 第${data.day}天已生成`
+          _addLog({ phase: 'day_done', text: `✅ 第${data.day}天 (${data.focus}) 写入完成 — ${data.main_count} 个主项`, day: data.day, progress: generationProgress.value })
         },
         onError: (data) => {
           error.value = data.text
+          _addLog({ phase: 'error', text: `❌ ${data.text}`, progress: generationProgress.value })
         },
       })
 
       currentWeek.value = result
       generationProgress.value = 100
       generationStatus.value = '✅ 下周计划已生成！'
+      _addLog({ phase: 'done', text: '✅ 下周计划生成成功！', progress: 100 })
       await fetchMacrocycles()
       return result
     } catch (e: any) {
       error.value = e.message || '生成失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
       throw e
     } finally {
       setTimeout(() => { isGenerating.value = false }, 500)
@@ -243,7 +275,7 @@ export const useCycleStore = defineStore('cycle', () => {
   return {
     currentWeek, macrocycle, macrocycles,
     calendarEntries, calendarRange,
-    isGenerating, generationProgress, generationStatus, generationPhase,
+    isGenerating, generationProgress, generationStatus, generationPhase, generationLog,
     loading, error,
     currentMesocycle, currentWeekNumber, mesocycleTotalWeeks,
     mesocyclePhaseLabel, weekCompletionRate, isWeekComplete,

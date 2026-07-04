@@ -180,6 +180,7 @@ function toggleDay(value: number) {
 async function handleSave() {
   saving.value = true
   try {
+    const _dayCount = selectedDays.value.length
     await saveProfileCombined({
       height: form.height ?? null,
       weight: form.weight ?? null,
@@ -189,6 +190,7 @@ async function handleSave() {
       experience_level: form.experience_level,
       workout_location: form.workout_location,
       preferred_days: form.preferredDays,
+      days_per_week: _dayCount || null,
     })
     await userStore.fetchProfile()
     await userStore.fetchCurrentState()

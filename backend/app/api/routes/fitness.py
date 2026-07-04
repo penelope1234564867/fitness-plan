@@ -681,13 +681,11 @@ async def get_day_detail(date: str = "",
         if meso:
             mesocycle_phase = meso.phase
             # 找上一周（用于 diff 对比）
-            if week_number > 1:
-                prev_week = db.query(orm_models.Week).filter(
-                    orm_models.Week.mesocycle_id == meso.id,
-                    orm_models.Week.week_number == week_number - 1,
-                ).first()
-                if prev_week:
-                    prev_week_id = prev_week.id
+            prev_week = db.query(orm_models.Week).filter(
+                orm_models.Week.id < week.id,
+            ).order_by(orm_models.Week.id.desc()).first()
+            if prev_week:
+                prev_week_id = prev_week.id
 
     # 构建 slots 数据
     response = _build_day_detail(day, db)

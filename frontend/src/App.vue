@@ -53,7 +53,7 @@ function goProfile() {
 </script>
 
 <style>
-html, body { margin: 0; padding: 0; height: 100%; }
+html, body { margin: 0; padding: 0; height: 100%; background: #f0f2f5; }
 #app {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     'Noto Sans', sans-serif;
@@ -105,7 +105,7 @@ html, body { margin: 0; padding: 0; height: 100%; }
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 16px clamp(16px, 4vw, 48px);
   min-height: 0;
   box-sizing: border-box;
 }

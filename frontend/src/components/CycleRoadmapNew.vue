@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <!-- 大周期进度条 -->
+    <!-- 大周期进度条（已按周数显示真实进度） -->
     <div class="cr-bar-wrap">
       <div class="cr-bar-header">
         <span>📊 大周期进度</span>
@@ -21,16 +21,13 @@
       </div>
       <div class="cr-bar">
         <div
-          v-for="(seg, idx) in data.mesocycles"
-          :key="seg.phase"
+          v-for="(piece, idx) in barPieces"
+          :key="idx"
           class="cr-bar-seg"
-          :class="{ 'seg-active': seg.status === 'active', 'seg-completed': seg.status === 'completed' }"
           :style="{
-            width: (seg.weekCount / data.totalWeeks) * 100 + '%',
-            background: seg.status === 'pending' ? '#e8e8e8' : seg.color,
-            borderRadius:
-              idx === 0 ? '5px 0 0 5px' :
-              idx === data.mesocycles.length - 1 ? '0 5px 5px 0' : '0',
+            width: piece.width,
+            background: piece.bg,
+            borderRadius: piece.radius,
           }"
         />
       </div>
@@ -118,26 +115,35 @@ function phaseIcon(phase: string): string {
   return phaseIcons[phase] ?? '💪'
 }
 
+/** 当前进行中的阶段（始终不变） */
+const currentActiveSegment = computed(() =>
+  props.data.mesocycles.find(s => s.status === 'active')
+    ?? props.data.mesocycles[0],
+)
+
 /** 当前选中的阶段 */
 const selectedSegment = computed(() =>
   props.data.mesocycles.find(s => s.phase === activeTab.value)
     ?? props.data.mesocycles[0],
 )
 
-/** 选中阶段的图标 */
-const activePhaseIcon = computed(() => phaseIcon(activeTab.value))
+/** 当前进行中的阶段图标 */
+const activePhaseIcon = computed(() => {
+  const seg = currentActiveSegment.value
+  return phaseIcon(seg?.phase ?? '')
+})
 
-/** 选中阶段的显示名称（根据目标映射） */
+/** 当前进行中的阶段名称（始终显示你当前是什么阶段） */
 const activePhaseLabel = computed(() => {
-  const seg = selectedSegment.value
+  const seg = currentActiveSegment.value
   if (!seg) return ''
   const labels = PHASE_LABEL_MAP[props.goal] || PHASE_LABEL_MAP['增肌']
   return labels[seg.phase] || seg.label
 })
 
-/** 当前阶段剩余周数 */
+/** 当前进行中的阶段剩余周数 */
 const remainingWeeks = computed(() => {
-  const seg = selectedSegment.value
+  const seg = currentActiveSegment.value
   if (!seg) return 0
   if (seg.status === 'pending') return seg.weekCount
   if (seg.status === 'completed') return 0
@@ -159,6 +165,46 @@ const nextPhaseEstimate = computed(() => {
   const remaining = (activeSeg.weekCount - (activeSeg.currentWeek ?? 1)) + 1
   if (remaining <= 1) return '下周开始'
   return `约 ${remaining} 周后`
+})
+
+/** 进度条分段（活跃阶段按已完成周数拆为"已上色 + 灰色"两部分） */
+interface BarPiece { width: string; bg: string; radius: string }
+const barPieces = computed(() => {
+  const pieces: BarPiece[] = []
+  const total = props.data.totalWeeks
+  const cycles = props.data.mesocycles
+
+  for (const seg of cycles) {
+    if (seg.status === 'active') {
+      // currentWeek 是 1-based
+      const cw = seg.currentWeek ?? 1
+      const fullyDone = Math.max(0, cw - 1)       // 已完整完成的周数
+      const inProgress = 1                         // 当前正在进行的这周
+      const remaining = seg.weekCount - cw         // 还没到的未来周数
+
+      if (fullyDone > 0) {
+        pieces.push({ width: (fullyDone / total * 100) + '%', bg: seg.color, radius: '' })
+      }
+      // 当前周：半透明显示"进行中"
+      pieces.push({ width: (inProgress / total * 100) + '%', bg: seg.color + '40', radius: '' })
+      if (remaining > 0) {
+        pieces.push({ width: (remaining / total * 100) + '%', bg: '#e8e8e8', radius: '' })
+      }
+    } else {
+      pieces.push({
+        width: (seg.weekCount / total * 100) + '%',
+        bg: seg.status === 'completed' ? seg.color : '#e8e8e8',
+        radius: '',
+      })
+    }
+  }
+
+  // 首尾圆角
+  if (pieces.length > 0) {
+    pieces[0].radius = '5px 0 0 5px'
+    pieces[pieces.length - 1].radius = '0 5px 5px 0'
+  }
+  return pieces
 })
 
 function selectPhase(phase: string) {
