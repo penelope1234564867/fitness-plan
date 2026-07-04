@@ -88,6 +88,20 @@
 import { ref, computed } from 'vue'
 import type { RoadmapData } from '@/types'
 import { PHASE_DESCRIPTIONS, PHASE_LABEL_MAP } from '@/types'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+
+function getPhaseColor(phase: string, lightColor: string): string {
+  if (!themeStore.isDark) return lightColor
+  const darkMap: Record<string, string> = {
+    foundational: '#60a5fa',
+    hypertrophy: '#4ade80',
+    strength: '#fb923c',
+    deload: '#c084fc',
+  }
+  return darkMap[phase] || lightColor
+}
 
 const props = defineProps<{
   data: RoadmapData
@@ -183,17 +197,17 @@ const barPieces = computed(() => {
       const remaining = seg.weekCount - cw         // 还没到的未来周数
 
       if (fullyDone > 0) {
-        pieces.push({ width: (fullyDone / total * 100) + '%', bg: seg.color, radius: '' })
+        pieces.push({ width: (fullyDone / total * 100) + '%', bg: getPhaseColor(seg.phase, seg.color), radius: '' })
       }
       // 当前周：半透明显示"进行中"
-      pieces.push({ width: (inProgress / total * 100) + '%', bg: seg.color + '40', radius: '' })
+      pieces.push({ width: (inProgress / total * 100) + '%', bg: getPhaseColor(seg.phase, seg.color) + '40', radius: '' })
       if (remaining > 0) {
         pieces.push({ width: (remaining / total * 100) + '%', bg: '#e8e8e8', radius: '' })
       }
     } else {
       pieces.push({
         width: (seg.weekCount / total * 100) + '%',
-        bg: seg.status === 'completed' ? seg.color : '#e8e8e8',
+        bg: seg.status === 'completed' ? getPhaseColor(seg.phase, seg.color) : 'var(--bg-subtle)',
         radius: '',
       })
     }

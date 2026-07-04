@@ -7,7 +7,7 @@
         <div class="history-body">
           <div class="history-top">
             <span class="history-label">{{ seg.label }}</span>
-            <span class="history-pct" :style="{ color: seg.color }">
+            <span class="history-pct" :style="{ color: getPhaseColor(seg.phase, seg.color) }">
               {{ seg.status === 'completed' ? seg.completionRate + '%' : seg.status === 'active' ? '进行中' : '即将到来' }}
             </span>
           </div>
@@ -22,6 +22,20 @@
 
 <script setup lang="ts">
 import type { PhaseSegment, WeekSummary } from '@/types'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+
+function getPhaseColor(phase: string, lightColor: string): string {
+  if (!themeStore.isDark) return lightColor
+  const darkMap: Record<string, string> = {
+    foundational: '#60a5fa',
+    hypertrophy: '#4ade80',
+    strength: '#fb923c',
+    deload: '#c084fc',
+  }
+  return darkMap[phase] || lightColor
+}
 
 defineProps<{
   segments: PhaseSegment[]

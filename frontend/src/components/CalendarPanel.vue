@@ -48,6 +48,9 @@ import dayjs from 'dayjs'
 import * as api from '@/services/api'
 import type { DayStatus } from '@/types'
 import { PHASE_COLORS } from '@/types'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
 
 const emit = defineEmits<{ select: [date: string] }>()
 const cycleStore = useCycleStore()
@@ -113,6 +116,18 @@ const lastVisibleDate = computed(() =>
   dayjs(lastDateOfMonth.value).endOf('week').format('YYYY-MM-DD'),
 )
 
+/** 根据主题返回阶段色 */
+function getPhaseColor(phase: string): string {
+  if (!themeStore.isDark) return PHASE_COLORS[phase] || '#999'
+  const darkMap: Record<string, string> = {
+    foundational: '#60a5fa',
+    hypertrophy: '#4ade80',
+    strength: '#fb923c',
+    deload: '#c084fc',
+  }
+  return darkMap[phase] || PHASE_COLORS[phase] || '#999'
+}
+
 /** 显示的日期数组 */
 interface CalendarDay {
   day: number
@@ -162,7 +177,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
       status: getCellStatus(dateStr),
       focusIcon: getFocusIcon(dateStr),
       focusLabel: getFocusLabel(dateStr),
-      phaseColor: entry?.mesocycle_phase ? (PHASE_COLORS[entry.mesocycle_phase] || undefined) : undefined,
+      phaseColor: entry?.mesocycle_phase ? getPhaseColor(entry.mesocycle_phase) : undefined,
       rescheduleState,
     })
   }
