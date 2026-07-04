@@ -13,6 +13,7 @@ function makeSlot(overrides: Partial<ExerciseSlot> = {}): ExerciseSlot {
     actual_sets: 0, actual_reps: 0, rpe: 0, notes: '', actual_weight_kg: 0,
     exercise: null,
     _completed: false, _rpeQuick: null, _loading: false,
+    change_type: 'none', weight_diff: 0, prev_weight_kg: 0, prev_target_reps: 0,
     ...overrides,
   }
 }

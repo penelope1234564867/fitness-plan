@@ -10,7 +10,7 @@ import { watch } from 'vue'
 import * as api from '@/services/api'
 import { RPE_QUICK_MAP, RPE_QUICK_DEFAULT } from '@/types'
 import type {
-  ExerciseSlot, WorkoutDayGrouped, DayDetailResponse,
+  WorkoutDayGrouped, DayDetailResponse,
   RPEQuick, SlotCheckinData,
 } from '@/types'
 import dayjs from 'dayjs'
