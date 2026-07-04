@@ -23,13 +23,13 @@ describe('cycleStore', () => {
     it('mesocyclePhaseLabel returns correct Chinese label for strength', () => {
       const store = useCycleStore()
       store.currentWeek = { mesocycle_phase: 'strength' } as any
-      expect(store.mesocyclePhaseLabel).toBe('力量期')
+      expect(store.mesocyclePhaseLabel).toBe('力量提升期')
     })
 
     it('mesocyclePhaseLabel returns correct Chinese label for deload', () => {
       const store = useCycleStore()
       store.currentWeek = { mesocycle_phase: 'deload' } as any
-      expect(store.mesocyclePhaseLabel).toBe('减载周')
+      expect(store.mesocyclePhaseLabel).toBe('减载恢复周')
     })
 
     it('mesocyclePhaseLabel returns empty string for unknown phase', () => {
