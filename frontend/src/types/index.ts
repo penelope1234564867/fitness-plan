@@ -26,6 +26,9 @@ export type PhaseType = 'warmup' | 'main' | 'cardio' | 'stretch'
 
 export type RPEQuick = 'easy' | 'normal' | 'hard'
 
+/** 变化标记类型 — 与后端 change_type 对应 */
+export type ChangeType = 'none' | 'increased_weight' | 'increased_reps' | 'decreased_weight' | 'new_exercise' | 'same'
+
 export interface ExerciseSlot {
   id: number
   day_id: number
@@ -56,6 +59,12 @@ export interface ExerciseSlot {
   _completed: boolean
   _rpeQuick: RPEQuick | null
   _loading: boolean
+
+  // ── 变化标记（来自后端） ──
+  change_type: ChangeType
+  weight_diff: number                 // 重量差值
+  prev_weight_kg: number              // 上周重量
+  prev_target_reps: number            // 上周目标次数
 }
 
 // ═════════════════════════════════════════════════════════
@@ -263,6 +272,7 @@ export interface ProfileCombined {
   experience_level?: string | null
   workout_location?: string | null
   preferred_days?: string | null
+  days_per_week?: number | null
 }
 
 // ═════════════════════════════════════════════════════════
@@ -328,6 +338,10 @@ export interface DayDetailResponse {
   focus: string
   week_id: number
   mesocycle_phase: string
+  week_number: number                 // 当前是第几周
+  phase_label: string                 // 阶段中文名
+  phase_color: string                 // 阶段颜色
+  rpe_trend: string                   // rising/stable/falling
   is_rest_day: boolean
   has_plan: boolean
   slots: ExerciseSlot[]
@@ -344,6 +358,7 @@ export interface DayDetailResponse {
 export interface SSEProgressData {
   phase: string
   text: string
+  progress?: number       // 后端 v2+ 直接发送 0-100
   day?: number
 }
 
