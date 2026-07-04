@@ -308,11 +308,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 
 <style scoped>
 .calendar-panel {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e8e8e8;
+  box-shadow: var(--shadow-card-lg);
+  border: 1px solid var(--border-color);
 }
 
 .month-nav {
@@ -326,34 +326,34 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 50%; font-size: 16px; font-weight: 700;
-  border: 1px solid #e8e8e8; background: #fff;
+  border: 1px solid var(--border-color); background: var(--bg-card);
   cursor: pointer; transition: all 0.2s; padding: 0; line-height: 1;
 }
-.nav-btn:hover { border-color: #f97316; color: #f97316; }
-.month-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin: 0; min-width: 100px; text-align: center; }
+.nav-btn:hover { border-color: var(--brand-orange); color: var(--brand-orange); }
+.month-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; min-width: 100px; text-align: center; }
 .reschedule-toggle {
   margin-left: 4px;
   border-radius: 10px;
   font-size: 12px;
   height: 28px;
   padding: 0 12px;
-  border: 1px solid #e8e8e8;
-  background: #fff;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
-  color: #f97316;
+  color: var(--brand-orange);
   white-space: nowrap;
 }
 .reschedule-toggle:hover {
-  border-color: #f97316;
-  background: #fff7ed;
+  border-color: var(--brand-orange);
+  background: var(--brand-orange-subtle);
 }
 .reschedule-toggle.active {
-  background: #f97316;
-  color: #fff;
-  border-color: #f97316;
-  box-shadow: 0 2px 8px rgba(249,115,22,0.3);
+  background: var(--brand-orange);
+  color: var(--text-inverse);
+  border-color: var(--brand-orange);
+  box-shadow: 0 2px 8px rgba(217,119,6,0.3);
 }
 
 .weekday-header {
@@ -366,7 +366,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   text-align: center;
   font-size: 11px;
   font-weight: 600;
-  color: #999;
+  color: var(--text-muted);
   padding: 2px 0;
 }
 

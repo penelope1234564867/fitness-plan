@@ -57,65 +57,65 @@ function onClick() {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #fff;
+  background: var(--bg-card);
   gap: 2px;
   position: relative;
 }
-.day-cell:hover { background: #fff7ed; }
+.day-cell:hover { background: var(--brand-orange-subtle); }
 
 .day-cell.today {
-  border: 2px solid #f97316;
+  border: 2px solid var(--brand-orange);
   font-weight: 700;
 }
 
-.day-number { font-size: 14px; font-weight: 600; color: #333; line-height: 1; }
+.day-number { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1; }
 .day-icon { font-size: 16px; line-height: 1; }
 
 .rest-icon { opacity: 0.5; font-size: 14px; }
 .phase-dot { position: absolute; bottom: 2px; right: 2px; width: 5px; height: 5px; border-radius: 50%; }
 
 /* 状态颜色（仅文字，无底色） */
-.day-cell.completed .day-number { color: #f97316; }
-.day-cell.partial .day-number { color: #f97316; }
-.day-cell.missed .day-number { color: #ef4444; }
+.day-cell.completed .day-number { color: var(--brand-orange); }
+.day-cell.partial .day-number { color: var(--brand-orange); }
+.day-cell.missed .day-number { color: var(--color-error); }
 .day-cell.future { opacity: 0.5; }
-.day-cell.rest .day-number { color: #aaa; }
+.day-cell.rest .day-number { color: var(--text-muted); }
 
 /* 没有计划的日期：无边框 */
 .day-cell:not(.hasPlan):not(.today) { cursor: default; }
 
 /* ═══ 跨月日期 ═══ */
 .day-cell.adjacent-month { background: transparent; }
-.day-cell.adjacent-month .day-number { color: #bbb; font-size: 12px; }
-.day-cell.adjacent-month:hover { background: #fff7ed; }
-.day-cell.adjacent-month.today { border: 2px solid #f97316; }
-.day-cell.adjacent-month.today .day-number { color: #f97316; font-size: 14px; }
+.day-cell.adjacent-month .day-number { color: var(--text-muted); font-size: 12px; }
+.day-cell.adjacent-month:hover { background: var(--brand-orange-subtle); }
+.day-cell.adjacent-month.today { border: 2px solid var(--brand-orange); }
+.day-cell.adjacent-month.today .day-number { color: var(--brand-orange); font-size: 14px; }
 /* 非本月但有计划的日期 */
-.day-cell.adjacent-month.hasPlan { background: #f5f5f5; }
-.day-cell.adjacent-month.hasPlan .day-number { color: #888; }
-.day-cell.adjacent-month.hasPlan:hover { background: #fff7ed; }
-.day-cell.adjacent-month.completed .day-number { color: #f97316; }
+.day-cell.adjacent-month.hasPlan { background: var(--bg-subtle); }
+.day-cell.adjacent-month.hasPlan .day-number { color: var(--text-secondary); }
+.day-cell.adjacent-month.hasPlan:hover { background: var(--brand-orange-subtle); }
+.day-cell.adjacent-month.completed .day-number { color: var(--brand-orange); }
 
 /* ═══ 调整模式 ═══ */
 .day-cell.reschedule-source {
-  border-color: #f97316;
-  box-shadow: 0 0 0 2px #f97316, 0 0 12px rgba(249,115,22,0.3);
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 2px var(--brand-orange), 0 0 12px rgba(217,119,6,0.3);
   animation: pulse-source 1.5s ease-in-out infinite;
 }
 @keyframes pulse-source {
-  0%, 100% { box-shadow: 0 0 0 2px #f97316, 0 0 12px rgba(249,115,22,0.3); }
-  50% { box-shadow: 0 0 0 4px #f97316, 0 0 20px rgba(249,115,22,0.5); }
+  0%, 100% { box-shadow: 0 0 0 2px #d97706, 0 0 12px rgba(217,119,6,0.3); }
+  50% { box-shadow: 0 0 0 4px #d97706, 0 0 20px rgba(217,119,6,0.5); }
 }
 
 .day-cell.reschedule-target-available {
-  background: #f0fdf4;
-  border-color: #22c55e;
+  background: var(--color-success-subtle);
+  border-color: var(--color-success);
   cursor: pointer !important;
 }
 .day-cell.reschedule-target-available:hover {
-  background: #dcfce7;
+  background: var(--color-success-subtle);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(34,197,94,0.25);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.25);
 }
 
 .day-cell.reschedule-target-occupied {
@@ -125,10 +125,10 @@ function onClick() {
 .day-cell.reschedule-target-expired {
   opacity: 0.3;
   cursor: not-allowed !important;
-  background: repeating-linear-gradient(45deg, transparent, transparent 3px, #f5f5f5 3px, #f5f5f5 6px);
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, var(--bg-subtle) 3px, var(--bg-subtle) 6px);
 }
 .day-cell.reschedule-target-expired:hover {
-  background: repeating-linear-gradient(45deg, transparent, transparent 3px, #f5f5f5 3px, #f5f5f5 6px);
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, var(--bg-subtle) 3px, var(--bg-subtle) 6px);
   border-color: transparent;
   transform: none;
   box-shadow: none;
@@ -147,7 +147,7 @@ function onClick() {
   pointer-events: none;
 }
 .reschedule-badge.source-badge {
-  background: #f97316;
+  background: var(--brand-orange);
   color: #fff;
   bottom: 1px;
   top: auto;
@@ -156,7 +156,7 @@ function onClick() {
   padding: 0 3px;
 }
 .day-cell.reschedule-target-available .reschedule-badge {
-  background: #22c55e;
+  background: var(--color-success);
   color: #fff;
 }
 </style>
