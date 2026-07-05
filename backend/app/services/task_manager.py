@@ -301,7 +301,15 @@ async def run_generate_next(task_id: str):
         except Exception as e:
             await store.add_log(task_id, "analysis", f"⚠️ 分析跳过: {e}", 10)
 
-        # 3. 生成下一周
+        # 3. 清理骨架周，避免 UNIQUE 冲突
+        await store.add_log(task_id, "generate", "🧹 清理未使用的骨架周...", 12)
+        db.query(WeekModel).filter(
+            WeekModel.mesocycle_id == current_week.mesocycle_id,
+            WeekModel.status == "pending",
+        ).delete()
+        db.flush()
+
+        # 4. 生成下一周
         await store.add_log(task_id, "generate", "🚀 生成下一周...", 15)
         new_week = await generate_next_week(current_week, db, event_queue)
 
