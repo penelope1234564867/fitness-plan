@@ -5,10 +5,6 @@
   多 Agent 协作 · 健身科学引擎 · wger 集成 · Vue 3 日历界面
 </p>
 
-<p align="center">
-  <img src="screenshots/主页.png" width="720" alt="Fitness Plan 日历主页" />
-</p>
-
 ---
 
 ## 📋 目录
@@ -25,6 +21,10 @@
 - [API 概览](#-api-概览)
 - [技术亮点](#-技术亮点)
 - [许可证](#-许可证)
+
+<p align="center">
+  <img src="screenshots/主页.png" width="720" alt="Fitness Plan 日历主页" />
+</p>
 
 ---
 
