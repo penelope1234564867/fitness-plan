@@ -91,7 +91,8 @@ def get_or_fetch_exercise(wger_id: int, db: Session) -> Optional[Exercise]:
         )
         cache_db.add(ex)
         cache_db.commit()
-        cache_db.refresh(ex)
+        cache_db.expire_all()
+        ex = cache_db.query(Exercise).filter(Exercise.wger_id == ex.wger_id).first()
 
         # 把新缓存的 exercise 合并到调用方 db
         return db.merge(ex)
