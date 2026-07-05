@@ -135,11 +135,7 @@ const currentActiveSegment = computed(() =>
     ?? props.data.mesocycles[0],
 )
 
-/** 当前选中的阶段 */
-const selectedSegment = computed(() =>
-  props.data.mesocycles.find(s => s.phase === activeTab.value)
-    ?? props.data.mesocycles[0],
-)
+// selectedSegment 暂未使用，保留以备后用
 
 /** 当前进行中的阶段图标 */
 const activePhaseIcon = computed(() => {
