@@ -5,12 +5,17 @@
   多 Agent 协作 · 健身科学引擎 · wger 集成 · Vue 3 日历界面
 </p>
 
-<p align="center">
-  <img src="screenshots/主页.png" width="280" alt="日历主页" />
-  <img src="screenshots/动作详情页.png" width="280" alt="动作详情页" />
-  <img src="screenshots/个人信息页.png" width="280" alt="个人信息页" />
-  <img src="screenshots/夜间模式.png" width="840" alt="夜间模式" />
-</p>
+<div align="center">
+
+| 日历主页 | 动作详情 | 个人资料 |
+|---|---|---|
+| ![日历主页](screenshots/主页.png) | ![动作详情页](screenshots/动作详情页.png) | ![个人信息页](screenshots/个人信息页.png) |
+
+**夜间模式**
+
+![夜间模式](screenshots/夜间模式.png)
+
+</div>
 
 ---
 
