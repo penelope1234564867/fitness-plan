@@ -37,6 +37,8 @@ Thumbs.db
 
 # SQLite databases (auto-created)
 *.db
+*.db-shm
+*.db-wal
 
 # Claude
 .claude/

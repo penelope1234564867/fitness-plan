@@ -383,6 +383,22 @@ export interface SSEEventCallbacks {
 }
 
 // ═════════════════════════════════════════════════════════
+//  异步轮询任务（替代 SSE）
+// ═════════════════════════════════════════════════════════
+
+export interface TaskStatusResponse {
+  task_id: string
+  status: 'pending' | 'running' | 'done' | 'error'
+  progress: number
+  phase: string
+  text: string
+  logs: { time: string; phase: string; text: string; progress: number }[]
+  error: string | null
+  week: WeekPlan | null
+  macrocycle_detail: MacrocycleDetail | null
+}
+
+// ═════════════════════════════════════════════════════════
 //  RPE 映射表（前端用，帮助用户理解引擎行为）
 // ═════════════════════════════════════════════════════════
 

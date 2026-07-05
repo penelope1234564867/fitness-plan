@@ -11,6 +11,7 @@ from app.engine.generator import generate_init_week, generate_next_week, _sse_ev
 from app.engine.diff_calculator import compute_slot_diffs
 from app.engine.exercise_cache import get_or_fetch_exercise
 from app.services.plan_service import PlanService
+from app.services.task_manager import store, run_generation
 from typing import Optional
 import asyncio
 
@@ -179,6 +180,58 @@ async def init_plan(req: schemas.InitPlanRequest, db: Session = Depends(get_db))
         },
     )
 
+
+# ═══════════════════════════════════════════════════════════════
+#  异步轮询接口（替代 SSE，避免 Render 100s 超时）
+# ═══════════════════════════════════════════════════════════════
+
+@router.post("/generate-task")
+async def create_generate_task(req: schemas.InitPlanRequest):
+    """创建生成任务，立即返回 task_id（后台异步生成）。"""
+    task_id = await store.create(req)
+    asyncio.create_task(run_generation(task_id, req))
+    return {"task_id": task_id, "status": "created"}
+
+
+@router.get("/generate-task/{task_id}")
+async def get_task_status(task_id: str, db: Session = Depends(get_db)):
+    """轮询任务状态 — 前端每 2 秒调用一次。"""
+    task = await store.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="任务不存在")
+
+    resp = {
+        "task_id": task["task_id"],
+        "status": task["status"],
+        "progress": task["progress"],
+        "phase": task["phase"],
+        "text": task["text"],
+        "logs": task["logs"],
+        "error": task.get("error"),
+        "week": None,
+        "macrocycle_detail": None,
+    }
+
+    if task["status"] == "done":
+        # 从 DB 读取最新数据构建响应
+        week = db.query(orm_models.Week).filter(
+            orm_models.Week.status == "active",
+        ).order_by(orm_models.Week.id.desc()).first()
+        if week:
+            resp["week"] = _build_week_response(week, db)
+
+        macrocycle = db.query(orm_models.Macrocycle).filter(
+            orm_models.Macrocycle.status == "active",
+        ).order_by(orm_models.Macrocycle.id.desc()).first()
+        if macrocycle:
+            resp["macrocycle_detail"] = _build_macrocycle_detail(macrocycle, db)
+
+    return resp
+
+
+# ═══════════════════════════════════════════════════════════════
+#  （旧）SSE 流式接口 — 保留以兼容现有前端
+# ═══════════════════════════════════════════════════════════════
 
 @router.post("/generate-next", response_class=StreamingResponse)
 async def generate_next(db: Session = Depends(get_db)):
