@@ -30,32 +30,50 @@
 
 ## 📸 界面预览
 
+### 个人信息设置流程
+
 <table>
   <tr>
-    <td width="50%" align="center">
-      <b>📋 动作详情</b><br>
-      <sub>肌肉高亮图解、动作要领、训练建议</sub><br>
-      <img src="screenshots/动作详情页.png" width="300" />
+    <td width="25%" align="center">
+      <img src="screenshots/个人信息选择1.png" width="220" /><br>
+      <sub>1. 个人资料选择</sub>
     </td>
-    <td width="50%" align="center">
-      <b>👤 个人资料</b><br>
-      <sub>健身目标、经验水平、个人偏好</sub><br>
-      <img src="screenshots/个人信息页.png" width="300" />
+    <td width="25%" align="center">
+      <img src="screenshots/个人信息2.png" width="220" /><br>
+      <sub>2. 个人信息填写</sub>
     </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <b>📅 每周安排</b><br>
-      <sub>训练日程设置、周期规划</sub><br>
-      <img src="screenshots/个人信息-每周安排4.png" width="300" />
+    <td width="25%" align="center">
+      <img src="screenshots/个人信息选择3.png" width="220" /><br>
+      <sub>3. 目标偏好设置</sub>
     </td>
-    <td width="50%" align="center">
-      <b>🌙 夜间模式</b><br>
-      <sub>深色主题，护眼舒适</sub><br>
-      <img src="screenshots/夜间模式.png" width="300" />
+    <td width="25%" align="center">
+      <img src="screenshots/个人信息-每周安排4.png" width="220" /><br>
+      <sub>4. 训练日程安排</sub>
     </td>
   </tr>
 </table>
+
+### 更多界面
+
+<p align="center">
+  <img src="screenshots/动作详情页.png" width="650" /><br>
+  <sub>动作详情 — 肌肉高亮图解、动作要领、训练建议</sub>
+</p>
+
+<p align="center">
+  <img src="screenshots/个人信息页.png" width="650" /><br>
+  <sub>个人资料 — 健身目标、经验水平、个人偏好设置</sub>
+</p>
+
+<p align="center">
+  <img src="screenshots/生成训练计划过程.png" width="650" /><br>
+  <sub>训练计划生成 — 实时展示 AI 生成进度</sub>
+</p>
+
+<p align="center">
+  <img src="screenshots/夜间模式.png" width="650" /><br>
+  <sub>夜间模式 — 深色主题，护眼舒适</sub>
+</p>
 
 ---
 
