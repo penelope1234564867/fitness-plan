@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
+    @property
+    def effective_port(self) -> int:
+        """优先使用 Render 分配的 $PORT 环境变量"""
+        return int(os.environ.get("PORT", self.port))
+
     cors_origins: str = "*"
 
     # 高德地图（Phase 2 ScheduleAgent 天气查询用）
