@@ -9,7 +9,7 @@ import { ref, computed } from 'vue'
 import * as api from '@/services/api'
 import { getProgress } from '@/services/sse'
 import dayjs from 'dayjs'
-import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
+import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, TaskStatusResponse, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
 import { PHASE_LABEL_MAP, PHASE_COLORS } from '@/types'
 
 export const useCycleStore = defineStore('cycle', () => {
@@ -127,6 +127,97 @@ export const useCycleStore = defineStore('cycle', () => {
     generationLog.value.push({ time, phase: data.phase, text: data.text, day: data.day, progress: pct })
     if (generationLog.value.length > MAX_LOG_ENTRIES) {
       generationLog.value = generationLog.value.slice(-MAX_LOG_ENTRIES)
+    }
+  }
+
+  /** → polling ref（追踪轮询定时器） */
+  let _pollTimer: ReturnType<typeof setTimeout> | null = null
+  let _pollTaskId = ref('')
+
+  async function initPlanPolling(req: InitPlanRequest) {
+    // 停止之前的轮询
+    stopPolling()
+
+    isGenerating.value = true
+    generationProgress.value = 0
+    generationStatus.value = '🚀 创建生成任务...'
+    generationLog.value = []
+    error.value = null
+
+    _addLog({ phase: 'init', text: '🚀 开始生成训练计划...', progress: 0 })
+
+    try {
+      // 1. 创建后台任务
+      const { task_id } = await api.createGenerateTask(req)
+      _pollTaskId.value = task_id
+      _addLog({ phase: 'init', text: `📋 任务已创建: ${task_id}`, progress: 1 })
+
+      // 2. 轮询等待完成
+      const result = await _pollUntilDone(task_id)
+
+      // 3. 设置结果
+      currentWeek.value = result.week
+      generationProgress.value = 100
+      generationStatus.value = '✅ 计划生成成功！'
+      _addLog({ phase: 'done', text: '✅ 计划生成成功！', progress: 100 })
+      await fetchMacrocycles()
+      return result.week
+    } catch (e: any) {
+      error.value = e.message || '生成失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
+      throw e
+    } finally {
+      setTimeout(() => { isGenerating.value = false }, 500)
+    }
+  }
+
+  /** 轮询任务直到 done 或 error */
+  function _pollUntilDone(taskId: string): Promise<TaskStatusResponse> {
+    return new Promise((resolve, reject) => {
+      let retries = 0
+      const MAX_RETRIES = 3
+
+      function poll() {
+        _pollTimer = setTimeout(async () => {
+          try {
+            const status = await api.fetchTaskStatus(taskId)
+
+            // 更新进度
+            generationProgress.value = status.progress
+            generationStatus.value = status.text
+            generationPhase.value = status.phase
+            _addLog({ phase: status.phase, text: status.text, progress: status.progress })
+
+            if (status.status === 'done') {
+              resolve(status)
+            } else if (status.status === 'error') {
+              reject(new Error(status.error || '生成失败'))
+            } else {
+              retries = 0  // 重置重试计数
+              poll()       // 继续轮询
+            }
+          } catch (e: any) {
+            retries++
+            if (retries > MAX_RETRIES) {
+              reject(new Error(`轮询失败: ${e.message}`))
+            } else {
+              // 网络抖动，等一会重试
+              _addLog({ phase: 'retry', text: `⚠️ 轮询重试 ${retries}/${MAX_RETRIES}...`, progress: generationProgress.value })
+              _pollTimer = setTimeout(poll, 3000)
+            }
+          }
+        }, 2000)  // 每 2 秒轮询一次
+      }
+
+      poll()
+    })
+  }
+
+  /** 停止轮询（页面离开时调用） */
+  function stopPolling() {
+    if (_pollTimer) {
+      clearTimeout(_pollTimer)
+      _pollTimer = null
     }
   }
 
@@ -279,7 +370,8 @@ export const useCycleStore = defineStore('cycle', () => {
     currentMesocycle, currentWeekNumber, mesocycleTotalWeeks,
     mesocyclePhaseLabel, weekCompletionRate, isWeekComplete,
     roadmapData, nextPhaseLabel,
-    initPlan, generateNextWeek, fetchCurrentWeek, fetchMacrocycles,
+    initPlan, initPlanPolling, stopPolling,
+    generateNextWeek, fetchCurrentWeek, fetchMacrocycles,
     fetchCalendarData, initCalendarRange,
   }
 })

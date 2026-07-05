@@ -17,6 +17,7 @@ import type {
   RescheduleRequest,
   CalendarEntryResponse,
   DayDetailResponse,
+  TaskStatusResponse,
   SSEEventCallbacks,
   FitnessPlanSummary,
   FitnessPlan,
@@ -84,6 +85,20 @@ export async function generateNextWeek(
   callbacks: SSEEventCallbacks,
 ): Promise<WeekPlan> {
   return _ssePost('/api/fitness/generate-next', {}, callbacks)
+}
+
+// ── 异步轮询生成（替代 SSE，解决 Render 100s 超时）──────
+
+/** 创建异步生成任务，返回 task_id */
+export async function createGenerateTask(req: InitPlanRequest): Promise<{ task_id: string }> {
+  const res = await apiClient.post('/api/fitness/generate-task', req)
+  return res.data
+}
+
+/** 轮询任务状态 */
+export async function fetchTaskStatus(taskId: string): Promise<TaskStatusResponse> {
+  const res = await apiClient.get<TaskStatusResponse>(`/api/fitness/generate-task/${taskId}`)
+  return res.data
 }
 
 // ── REST 接口 ─────────────────────────────────────────

@@ -70,6 +70,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  cycleStore.stopPolling()  // 离开页面时停止轮询
 })
 
 async function loadProfileAndGenerate() {
@@ -98,8 +99,8 @@ async function loadProfileAndGenerate() {
 
     loadingProfile.value = false
 
-    // 4. 开始生成
-    await cycleStore.initPlan({
+    // 4. 开始生成（异步轮询，不再依赖 SSE 长连接）
+    await cycleStore.initPlanPolling({
       goal,
       experience_level,
       workout_location,
