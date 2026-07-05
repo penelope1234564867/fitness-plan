@@ -18,8 +18,6 @@ async def create_or_update_profile(profile: schemas.UserProfile, db: Session = D
         user = orm_models.User(**profile.model_dump(exclude_none=True))
         db.add(user)
     db.commit()
-    db.expire_all()
-    user = db.query(orm_models.User).filter(orm_models.User.id == user.id).first()
     return user
 
 

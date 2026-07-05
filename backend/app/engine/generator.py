@@ -435,9 +435,6 @@ async def generate_init_week(
         })
 
     db.commit()
-    # 重新查询确保 week 在当前 session 中保持 persistent 状态
-    db.expire_all()
-    week = db.query(Week).filter(Week.id == week.id).first()
 
     # 自动填充缓存池（供第 2 周的 generate_next_week 使用）
     try:
@@ -866,8 +863,6 @@ async def generate_next_week(
         })
 
     db.commit()
-    db.expire_all()
-    new_week = db.query(Week).filter(Week.id == new_week.id).first()
     await prog("save", 94, f"✅ 数据库写入完成，共 {len(day_results)} 天")
 
     # ═══════════════════════════════════════════════════════
