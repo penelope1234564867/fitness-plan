@@ -1,6 +1,0 @@
-- generic [active] [ref=e1]:
-  - heading "Session key required" [level=1] [ref=e2]
-  - paragraph [ref=e3]:
-    - text: This page needs the full URL your coding agent gave you, including the
-    - code [ref=e4]: "?key=…"
-    - text: part. Copy the complete URL and open it again.
