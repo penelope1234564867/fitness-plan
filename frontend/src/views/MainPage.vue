@@ -53,7 +53,7 @@
       </div>
       <div class="muscle-section">
         <MuscleDiagram
-          :gender="userStore.profile?.gender"
+          :gender="userGender"
           :primary-muscles="workoutStore.activePrimaryMuscles"
           :secondary-muscles="workoutStore.activeSecondaryMuscles"
         />
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCycleStore } from '@/stores/cycle'
 import { useUserStore } from '@/stores/user'
@@ -86,6 +86,13 @@ const workoutStore = useWorkoutStore()
 const selectedDate = ref<string | null>(null)
 const todayStr = dayjs().format('YYYY-MM-DD')
 const logContainerRef = ref<HTMLElement | null>(null)
+
+/** 用户性别（类型收窄，兼容 MuscleDiagram props） */
+const userGender = computed<'male' | 'female' | undefined>(() =>
+  userStore.profile?.gender === 'male' || userStore.profile?.gender === 'female'
+    ? userStore.profile.gender
+    : undefined,
+)
 
 // 日志自动滚动到底部
 watch(() => cycleStore.generationLog.length, async () => {

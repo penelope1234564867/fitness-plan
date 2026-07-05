@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useWorkoutStore } from '@/stores/workout'
+import type { ExerciseSlot } from '@/types'
 
 function createMockDayDetail() {
   return {
@@ -14,7 +15,7 @@ function createMockDayDetail() {
     has_plan: true,
     slots: [
       {
-        id: 1, day_id: 1, phase_type: 'main', sort_order: 1,
+        id: 1, day_id: 1, phase_type: 'main' as const, sort_order: 1,
         wger_id: 100, exercise_name: '俯卧撑',
         target_sets: 3, target_reps: 10, target_reps_max: 12,
         weight_kg: 0, weight_suggestion: '自重', rest_seconds: 60,
@@ -23,7 +24,7 @@ function createMockDayDetail() {
         exercise: null,
       },
       {
-        id: 2, day_id: 1, phase_type: 'main', sort_order: 2,
+        id: 2, day_id: 1, phase_type: 'main' as const, sort_order: 2,
         wger_id: 101, exercise_name: '哑铃飞鸟',
         target_sets: 3, target_reps: 12, target_reps_max: 15,
         weight_kg: 8, weight_suggestion: '8kg', rest_seconds: 60,
@@ -31,7 +32,7 @@ function createMockDayDetail() {
         rpe: 0, notes: '',
         exercise: null,
       },
-    ],
+    ] as ExerciseSlot[],
     warmup: [],
     main: [
       { name: '俯卧撑', sets: 3, reps: 10 },
@@ -146,7 +147,7 @@ describe('workoutStore', () => {
       const store = useWorkoutStore()
       const detail = createMockDayDetail()
       // 添加一个 warmup slot 到 slots 数组中
-      detail.slots.unshift({
+      const warmupSlot: Record<string, unknown> = {
         id: 3, day_id: 1, phase_type: 'warmup', sort_order: 0,
         wger_id: null, exercise_name: '开合跳',
         target_sets: 1, target_reps: 1, target_reps_max: 1,
@@ -154,7 +155,8 @@ describe('workoutStore', () => {
         actual_sets: 0, actual_reps: 0, actual_weight_kg: 0,
         rpe: 0, notes: '',
         exercise: null,
-      })
+      }
+      detail.slots.unshift(warmupSlot as unknown as ExerciseSlot)
       store.dayDetail = detail as any
       store.selectedDate = '2026-07-06'
 

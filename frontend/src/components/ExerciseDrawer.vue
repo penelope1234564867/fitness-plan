@@ -23,7 +23,7 @@
           <img :src="displayImages[activeImageIndex]" :alt="exerciseName" class="multi-image-main" @click="cycleImage()" />
           <div class="image-thumbs">
             <span
-              v-for="(img, i) in displayImages" :key="i"
+              v-for="(_, i) in displayImages" :key="i"
               class="thumb-dot"
               :class="{ active: i === activeImageIndex }"
               @click="activeImageIndex = i"
@@ -185,14 +185,6 @@ const volumeText = computed(() => {
     return `${e.target_reps}秒`
   }
   return `${e.target_sets}组 × ${e.target_reps}次`
-})
-
-const weightText = computed(() => {
-  if (!props.exercise) return '—'
-  const e = props.exercise
-  if (e.weight_suggestion) return e.weight_suggestion
-  if (e.weight_kg > 0) return `${e.weight_kg}kg`
-  return '—'
 })
 
 watch(

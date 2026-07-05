@@ -7,7 +7,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as api from '@/services/api'
-import { estimateProgress, getProgress } from '@/services/sse'
+import { getProgress } from '@/services/sse'
 import dayjs from 'dayjs'
 import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
 import { PHASE_LABEL_MAP, PHASE_COLORS } from '@/types'
@@ -261,7 +261,6 @@ export const useCycleStore = defineStore('cycle', () => {
     // 终点：大周期最后一个中周期的最后一周 + 1个月
     const lastMeso = macrocycle.value.mesocycles[macrocycle.value.mesocycles.length - 1]
     if (lastMeso?.weeks?.length) {
-      const lastWeek = lastMeso.weeks[lastMeso.weeks.length - 1]
       // 粗略推算：start_date + (mesocycle_weeks * 7) + 30
       const totalWeeks = lastMeso.week_count || 4
       const endDate = dayjs(start).add(totalWeeks * 7 + 30, 'day').format('YYYY-MM-DD')
