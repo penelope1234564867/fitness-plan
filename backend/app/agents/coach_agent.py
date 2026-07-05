@@ -38,10 +38,10 @@ ANALYZE_PROMPT = """分析以下用户信息，生成一份用户画像总结。
 - 身高: {height}cm, 体重: {weight}kg, 年龄: {age}岁, 性别: {gender}
 - 城市: {city}
 
-请输出 JSON 格式（不要 markdown 代码块）：
+请输出严格 JSON（不要 markdown 代码块，不要添加额外字段，不要中英文重复）：
 {{
   "profile_summary": "一句话概括用户画像，如'新手增肌，居家哑铃训练'",
-  "training_phase": "适合的训练阶段，如 foundational / hypertrophy / strength",
+  "training_phase": "适合的训练阶段，可选 foundational / hypertrophy / strength",
   "focus_points": ["针对该用户的 2-3 个训练重点"],
   "precautions": ["需要注意的事项，如'新手优先学动作模式'、'体重较大注意关节保护'"],
   "coach_advice": "给用户的入门建议，50字以内"
