@@ -152,11 +152,13 @@ const MUSCLE_NAME_CN: Record<string, string> = {
   rotatorCuffs: '肩袖肌群',
 }
 
+import type { MuscleGroup } from '@lucawahlen/vue-human-muscle-anatomy'
+
 /** 将 wger 肌肉列表转为 vue-human-muscle-anatomy 肌群名数组 */
-function toGroups(muscles: { id: number }[]): string[] {
+function toGroups(muscles: { id: number }[]): MuscleGroup[] {
   return muscles
     .map(m => WGER_TO_MUSCLE_GROUP[m.id])
-    .filter(Boolean) // 去掉无法映射的
+    .filter(Boolean) as MuscleGroup[]
 }
 
 const primaryGroups = computed(() => toGroups(props.primaryMuscles || []))
