@@ -9,9 +9,6 @@
   <img src="screenshots/主页.png" width="280" alt="日历主页" />
   <img src="screenshots/动作详情页.png" width="280" alt="动作详情页" />
   <img src="screenshots/个人信息页.png" width="280" alt="个人信息页" />
-</p>
-
-<p align="center">
   <img src="screenshots/夜间模式.png" width="840" alt="夜间模式" />
 </p>
 
