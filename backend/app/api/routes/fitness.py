@@ -673,6 +673,7 @@ async def get_day_detail(date: str = "",
     mesocycle_phase = ""
     week_number = 1
     prev_week_id = 0
+    prev_phase = ""
     if week:
         week_number = week.week_number or 1
         meso = db.query(orm_models.Mesocycle).filter(
@@ -686,6 +687,10 @@ async def get_day_detail(date: str = "",
             ).order_by(orm_models.Week.id.desc()).first()
             if prev_week:
                 prev_week_id = prev_week.id
+                prev_meso = db.query(orm_models.Mesocycle).filter(
+                    orm_models.Mesocycle.id == prev_week.mesocycle_id
+                ).first()
+                prev_phase = prev_meso.phase if prev_meso else ""
 
     # 构建 slots 数据
     response = _build_day_detail(day, db)
@@ -725,7 +730,7 @@ async def get_day_detail(date: str = "",
             .filter(orm_models.ExerciseSlot.day_id == day.id)
             .all()
         )
-        diffs = compute_slot_diffs(slots_orm, prev_week_id, db)
+        diffs = compute_slot_diffs(slots_orm, prev_week_id, db, prev_phase=prev_phase)
         for slot_dict in response.get("slots", []):
             sid = slot_dict.get("id")
             if sid in diffs:
@@ -733,6 +738,9 @@ async def get_day_detail(date: str = "",
                 slot_dict["weight_diff"] = diffs[sid]["weight_diff"]
                 slot_dict["prev_weight_kg"] = diffs[sid]["prev_weight_kg"]
                 slot_dict["prev_target_reps"] = diffs[sid]["prev_target_reps"]
+                slot_dict["prev_target_sets"] = diffs[sid].get("prev_target_sets", 0)
+                slot_dict["prev_exercise_name"] = diffs[sid].get("prev_exercise_name", "")
+                slot_dict["prev_phase"] = diffs[sid].get("prev_phase", "")
 
     return response
 

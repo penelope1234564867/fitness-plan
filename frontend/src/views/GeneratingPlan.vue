@@ -49,12 +49,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useCycleStore } from '@/stores/cycle'
 import { useUserStore } from '@/stores/user'
 import { getProfile } from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
 const cycleStore = useCycleStore()
 const userStore = useUserStore()
 
@@ -83,13 +84,17 @@ async function loadProfileAndGenerate() {
     // 2. 加载当前训练状态
     await userStore.fetchCurrentState()
 
-    // 3. 组装参数
-    const goal = profile.goal || '增肌'
-    const experience_level = userStore.currentState?.experience_level
-      || profile.experience || '新手'
-    const workout_location = profile.workout_location || '居家'
-    const preferred_days = userStore.currentState?.preferred_days || '1,3,5'
+    // 3. 组装参数（优先从 URL query params 读取，因为首次生成时 UserCurrentState 还不存在）
+    const preferred_days = (route.query.preferredDays as string)
+      || userStore.currentState?.preferred_days
+      || '1,3,5'
     const days_per_week = preferred_days.split(',').filter(Boolean).length || 3
+    const goal = (route.query.goal as string) || profile.goal || '增肌'
+    const experience_level = (route.query.experience as string)
+      || userStore.currentState?.experience_level
+      || profile.experience || '新手'
+    const workout_location = (route.query.location as string)
+      || profile.workout_location || '居家'
 
     loadingProfile.value = false
 

@@ -209,7 +209,9 @@ function getCellStatus(date: string): DayStatus {
 
 function getFocusIcon(date: string): string | undefined {
   const entry = getEntry(date)
-  if (!entry || !entry.has_plan || !entry.focus) return undefined
+  // 有计划但 focus 为空（如骨架周预创建的 day 4/5），兜底显示 💪
+  if (!entry || !entry.has_plan) return undefined
+  if (!entry.focus) return '💪'
   for (const [key, icon] of Object.entries(focusIcons)) {
     if (entry.focus.includes(key)) return icon
   }

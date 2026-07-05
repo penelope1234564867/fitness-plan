@@ -16,6 +16,8 @@
     ]"
     @click="onClick"
   >
+    <!-- 完成标记：已打卡日子的勾标 -->
+    <span v-if="status === 'completed'" class="completed-badge">✓</span>
     <span class="day-number">{{ day }}</span>
     <span v-if="focusIcon && status !== 'rest'" class="day-icon" :title="focusLabel">{{ focusIcon }}</span>
     <span v-else-if="status === 'rest'" class="day-icon rest-icon" title="休息日">☕</span>
@@ -71,11 +73,29 @@ function onClick() {
 .day-number { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1; }
 .day-icon { font-size: 16px; line-height: 1; }
 
+/* 完成标记 */
+.completed-badge {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px; height: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--color-success, #22c55e);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 .rest-icon { opacity: 0.5; font-size: 14px; }
 .phase-dot { position: absolute; bottom: 2px; right: 2px; width: 5px; height: 5px; border-radius: 50%; }
 
 /* 状态颜色（仅文字，无底色） */
+.day-cell.completed { background: var(--color-success-subtle, rgba(34,197,94,0.1)); }
 .day-cell.completed .day-number { color: var(--brand-orange); }
+.day-cell.completed:hover { background: var(--color-success-subtle, rgba(34,197,94,0.15)); }
 .day-cell.partial .day-number { color: var(--brand-orange); }
 .day-cell.missed .day-number { color: var(--color-error); }
 .day-cell.future { opacity: 0.5; }

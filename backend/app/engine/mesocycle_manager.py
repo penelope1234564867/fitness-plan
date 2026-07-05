@@ -134,7 +134,7 @@ async def generate_mesocycle_skeleton(
         db.add(week)
         db.flush()
 
-        focus_labels = _generate_weekly_focus(week_num, mesocycle.phase)
+        focus_labels = _generate_weekly_focus(week_num, mesocycle.phase, day_count=len(preferred_days))
 
         for day_idx, dow in enumerate(preferred_days):
             day_date = week_start + timedelta(days=dow - 1)
@@ -163,8 +163,17 @@ async def generate_mesocycle_skeleton(
     return created_weeks
 
 
-def _generate_weekly_focus(week_number: int, phase: str) -> list[str]:
-    """根据中周期阶段和当前周次生成该周的训练重点标签。"""
+def _generate_weekly_focus(week_number: int, phase: str, day_count: int = 3) -> list[str]:
+    """根据中周期阶段、周次和每周天数生成训练重点标签。
+
+    Args:
+        week_number: 当前周在中周期内的序号（1-based）
+        phase: 中周期阶段名称
+        day_count: 每周训练天数，决定返回的标签数量
+
+    Returns:
+        list[str]: 长度 = day_count 的标签列表
+    """
     phase_focus_map = {
         "foundational": {
             1: ["全身激活", "全身耐力", "核心稳定"],
@@ -191,6 +200,21 @@ def _generate_weekly_focus(week_number: int, phase: str) -> list[str]:
             4: ["灵活性", "轻量维持", "恢复"],
         },
     }
-    default = ["上肢", "下肢", "核心"]
+    default_base = ["上肢", "下肢", "核心"]
     phase_map = phase_focus_map.get(phase, {})
-    return phase_map.get(week_number, default)
+    base_labels = phase_map.get(week_number, default_base)
+
+    # 如果所需的标签数 <= 3，直接返回前 day_count 个
+    if day_count <= 3:
+        return base_labels[:day_count]
+
+    # 如果 > 3，从补充池中取标签（按周次偏移，让每周不同）
+    extra_pool = [
+        "全身综合", "上肢补充", "下肢补充", "核心强化",
+        "综合体能", "专项强化", "恢复拉伸",
+    ]
+    result = list(base_labels)
+    for i in range(3, day_count):
+        pool_idx = (i - 3 + week_number - 1) % len(extra_pool)
+        result.append(extra_pool[pool_idx])
+    return result

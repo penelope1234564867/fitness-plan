@@ -302,14 +302,14 @@ class ProgrammerAgent:
 
         # 阶段 → 组/次数范围
         PHASE_REP_RANGES = {
-                   "foundational": "每组 12-15 次，2-3 组，选轻/中等重量，以学会动作为主",
-                   "hypertrophy": "每组 8-12 次，3-4 组，选中等重量，追求训练容量",
-                   "strength": "每组 5-8 次，4-5 组，选大重量（75-85% 1RM），组间休息 2-3 分钟",
-                   "deload": "每组 10-12 次，2 组，重量降低 50%，以恢复为主",
-               }
+            "foundational": "每组 12-15 次，2-3 组，选轻/中等重量，以学会动作为主",
+            "hypertrophy": "每组 8-12 次，3-4 组，选中等重量，追求训练容量",
+            "strength": "每组 5-8 次，4-5 组，选大重量（75-85% 1RM），组间休息 2-3 分钟",
+            "deload": "每组 10-12 次，2 组，重量降低 50%，以恢复为主",
+        }
         rep_guide = PHASE_REP_RANGES.get(goal, PHASE_REP_RANGES["foundational"])
 
-               prompt = f"""你是一个专业健身教练。从候选动作中精选最适合当天训练的动作。
+        prompt = f"""你是一个专业健身教练。从候选动作中精选最适合当天训练的动作。
 
 训练日: {day_spec.get('day_label', '')} — {day_spec.get('focus', '')}
 当前阶段: {goal}
@@ -333,7 +333,12 @@ class ProgrammerAgent:
 输出的 sets 和 reps 必须符合当前阶段的训练参数指导。
 动作名请翻译成中文，如 "Leg Press" → "腿举"，"Lat Pull Down" → "高位下拉"。
 
-只输出 JSON: {{"selected": [{{"wger_id": 123, "name": "中文动作名", "sort_order": 1, "sets": 3, "reps": 10, "rest_seconds": 60}}, ...]}}
+根据用户经验水平，为每个动作输出建议重量（weight_kg）：
+- 经验为"新手"或"beginner": 建议用空杆（weight_kg=0）或最轻哑铃（5-10kg），空杆直接填 0
+- 经验为"中级"或"intermediate": 中小重量 15-30kg
+- 经验为"高级"或"advanced": 中高重量 30-60kg
+
+只输出 JSON: {{"selected": [{{"wger_id": 123, "name": "中文动作名", "sort_order": 1, "sets": 3, "reps": 8, "rest_seconds": 75, "weight_kg": 20.0}}, ...]}}
 不要 markdown 代码块，不要多余文字。"""
 
         text = self._invoke_fast(prompt)
@@ -368,6 +373,7 @@ class ProgrammerAgent:
                     "sets": llm_params.get("sets", 3),
                     "reps": llm_params.get("reps", 10),
                     "rest_seconds": llm_params.get("rest_seconds", 60),
+                    "weight_kg": llm_params.get("weight_kg", 0.0),
                 })
 
         return result_list

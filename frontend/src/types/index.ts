@@ -65,6 +65,9 @@ export interface ExerciseSlot {
   weight_diff: number                 // 重量差值
   prev_weight_kg: number              // 上周重量
   prev_target_reps: number            // 上周目标次数
+  prev_target_sets: number            // 上周目标组数
+  prev_exercise_name: string          // 上周/上周期动作名（替换时）
+  prev_phase: string                  // 上周期阶段（跨周期时）
 }
 
 // ═════════════════════════════════════════════════════════

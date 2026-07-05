@@ -104,23 +104,6 @@
         </div>
       </div>
 
-      <!-- 变化摘要 -->
-      <div v-if="workoutStore.changeSummary.total > 0" class="change-summary">
-        📊 变化摘要：
-        <span v-if="workoutStore.changeSummary.increased" class="cs-up">
-          {{ workoutStore.changeSummary.increased }} 个动作加重
-        </span>
-        <span v-if="workoutStore.changeSummary.decreased" class="cs-down">
-          {{ workoutStore.changeSummary.decreased }} 个动作减载
-        </span>
-        <span v-if="workoutStore.changeSummary.newExercise" class="cs-new">
-          {{ workoutStore.changeSummary.newExercise }} 个新动作
-        </span>
-        <span v-if="workoutStore.changeSummary.same" class="cs-same">
-          {{ workoutStore.changeSummary.same }} 个动作保持
-        </span>
-      </div>
-
       <!-- RPE 说明 -->
       <div class="rpe-hint">
         <span class="rpe-hint-icon">ℹ️</span>
@@ -132,13 +115,16 @@
       <!-- 提交打卡 -->
       <button
         class="checkin-btn"
-        :disabled="checkinLoading || noFeedback"
+        :class="{ 'checked-in': isDayCheckedIn }"
+        :disabled="isBtnDisabled"
         @click="handleCheckin"
       >
-        {{ checkinLoading ? '⏳ 提交中...' : '📝 提交打卡' }}
+        <template v-if="isDayCheckedIn">✅ 已打卡</template>
+        <template v-else-if="checkinLoading">⏳ 提交中...</template>
+        <template v-else>📝 提交打卡</template>
       </button>
 
-      <p v-if="noFeedback && !checkinLoading" class="checkin-hint">
+      <p v-if="noFeedback && !checkinLoading && !isDayCheckedIn" class="checkin-hint">
         请至少完成一个动作再提交
       </p>
     </div>
@@ -158,6 +144,25 @@
       @toggle="workoutStore.toggleExercise(drawerExercise!.id)"
       @too-heavy="handleTooHeavy"
     />
+
+    <!-- 烟花庆祝 -->
+    <Teleport to="body">
+      <div v-if="showFireworks" class="fireworks-overlay" @click="showFireworks = false">
+        <div class="fireworks-inner">
+          <div class="fireworks-congrats">
+            <span class="fireworks-big-emoji">🎉</span>
+            <h2>完成的很好！</h2>
+            <p>继续保持，你是最棒的！</p>
+          </div>
+          <div
+            v-for="i in 30"
+            :key="i"
+            class="fireworks-particle"
+            :style="getParticleStyle(i)"
+          />
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -176,6 +181,22 @@ const todayStr = dayjs().format('YYYY-MM-DD')
 const drawerVisible = ref(false)
 const drawerExercise = ref<ExerciseSlot | null>(null)
 const error = ref<string | null>(null)
+const showFireworks = ref(false)
+
+// ═══ 本地打卡状态（乐观锁 + API 双重确认）═══
+// dateStr 变化时自动重置
+const localCheckedIn = ref(false)
+const isDayCheckedIn = computed(() => {
+  // ① 本地乐观锁：点击打卡成功后立即生效，不等 API
+  if (localCheckedIn.value) return true
+  // ② API 确认：已打卡的日从后端取到 day_status='completed'
+  return dayDetail.value?.day_status === 'completed'
+})
+const isBtnDisabled = computed(() => checkinLoading.value || noFeedback.value || isDayCheckedIn.value)
+
+watch(() => props.dateStr, () => {
+  localCheckedIn.value = false
+})
 
 // 设置 selectedDate 以驱动 workoutStore 通过 dayDetail API 获取数据
 watch(() => props.dateStr, (val) => {
@@ -230,11 +251,59 @@ const noFeedback = computed(() => {
 })
 
 async function handleCheckin() {
+  // 多重防护：任何已打卡状态都不执行
+  if (isDayCheckedIn.value) return
+  if (localCheckedIn.value) return
+
   try {
     error.value = null
     await workoutStore.submitCheckin()
+    // ★ 本地乐观锁：立即锁定，不等 API 刷新
+    localCheckedIn.value = true
+    // 打卡成功：烟花 + 音效
+    playCheckinSound()
+    showFireworks.value = true
+    setTimeout(() => { showFireworks.value = false }, 3000)
   } catch (e: any) {
     error.value = e.message || '打卡失败'
+  }
+}
+
+/** Web Audio API 合成一段上行琶音（C5→E5→G5）作为完成音效 */
+function playCheckinSound() {
+  try {
+    const ctx = new AudioContext()
+    const notes = [523.25, 659.25, 783.99] // C5 E5 G5 — C 大三和弦
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.frequency.value = freq
+      osc.type = 'sine'
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.6)
+      osc.start(ctx.currentTime + i * 0.12)
+      osc.stop(ctx.currentTime + i * 0.12 + 0.6)
+    })
+  } catch { /* 浏览器可能阻止音频，静默忽略 */ }
+}
+
+/** 生成烟花粒子的随机样式 */
+function getParticleStyle(i: number) {
+  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff','#ff9f43']
+  const angle = (i / 30) * 360
+  const dist = 120 + Math.random() * 180
+  const rad = (angle * Math.PI) / 180
+  return {
+    '--tx': `${Math.cos(rad) * dist}px`,
+    '--ty': `${Math.sin(rad) * dist}px`,
+    background: colors[i % colors.length],
+    width: `${8 + Math.random() * 12}px`,
+    height: `${8 + Math.random() * 12}px`,
+    left: '50%',
+    top: '50%',
+    animationDelay: `${Math.random() * 0.3}s`,
   }
 }
 
@@ -342,23 +411,6 @@ function handleTooHeavy() {
 .trend-down { color: var(--brand-orange-deep); }
 .trend-stable { color: var(--text-secondary); }
 
-.change-summary {
-  display: flex;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-subtle);
-  border-radius: 8px;
-  margin: 8px 0 12px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-}
-.change-summary span { font-weight: 600; }
-.cs-up { color: var(--color-success-deep); }
-.cs-down { color: var(--brand-orange-deep); }
-.cs-new { color: var(--color-info-deep); }
-.cs-same { color: var(--text-muted); }
-
 .section-block { margin-bottom: 14px; }
 .section-title {
   font-size: 14px; font-weight: 700; color: var(--text-secondary);
@@ -391,9 +443,16 @@ function handleTooHeavy() {
   background: linear-gradient(135deg, var(--brand-orange), var(--brand-orange-light));
   color: #fff;
   transition: all 0.2s;
+  margin-bottom: 24px;
 }
-.checkin-btn:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(217,119,6,0.35); transform: translateY(-1px); }
+.checkin-btn:hover:not(:disabled):not(.checked-in) { box-shadow: 0 4px 14px rgba(217,119,6,0.35); transform: translateY(-1px); }
 .checkin-btn:disabled { background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed; }
+.checkin-btn.checked-in {
+  background: linear-gradient(135deg, var(--color-success-deep, #52c41a), var(--color-success, #73d13d));
+  cursor: default;
+  opacity: 1;
+  box-shadow: 0 2px 12px rgba(82, 196, 26, 0.3);
+}
 .checkin-hint { text-align: center; font-size: 12px; color: var(--text-muted); margin: 6px 0 0; }
 .error-msg { color: var(--color-error); font-size: 13px; text-align: center; margin-top: 8px; }
 
@@ -411,5 +470,62 @@ function handleTooHeavy() {
 @keyframes fade-slide-out {
   0% { opacity: 1; transform: translateX(0); }
   100% { opacity: 0; transform: translateX(-8px); }
+}
+
+/* ═══ 烟花庆祝 ═══ */
+.fireworks-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  animation: fw-fadeIn 0.3s ease;
+  cursor: pointer;
+}
+.fireworks-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fireworks-congrats {
+  text-align: center;
+  z-index: 1;
+  animation: fw-popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.fireworks-big-emoji { font-size: 80px; display: block; }
+.fireworks-congrats h2 {
+  font-size: 28px;
+  color: #fff;
+  margin: 16px 0 8px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.fireworks-congrats p {
+  font-size: 16px;
+  color: rgba(255,255,255,0.85);
+  margin: 0;
+}
+.fireworks-particle {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fw-burst 1.5s ease-out forwards;
+}
+@keyframes fw-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fw-popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fw-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 </style>

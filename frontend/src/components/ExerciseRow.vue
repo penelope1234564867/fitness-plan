@@ -17,18 +17,21 @@
     <!-- 动作信息 -->
     <div class="exercise-info" @click.stop="$emit('show-detail')">
       <span class="exercise-name">{{ exercise.exercise_name }}</span>
+      <span v-if="subtitleText" class="exercise-subtitle">{{ subtitleText }}</span>
       <span class="exercise-detail">
         <template v-if="exercise.phase_type === 'warmup'">
-          {{ exercise.target_reps }}次
+        {{ exercise.target_reps }}次
         </template>
         <template v-else-if="exercise.phase_type === 'stretch'">
-          {{ exercise.target_reps }}秒
+        {{ exercise.target_reps }}秒
         </template>
         <template v-else>
-          {{ exercise.target_sets }}组×{{ exercise.target_reps }}次
-        </template>
-        <template v-if="exercise.weight_suggestion"> · {{ exercise.weight_suggestion }}</template>
-      </span>
+        {{ exercise.target_sets }}组×{{ exercise.target_reps }}次
+        <template v-if="exercise.weight_kg"> · {{ exercise.weight_kg }}kg</template>
+      </template>
+    <template v-if="exercise.rest_seconds && exercise.phase_type === 'main'"> rest={{ exercise.rest_seconds }}s</template>
+    <template v-if="exercise.weight_suggestion"> · {{ exercise.weight_suggestion }}</template>
+    </span>
     </div>
 
     <!-- 变化标记（仅主项显示） -->
@@ -63,15 +66,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { ExerciseSlot, RPEQuick } from '@/types'
+import { PHASE_LABEL_MAP } from '@/types'
+import { useCycleStore } from '@/stores/cycle'
 
 const props = defineProps<{ exercise: ExerciseSlot }>()
+const cycleStore = useCycleStore()
 defineEmits<{
   toggle: []
   'set-rpe-quick': [value: RPEQuick]
   'show-detail': []
 }>()
 
-/** 变化标记文字 */
+/** 变化标记文字（右上角标签） */
 const markerText = computed(() => {
   const ct = props.exercise.change_type
   if (!ct || ct === 'none' || ct === 'same') return ''
@@ -83,10 +89,37 @@ const markerText = computed(() => {
       return diff > 0 ? `+${diff}次` : ''
     }
     case 'decreased_weight': return `⬇${Math.abs(wd)}kg`
-    case 'new_exercise': return '🔄 新动作'
+    case 'new_exercise': return ''  // 新动作由 subtitleText
     default: return ''
   }
 })
+  
+  /** 副标题：动作替换/进阶信息 */
+  const subtitleText = computed(() => {
+    const ct = props.exercise.change_type
+    const prevName = props.exercise.prev_exercise_name
+    const prevPhase = props.exercise.prev_phase
+    
+    if (ct !== 'new_exercise' || !prevName) return ''
+    
+    const goal = cycleStore.macrocycle?.goal || '增肌'
+    const labels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
+    
+    if (prevPhase) {
+      // 跨中周期替换：⤴ 基础期: 哑铃卧推 3×10
+      const phaseLabel = labels[prevPhase] || prevPhase
+      const prevSets = props.exercise.prev_target_sets
+      const prevReps = props.exercise.prev_target_reps
+      const prevText = prevSets && prevReps ? `${prevSets}×${prevReps}` : ''
+      return `⤴ ${phaseLabel}: ${prevName}${prevText ? ' ' + prevText : ''}`
+    } else {
+      // 同中周期替换：⤴ 上周: 坐姿划船 3×10
+      const prevSets = props.exercise.prev_target_sets
+      const prevReps = props.exercise.prev_target_reps
+      const prevText = prevSets && prevReps ? `${prevSets}×${prevReps}` : ''
+      return `⤴ 上周: ${prevName}${prevText ? ' ' + prevText : ''}`
+    }
+  })
 
 const markerClass = computed(() => {
   const ct = props.exercise.change_type
@@ -128,6 +161,16 @@ const markerClass = computed(() => {
 .exercise-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
 .exercise-row.completed .exercise-name { color: var(--color-success); text-decoration: line-through; }
 .exercise-detail { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.exercise-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
 
 .rpe-buttons { display: flex; gap: 2px; flex-shrink: 0; }
 .rpe-btn {

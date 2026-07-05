@@ -14,6 +14,7 @@ import type {
   RPEQuick, SlotCheckinData,
 } from '@/types'
 import dayjs from 'dayjs'
+import { useCycleStore } from './cycle'
 
 export const useWorkoutStore = defineStore('workout', () => {
   const selectedDate = ref<string | null>(null)
@@ -193,8 +194,14 @@ export const useWorkoutStore = defineStore('workout', () => {
         exercises,
       })
 
-      // 打卡后刷新
+      // 打卡后刷新日详情 + 日历数据
       dayDetail.value = await api.fetchDayDetail(selectedDate.value!)
+      // ★ 刷新日历，使已完成的日期显示出完成标记
+      const d = dayjs(selectedDate.value!)
+      const from = d.startOf('month').startOf('week').format('YYYY-MM-DD')
+      const to = d.endOf('month').endOf('week').format('YYYY-MM-DD')
+      const cycleStore = useCycleStore()
+      cycleStore.fetchCalendarData(from, to)
     } catch (e: any) {
       error.value = e.message
       throw e

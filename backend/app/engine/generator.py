@@ -717,7 +717,7 @@ async def generate_next_week(
                                 difficulty=1,
                             )
                             db.add(ex_rec)
-                            # 注意：不 flush，等所有并行任务完成后再统一提交
+                            db.flush()  # ← 必须 flush！autoflush=False 下不 flush 会导致 add_slots_for_day 创建重复 Exercise
                             # 加入缓存池
                             pool_entry = MesocycleExercisePool(
                                 mesocycle_id=mesocycle.id,
@@ -786,6 +786,7 @@ async def generate_next_week(
         if prev_slots:
             prev_slot_map = {s.exercise_name: s for s in prev_slots if s.exercise_name}
             overload_count = 0
+            phase_p = PHASE_PARAMS.get(next_phase, PHASE_PARAMS["foundational"])
             for main_ex in day_plan.get("main", []):
                 ex_name = main_ex.get("name", "")
                 if ex_name in prev_slot_map:
@@ -794,12 +795,21 @@ async def generate_next_week(
                         params = calc_deload_params(prev)
                     else:
                         params = calc_next_week_params(prev, next_phase)
-                    main_ex["weight_kg"] = params.get("weight_kg", 0.0)
-                    main_ex["sets"] = params.get("target_sets", main_ex.get("sets", 3))
-                    main_ex["reps"] = params.get("target_reps", main_ex.get("reps", 10))
-                    main_ex["target_reps_max"] = params.get("target_reps_max", 12)
-                    main_ex["rest_seconds"] = params.get("rest_seconds", main_ex.get("rest_seconds", 60))
                     overload_count += 1
+                else:
+                    # 新替换的动作（上周没有同名）→ 用阶段基线参数，保留 LLM 建议重量
+                    params = {
+                        "target_sets": phase_p["sets"],
+                        "target_reps": phase_p["rep_lower"],
+                        "target_reps_max": phase_p["rep_upper"],
+                        "weight_kg": main_ex.get("weight_kg", 0.0),
+                        "rest_seconds": phase_p["rest_seconds"],
+                    }
+                main_ex["weight_kg"] = params.get("weight_kg", 0.0)
+                main_ex["sets"] = params.get("target_sets", phase_p["sets"])
+                main_ex["reps"] = params.get("target_reps", phase_p["rep_lower"])
+                main_ex["target_reps_max"] = params.get("target_reps_max", phase_p["rep_upper"])
+                main_ex["rest_seconds"] = params.get("rest_seconds", phase_p["rest_seconds"])
             await prog("overload", 58, f"⚖️ 第{day_order}天: {overload_count}/{len(day_plan.get('main', []))} 个动作自适应调整", day_order)
 
         main_count = len(day_plan.get("main", []))

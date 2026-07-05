@@ -351,8 +351,30 @@ async function handleGenerate() {
     // 2. 刷新 profile 到 store
     await userStore.fetchProfile()
 
-    // 3. 跳转到生成页（initPlan 会自动创建 UserCurrentState）
-    router.push('/generating')
+    // ★ 保存 UserCurrentState（让 GeneratingPlan 能拿到用户的日程选择）
+    const days_per_week = form.preferredDays.split(',').filter(Boolean).length || 3
+    try {
+      await userStore.saveCurrentState({
+        experience_level: form.experience,
+        workout_location: form.locations[0] || '居家',
+        days_per_week,
+        preferred_days: form.preferredDays,
+      })
+    } catch (e) {
+      console.warn('[SetupWizard] saveCurrentState 失败', e)
+    }
+
+    // 3. 跳转到生成页（带用户选定的日程参数）
+    router.push({
+      path: '/generating',
+      query: {
+        preferredDays: form.preferredDays,
+        days: String(days_per_week),
+        goal: form.goal,
+        experience: form.experience,
+        location: form.locations[0] || '居家',
+      },
+    })
   } catch (e) {
     console.error('保存失败:', e)
     alert('保存失败，请重试')
