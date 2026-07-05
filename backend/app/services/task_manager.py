@@ -301,12 +301,19 @@ async def run_generate_next(task_id: str):
         except Exception as e:
             await store.add_log(task_id, "analysis", f"⚠️ 分析跳过: {e}", 10)
 
-        # 3. 清理骨架周，避免 UNIQUE 冲突
+        # 3. 清理骨架周（含关联的 Day + Slot），避免 UNIQUE 冲突
+        #    注意：query.delete() 不会触发 ORM cascade，需手动逐级删除
         await store.add_log(task_id, "generate", "🧹 清理未使用的骨架周...", 12)
-        db.query(WeekModel).filter(
+        skeleton_weeks = db.query(WeekModel).filter(
             WeekModel.mesocycle_id == current_week.mesocycle_id,
             WeekModel.status == "pending",
-        ).delete()
+        ).all()
+        for sw in skeleton_weeks:
+            skeleton_days = db.query(Day).filter(Day.week_id == sw.id).all()
+            for sd in skeleton_days:
+                db.query(ExerciseSlot).filter(ExerciseSlot.day_id == sd.id).delete()
+            db.query(Day).filter(Day.week_id == sw.id).delete()
+            db.delete(sw)
         db.flush()
 
         # 4. 生成下一周
