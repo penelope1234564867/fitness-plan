@@ -119,11 +119,17 @@ export const useCycleStore = defineStore('cycle', () => {
 
   // ── Actions ──
 
-  /** 添加一条日志 + 更新进度 */
+  /** 添加一条日志 + 更新进度（重复文本只更新进度，不新增条目） */
   function _addLog(data: { phase: string; text: string; progress?: number; day?: number }) {
     const now = new Date()
     const time = now.toLocaleTimeString('zh-CN', { hour12: false })
     const pct = getProgress(data)
+    const last = generationLog.value[generationLog.value.length - 1]
+    if (last && last.text === data.text && last.day === data.day) {
+      // 相同文本只更新进度
+      last.progress = pct
+      return
+    }
     generationLog.value.push({ time, phase: data.phase, text: data.text, day: data.day, progress: pct })
     if (generationLog.value.length > MAX_LOG_ENTRIES) {
       generationLog.value = generationLog.value.slice(-MAX_LOG_ENTRIES)
