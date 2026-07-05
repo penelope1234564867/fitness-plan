@@ -1,0 +1,75 @@
+- generic [ref=f6e3]:
+  - banner [ref=f6e4]:
+    - generic [ref=f6e5]:
+      - generic [ref=f6e6] [cursor=pointer]:
+        - generic [ref=f6e7]: 💪
+        - heading "AI 智能健身助手" [level=1] [ref=f6e8]
+      - generic [ref=f6e11] [cursor=pointer]: 👤
+  - generic [ref=f6e13]:
+    - complementary [ref=f6e14]:
+      - generic [ref=f6e16]:
+        - generic [ref=f6e17]:
+          - generic [ref=f6e18]:
+            - generic [ref=f6e19]: 💪
+            - generic [ref=f6e20]: · 第0周/共4周
+          - generic [ref=f6e21]: 0%
+        - generic [ref=f6e24]:
+          - generic [ref=f6e26]: 📋 本周 0/0 天已完成
+          - button "⚡ 生成下周" [disabled] [ref=f6e27]
+      - generic [ref=f6e29]:
+        - generic [ref=f6e30]:
+          - button "‹" [ref=f6e31] [cursor=pointer]
+          - heading "2026年7月" [level=3] [ref=f6e32]
+          - button "›" [ref=f6e33] [cursor=pointer]
+          - button "调整日期" [ref=f6e34] [cursor=pointer]
+        - generic [ref=f6e35]:
+          - generic [ref=f6e36]: 日
+          - generic [ref=f6e37]: 一
+          - generic [ref=f6e38]: 二
+          - generic [ref=f6e39]: 三
+          - generic [ref=f6e40]: 四
+          - generic [ref=f6e41]: 五
+          - generic [ref=f6e42]: 六
+        - generic [ref=f6e43]:
+          - generic [ref=f6e45]: "28"
+          - generic [ref=f6e47]: "29"
+          - generic [ref=f6e49]: "30"
+          - generic [ref=f6e51]: "1"
+          - generic [ref=f6e53] [cursor=pointer]: "2"
+          - generic [ref=f6e55]: "3"
+          - generic [ref=f6e57]: "4"
+          - generic [ref=f6e59]: "5"
+          - generic [ref=f6e61]: "6"
+          - generic [ref=f6e63]: "7"
+          - generic [ref=f6e65]: "8"
+          - generic [ref=f6e67]: "9"
+          - generic [ref=f6e69]: "10"
+          - generic [ref=f6e71]: "11"
+          - generic [ref=f6e73]: "12"
+          - generic [ref=f6e75]: "13"
+          - generic [ref=f6e77]: "14"
+          - generic [ref=f6e79]: "15"
+          - generic [ref=f6e81]: "16"
+          - generic [ref=f6e83]: "17"
+          - generic [ref=f6e85]: "18"
+          - generic [ref=f6e87]: "19"
+          - generic [ref=f6e89]: "20"
+          - generic [ref=f6e91]: "21"
+          - generic [ref=f6e93]: "22"
+          - generic [ref=f6e95]: "23"
+          - generic [ref=f6e97]: "24"
+          - generic [ref=f6e99]: "25"
+          - generic [ref=f6e101]: "26"
+          - generic [ref=f6e103]: "27"
+          - generic [ref=f6e105]: "28"
+          - generic [ref=f6e107]: "29"
+          - generic [ref=f6e109]: "30"
+          - generic [ref=f6e111]: "31"
+          - generic [ref=f6e113]: "1"
+      - generic [ref=f6e115]:
+        - generic [ref=f6e117]: 💪 肌肉分布
+        - img [ref=f6e119]
+    - main [ref=f6e145]:
+      - generic [ref=f6e147]:
+        - generic [ref=f6e148]: 📅
+        - paragraph [ref=f6e149]: 点击日历中的日期查看训练计划

@@ -1,0 +1,38 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - generic [ref=e45]: ✓
+      - generic [ref=e9]: 身体信息
+    - generic [ref=e10] [cursor=pointer]:
+      - generic [ref=e79]: ✓
+      - generic [ref=e13]: 训练背景
+    - generic [ref=e14] [cursor=pointer]:
+      - generic [ref=e16]: "3"
+      - generic [ref=e17]: 训练目标
+    - generic [ref=e18] [cursor=pointer]:
+      - generic [ref=e20]: "4"
+      - generic [ref=e21]: 每周安排
+  - generic [ref=e80]:
+    - generic [ref=e81]: 🎯
+    - heading "你的训练目标" [level=2] [ref=e82]
+    - paragraph [ref=e83]: 你想达到什么样的效果？
+    - generic [ref=e85]:
+      - generic [ref=e86] [cursor=pointer]:
+        - generic [ref=e87]: 🔥
+        - generic [ref=e88]: 减脂
+        - generic [ref=e89]: 降低体脂率
+      - generic [ref=e90] [cursor=pointer]:
+        - generic [ref=e91]: 💪
+        - generic [ref=e92]: 增肌
+        - generic [ref=e93]: 增加肌肉量
+      - generic [ref=e94] [cursor=pointer]:
+        - generic [ref=e95]: ✨
+        - generic [ref=e96]: 塑形
+        - generic [ref=e97]: 雕刻身体线条
+      - generic [ref=e98] [cursor=pointer]:
+        - generic [ref=e99]: 🌿
+        - generic [ref=e100]: 保持健康
+        - generic [ref=e101]: 维持运动习惯
+    - generic [ref=e102]:
+      - button "← 上一步" [ref=e103] [cursor=pointer]
+      - button "下一步 →" [ref=e104] [cursor=pointer]

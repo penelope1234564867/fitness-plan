@@ -1,0 +1,34 @@
+- generic [ref=f2e4]:
+  - generic [ref=f2e5]:
+    - generic [ref=f2e6] [cursor=pointer]:
+      - generic [ref=f2e8]: "1"
+      - generic [ref=f2e9]: 身体信息
+    - generic [ref=f2e10] [cursor=pointer]:
+      - generic [ref=f2e12]: "2"
+      - generic [ref=f2e13]: 训练背景
+    - generic [ref=f2e14] [cursor=pointer]:
+      - generic [ref=f2e16]: "3"
+      - generic [ref=f2e17]: 训练目标
+    - generic [ref=f2e18] [cursor=pointer]:
+      - generic [ref=f2e20]: "4"
+      - generic [ref=f2e21]: 每周安排
+  - generic [ref=f2e23]:
+    - generic [ref=f2e24]: 👤
+    - heading "你的身体信息" [level=2] [ref=f2e25]
+    - paragraph [ref=f2e26]: 让我先了解你的基本身体数据
+    - generic [ref=f2e28]:
+      - generic [ref=f2e29]:
+        - generic [ref=f2e30]: 身高 (cm)
+        - spinbutton "例如 175" [ref=f2e31]
+      - generic [ref=f2e32]:
+        - generic [ref=f2e33]: 体重 (kg)
+        - spinbutton "例如 70" [ref=f2e34]
+      - generic [ref=f2e35]:
+        - generic [ref=f2e36]: 年龄
+        - spinbutton "例如 25" [ref=f2e37]
+      - generic [ref=f2e38]:
+        - generic [ref=f2e39]: 性别
+        - generic [ref=f2e40]:
+          - button "♂ 男" [ref=f2e41] [cursor=pointer]
+          - button "♀ 女" [ref=f2e42] [cursor=pointer]
+    - button "下一步 →" [disabled] [ref=f2e44]

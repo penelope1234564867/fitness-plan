@@ -1,0 +1,208 @@
+<h2>📱 ProfilePage 改造前后对比</h2>
+<p class="subtitle">左侧是现状，右侧是新方案——同一页面，同一宽度</p>
+
+<div class="split">
+  <!-- 改造前 -->
+  <div class="mockup">
+    <div class="mockup-header" style="background:#ff4d4f;color:#fff;">🔴 改造前：3 组件堆叠</div>
+    <div class="mockup-body" style="text-align:left;padding:12px;">
+
+      <!-- 个人信息卡 -->
+      <div style="border-radius:12px;border:1px solid #eee;padding:12px;margin-bottom:10px;background:#fff;">
+        <div style="text-align:center;font-size:28px;margin-bottom:4px;">♀</div>
+        <div style="text-align:center;font-size:16px;font-weight:700;">165cm · 65kg</div>
+        <div style="text-align:center;font-size:12px;color:#f97316;">减脂</div>
+      </div>
+
+      <!-- CycleRoadmap -->
+      <div style="border-radius:12px;border:2px solid #ff4d4f;padding:12px;margin-bottom:10px;background:#fff;">
+        <div style="font-size:11px;color:#ff4d4f;font-weight:700;margin-bottom:6px;">① CycleRoadmap</div>
+        <div style="font-size:14px;font-weight:700;">周期路线图</div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px;">大周期 · 第1周/共16周</div>
+        <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:8px;">
+          <div style="width:6%;height:100%;background:linear-gradient(90deg,#3b82f6,#a855f7);border-radius:3px;"></div>
+        </div>
+        <!-- 圆点 -->
+        <div style="display:flex;gap:4px;">
+          <div style="flex:1;text-align:center;"><div style="width:14px;height:14px;border-radius:50%;background:#3b82f6;margin:0 auto 2px;"></div><div style="font-size:10px;">基础适应</div></div>
+          <div style="flex:1;text-align:center;"><div style="width:14px;height:14px;border-radius:50%;border:2px solid #ddd;margin:0 auto 2px;"></div><div style="font-size:10px;color:#bbb;">肌肥大</div></div>
+          <div style="flex:1;text-align:center;"><div style="width:14px;height:14px;border-radius:50%;border:2px solid #ddd;margin:0 auto 2px;"></div><div style="font-size:10px;color:#bbb;">力量</div></div>
+          <div style="flex:1;text-align:center;"><div style="width:14px;height:14px;border-radius:50%;border:2px solid #ddd;margin:0 auto 2px;"></div><div style="font-size:10px;color:#bbb;">减载</div></div>
+        </div>
+      </div>
+
+      <!-- PhaseDetail -->
+      <div style="border-radius:12px;border:2px solid #ff7a45;padding:12px;margin-bottom:10px;background:#fff;">
+        <div style="font-size:11px;color:#ff7a45;font-weight:700;margin-bottom:4px;">② PhaseDetail</div>
+        <div style="font-size:14px;font-weight:700;">基础适应期</div>
+        <div style="font-size:10px;color:#888;margin-bottom:6px;">建立训练基础</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;"><span>进度</span><span>100%</span></div>
+        <div style="height:5px;background:#f0f0f0;border-radius:2px;margin-bottom:6px;"><div style="width:100%;height:100%;background:#3b82f6;border-radius:2px;"></div></div>
+        <div style="font-size:11px;color:#888;">当前周 1/4</div>
+      </div>
+
+      <!-- PhaseVerticalList -->
+      <div style="border-radius:12px;border:2px solid #ffa940;padding:12px;background:#fff;">
+        <div style="font-size:11px;color:#ffa940;font-weight:700;margin-bottom:4px;">③ PhaseVerticalList</div>
+        <div style="font-size:11px;">● 基础适应 <span style="color:#f97316;">◉ 第1/4周</span></div>
+        <div style="height:3px;background:#f0f0f0;border-radius:2px;margin-bottom:4px;"><div style="width:100%;height:100%;background:#3b82f6;"></div></div>
+        <div style="font-size:11px;color:#bbb;">● 肌肥大期 即将到来</div>
+        <div style="height:3px;background:#f0f0f0;border-radius:2px;margin-bottom:4px;"></div>
+        <div style="font-size:11px;color:#bbb;">● 力量提升期 即将到来</div>
+        <div style="height:3px;background:#f0f0f0;border-radius:2px;margin-bottom:4px;"></div>
+        <div style="font-size:11px;color:#bbb;">● 减载恢复周 即将到来</div>
+      </div>
+
+      <div style="margin-top:8px;padding:6px;background:#fff1f0;border-radius:6px;font-size:11px;color:#cf1322;text-align:center;">
+        ⚠️ 同一信息重复 3 次，占用空间大
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 改造后 -->
+  <div class="mockup">
+    <div class="mockup-header" style="background:#52c41a;color:#fff;">🟢 改造后：1 个整合组件</div>
+    <div class="mockup-body" style="text-align:left;padding:12px;">
+
+      <!-- 个人信息卡（不变） -->
+      <div style="border-radius:12px;border:1px solid #eee;padding:12px;margin-bottom:10px;background:#fff;">
+        <div style="text-align:center;font-size:28px;margin-bottom:4px;">♀</div>
+        <div style="text-align:center;font-size:16px;font-weight:700;">165cm · 65kg</div>
+        <div style="text-align:center;font-size:12px;color:#f97316;">减脂</div>
+      </div>
+
+      <!-- 整合组件 -->
+      <div style="border-radius:12px;border:1px solid #e8e8e8;padding:14px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+
+        <!-- 第1行：我在哪 + 倒计时 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <span style="font-size:22px;">🔥</span>
+            <span style="font-size:16px;font-weight:800;color:#1a1a1a;margin-left:4px;">燃脂强化期</span>
+            <span style="font-size:11px;color:#888;margin-left:6px;">第 5/16 周</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:#888;">⏳ 剩余</div>
+            <div style="font-size:18px;font-weight:800;color:#f97316;">3 周</div>
+          </div>
+        </div>
+
+        <!-- 大周期进度条 -->
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:3px;">
+            <span>📊 大周期</span>
+            <span>5/16</span>
+          </div>
+          <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;display:flex;">
+            <div style="width:6%;height:100%;background:#3b82f6;"></div>
+            <div style="width:19%;height:100%;background:#22c55e;"></div>
+            <div style="width:6%;height:100%;background:#f97316;"></div>
+            <div style="flex:1;height:100%;background:#e8e8e8;border-radius:0 4px 4px 0;"></div>
+          </div>
+        </div>
+
+        <!-- 阶段胶囊（可点击） -->
+        <div style="display:flex;margin-bottom:14px;">
+          <div style="flex:1;text-align:center;padding:8px 2px;background:#e8f5e9;border-radius:8px 0 0 8px;border:1px solid #d0e6d2;cursor:pointer;">
+            <div style="font-size:11px;font-weight:600;color:#333;">🌱 基础适应</div>
+            <div style="font-size:9px;color:#22c55e;">✅ 已完成</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:8px 2px;background:#fff7ed;border:2px solid #f97316;margin:0 -1px;cursor:pointer;">
+            <div style="font-size:11px;font-weight:700;color:#1a1a1a;">🔥 燃脂强化</div>
+            <div style="font-size:9px;color:#f97316;">◉ 第3/4周</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:8px 2px;background:#fafafa;border:1px solid #eee;opacity:0.45;cursor:pointer;">
+            <div style="font-size:11px;font-weight:600;color:#999;">⚡ 代谢提升</div>
+            <div style="font-size:9px;color:#bbb;">即将到来</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:8px 2px;background:#fafafa;border:1px solid #eee;border-radius:0 8px 8px 0;opacity:0.45;cursor:pointer;">
+            <div style="font-size:11px;font-weight:600;color:#999;">🔄 减载恢复</div>
+            <div style="font-size:9px;color:#bbb;">即将到来</div>
+          </div>
+        </div>
+
+        <!-- 本周打卡 + 下一阶段 -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;background:#f9f9f9;border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:#888;">✅ 本周训练</div>
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">2/3</div>
+            <div style="font-size:10px;color:#f97316;">还剩 1 天</div>
+          </div>
+          <div style="flex:1;background:#f9f9f9;border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:#888;">🧭 下一阶段</div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;">⚡ 代谢提升期</div>
+            <div style="font-size:10px;color:#888;">约 2 周后</div>
+          </div>
+        </div>
+
+        <!-- 阶段说明（点击切换） -->
+        <div style="background:#f0f5ff;border-radius:8px;padding:10px;border:1px dashed #d0d9f0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+            <span style="font-size:12px;font-weight:600;color:#3b82f6;">📖 了解「燃脂强化期」</span>
+            <span style="font-size:10px;color:#888;">点击阶段可切换 ▼</span>
+          </div>
+          <div style="margin-top:6px;font-size:11px;color:#555;line-height:1.6;border-top:1px solid #e8e8e8;padding-top:6px;">
+            中高容量训练（8-12次，3-4组）+ 有氧/HIIT，配合中等热量赤字（15-20%），最大化能量消耗的同时保留肌肉。建议蛋白质摄入 1.6-2.4g/kg/天。
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:8px;padding:6px;background:#f6ffed;border-radius:6px;font-size:11px;color:#389e0d;text-align:center;">
+        ✅ 每项信息只出现一次，点击阶段切换说明
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>👆 工作方式</h3>
+  <div class="cards">
+    <div class="card" style="cursor:default;">
+      <div class="card-body">
+        <h3>点击「基础适应期」→</h3>
+        <p>下方显示：建立动作模式，60-70% 1RM，神经适应优先</p>
+      </div>
+    </div>
+    <div class="card" style="cursor:default;">
+      <div class="card-body">
+        <h3>点击「燃脂强化期」→</h3>
+        <p>下方显示：8-12次中高容量，赤字15-20%，保留肌肉</p>
+      </div>
+    </div>
+    <div class="card" style="cursor:default;">
+      <div class="card-body">
+        <h3>点击「代谢提升期」→</h3>
+        <p>下方显示：混合次数范围，HIIT，refeed策略，突破平台期</p>
+      </div>
+    </div>
+    <div class="card" style="cursor:default;">
+      <div class="card-body">
+        <h3>点击「减载恢复周」→</h3>
+        <p>下方显示：容量减50-60%，CNS恢复，预防过度训练</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="background:#fff7e6;border-radius:10px;padding:14px;">
+  <h3 style="margin-top:0;">📍 放哪里？</h3>
+  <div class="options">
+    <div class="option" data-choice="profile" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>ProfilePage 资料页右侧</h3>
+        <p>替换 3 个旧组件，主页保持精简版进度</p>
+      </div>
+    </div>
+    <div class="option" data-choice="main" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>MainPage 主页左侧栏</h3>
+        <p>替换 CycleInfo，资料页不放周期信息</p>
+      </div>
+    </div>
+  </div>
+</div>

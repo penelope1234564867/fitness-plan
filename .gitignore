@@ -41,5 +41,19 @@ Thumbs.db
 # Claude
 .claude/
 
+# Debug / test screenshots at project root
+/*.png
+before-toggle
+debug-snapshot
+muscle-test-initial
+page-home
+uvicorn
+
+# Page snapshot artifacts from CI
+page-*.yml
+
+# Backend trace / memory debug files
+backend/memory/traces/
+
 # Reference source project (original trip-planner)
 helloagents-trip-planner/
