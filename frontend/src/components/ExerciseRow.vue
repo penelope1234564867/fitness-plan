@@ -17,16 +17,27 @@
     <!-- 动作信息 -->
     <div class="exercise-info" @click.stop="$emit('show-detail')">
       <span class="exercise-name">{{ exercise.exercise_name }}</span>
+      <span v-if="subtitleText" class="exercise-subtitle">{{ subtitleText }}</span>
       <span class="exercise-detail">
-        <template v-if="exercise.phase_type === 'warmup' || exercise.phase_type === 'stretch'">
-          {{ exercise.target_reps }}秒
+        <template v-if="exercise.phase_type === 'warmup'">
+        {{ exercise.target_reps }}次
+        </template>
+        <template v-else-if="exercise.phase_type === 'stretch'">
+        {{ exercise.target_reps }}秒
         </template>
         <template v-else>
-          {{ exercise.target_sets }}组×{{ exercise.target_reps }}次
-        </template>
-        <template v-if="exercise.weight_suggestion"> · {{ exercise.weight_suggestion }}</template>
-      </span>
+        {{ exercise.target_sets }}组×{{ exercise.target_reps }}次
+        <template v-if="exercise.weight_kg"> · {{ exercise.weight_kg }}kg</template>
+      </template>
+    <template v-if="exercise.rest_seconds && exercise.phase_type === 'main'"> rest={{ exercise.rest_seconds }}s</template>
+    <template v-if="exercise.weight_suggestion"> · {{ exercise.weight_suggestion }}</template>
+    </span>
     </div>
+
+    <!-- 变化标记（仅主项显示） -->
+    <span v-if="exercise.phase_type === 'main' && markerText" class="change-marker" :class="markerClass">
+      {{ markerText }}
+    </span>
 
     <!-- RPE 快捷按钮（仅主项动作显示） -->
     <div v-if="exercise.phase_type === 'main'" class="rpe-buttons">
@@ -53,14 +64,70 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { ExerciseSlot, RPEQuick } from '@/types'
+import { PHASE_LABEL_MAP } from '@/types'
+import { useCycleStore } from '@/stores/cycle'
 
-defineProps<{ exercise: ExerciseSlot }>()
+const props = defineProps<{ exercise: ExerciseSlot }>()
+const cycleStore = useCycleStore()
 defineEmits<{
   toggle: []
   'set-rpe-quick': [value: RPEQuick]
   'show-detail': []
 }>()
+
+/** 变化标记文字（右上角标签） */
+const markerText = computed(() => {
+  const ct = props.exercise.change_type
+  if (!ct || ct === 'none' || ct === 'same') return ''
+  const wd = props.exercise.weight_diff || 0
+  switch (ct) {
+    case 'increased_weight': return `↑${wd}kg`
+    case 'increased_reps': {
+      const diff = props.exercise.target_reps - props.exercise.prev_target_reps
+      return diff > 0 ? `+${diff}次` : ''
+    }
+    case 'decreased_weight': return `⬇${Math.abs(wd)}kg`
+    case 'new_exercise': return ''  // 新动作由 subtitleText
+    default: return ''
+  }
+})
+  
+  /** 副标题：动作替换/进阶信息 */
+  const subtitleText = computed(() => {
+    const ct = props.exercise.change_type
+    const prevName = props.exercise.prev_exercise_name
+    const prevPhase = props.exercise.prev_phase
+    
+    if (ct !== 'new_exercise' || !prevName) return ''
+    
+    const goal = cycleStore.macrocycle?.goal || '增肌'
+    const labels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
+    
+    if (prevPhase) {
+      // 跨中周期替换：⤴ 基础期: 哑铃卧推 3×10
+      const phaseLabel = labels[prevPhase] || prevPhase
+      const prevSets = props.exercise.prev_target_sets
+      const prevReps = props.exercise.prev_target_reps
+      const prevText = prevSets && prevReps ? `${prevSets}×${prevReps}` : ''
+      return `⤴ ${phaseLabel}: ${prevName}${prevText ? ' ' + prevText : ''}`
+    } else {
+      // 同中周期替换：⤴ 上周: 坐姿划船 3×10
+      const prevSets = props.exercise.prev_target_sets
+      const prevReps = props.exercise.prev_target_reps
+      const prevText = prevSets && prevReps ? `${prevSets}×${prevReps}` : ''
+      return `⤴ 上周: ${prevName}${prevText ? ' ' + prevText : ''}`
+    }
+  })
+
+const markerClass = computed(() => {
+  const ct = props.exercise.change_type
+  if (ct === 'increased_weight' || ct === 'increased_reps') return 'marker-up'
+  if (ct === 'decreased_weight') return 'marker-down'
+  if (ct === 'new_exercise') return 'marker-new'
+  return ''
+})
 </script>
 
 <style scoped>
@@ -70,41 +137,63 @@ defineEmits<{
   gap: 8px;
   padding: 10px 14px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   transition: all 0.2s ease;
 }
-.exercise-row:hover { border-color: #f97316; }
-.exercise-row.completed { background: #f0fdf4; border-color: #22c55e; }
-.exercise-row.rpe-easy { background: #eff6ff; border-color: #3b82f6; }
-.exercise-row.rpe-hard { background: #fef2f2; border-color: #ef4444; }
+.exercise-row:hover { border-color: var(--brand-orange); }
+.exercise-row.completed { background: var(--color-success-subtle); border-color: var(--color-success); }
+.exercise-row.rpe-easy { background: var(--color-info-subtle); border-color: var(--color-info); }
+.exercise-row.rpe-hard { background: var(--color-error-subtle); border-color: var(--color-error); }
 
 .exercise-check { cursor: pointer; padding: 2px; }
 .checkbox {
   width: 22px; height: 22px; border-radius: 50%;
-  border: 2px solid #d9d9d9;
+  border: 2px solid var(--border-color);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700;
   transition: all 0.2s; color: transparent;
 }
-.checkbox:hover { border-color: #f97316; }
-.checkbox.checked { background: #22c55e; border-color: #22c55e; color: #fff; }
+.checkbox:hover { border-color: var(--brand-orange); }
+.checkbox.checked { background: var(--color-success); border-color: var(--color-success); color: #fff; }
 
 .exercise-info { flex: 1; display: flex; flex-direction: column; gap: 2px; cursor: pointer; min-width: 0; }
-.exercise-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
-.exercise-row.completed .exercise-name { color: #22c55e; text-decoration: line-through; }
-.exercise-detail { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exercise-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.exercise-row.completed .exercise-name { color: var(--color-success); text-decoration: line-through; }
+.exercise-detail { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.exercise-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.75;
+}
 
 .rpe-buttons { display: flex; gap: 2px; flex-shrink: 0; }
 .rpe-btn {
   width: 28px; height: 28px; border-radius: 50%;
-  border: 1px solid #e5e5e5; background: #fff;
+  border: 1px solid var(--border-color); background: var(--bg-card);
   font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s; padding: 0; line-height: 1;
 }
 .rpe-btn:hover { transform: scale(1.15); }
-.rpe-btn-easy.active { background: #dbeafe; border-color: #3b82f6; }
-.rpe-btn-normal.active { background: #dcfce7; border-color: #22c55e; }
-.rpe-btn-hard.active { background: #fecaca; border-color: #ef4444; }
+.rpe-btn-easy.active { background: var(--color-info-subtle); border-color: var(--color-info); }
+.rpe-btn-normal.active { background: var(--color-success-subtle); border-color: var(--color-success); }
+.rpe-btn-hard.active { background: var(--color-error-subtle); border-color: var(--color-error); }
+
+.change-marker {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.marker-up { background: var(--color-success-subtle); color: var(--color-success-deep); }
+.marker-down { background: var(--brand-orange-subtle); color: var(--brand-orange-deep); }
+.marker-new { background: var(--color-info-subtle); color: var(--color-info-deep); }
 </style>

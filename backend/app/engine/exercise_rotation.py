@@ -4,10 +4,13 @@
 每 4 周（中周期边界）沿链条前进一个级别，避免身体适应。
 """
 
+import logging
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.models.orm_models import Exercise, ExerciseVariation, ExerciseSlot
+
+logger = logging.getLogger("exercise_rotation")
 
 
 def rotate_exercise(
@@ -74,6 +77,8 @@ def rotate_slots_for_new_mesocycle(
     """给定一批 exercise_slot，全部沿变式链移动到下一个难度级别。
 
     只轮换 main 阶段的动作，warmup 和 cooldown 保持原样。
+    2026-07-04: 缓存池模式下，主力轮换逻辑被 PoolManager.refresh_pool 替代，
+    此函数保留作为后备（没有缓存池的数据时）。
 
     Args:
         slots: 当前中周期最后一周的 exercise_slot 列表
@@ -89,6 +94,9 @@ def rotate_slots_for_new_mesocycle(
 
         old_id = slot.exercise_id
         new_id = rotate_exercise(old_id, db, direction="next")
+
+        if new_id != old_id:
+            logger.info(f"[Rotation] 轮换: slot={slot.id}, {slot.exercise_name} ({old_id}) → ({new_id})")
 
         results.append({
             "slot_id": slot.id,

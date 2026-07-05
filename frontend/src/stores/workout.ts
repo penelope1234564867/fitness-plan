@@ -5,15 +5,16 @@
  * 现在通过 dayDetail API 获取单日数据，不再从 currentWeek 推导。
  */
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { watch } from 'vue'
 import * as api from '@/services/api'
 import { RPE_QUICK_MAP, RPE_QUICK_DEFAULT } from '@/types'
 import type {
-  ExerciseSlot, WorkoutDayGrouped, DayDetailResponse,
+  WorkoutDayGrouped, DayDetailResponse,
   RPEQuick, SlotCheckinData,
 } from '@/types'
 import dayjs from 'dayjs'
+import { useCycleStore } from './cycle'
 
 export const useWorkoutStore = defineStore('workout', () => {
   const selectedDate = ref<string | null>(null)
@@ -32,8 +33,10 @@ export const useWorkoutStore = defineStore('workout', () => {
   const currentDay = computed<WorkoutDayGrouped | null>(() => {
     const dd = dayDetail.value
     if (!dd || !dd.has_plan) return null
+    // ★ 创建一次 mappedSlots，slots/warmup/main/cardio/stretch 共享同一组对象引用
+    const mappedSlots = dd.slots.map(s => _mapSlot(s, dd))
     return {
-      id: dd.slots[0]?.day_id || 0,
+      id: mappedSlots[0]?.day_id || 0,
       day_order: 0,
       day_of_week: dayjs(dd.date).day() || 7,
       date: dd.date,
@@ -43,19 +46,64 @@ export const useWorkoutStore = defineStore('workout', () => {
       is_completed: dd.day_status === 'completed',
       completed_date: dd.day_status === 'completed' ? dd.date : '',
       rpe_score: 0,
-      slots: dd.slots.map(s => ({
-        ...s,
-        day_id: dd.slots[0]?.day_id || 0,
-        _completed: false,
-        _rpeQuick: null as RPEQuick | null,
-        _loading: false,
-      })),
-      warmup: dd.warmup,
-      main: dd.main,
-      cardio: dd.cardio,
-      stretch: dd.stretch,
+      slots: mappedSlots,
+      warmup: mappedSlots.filter(s => s.phase_type === 'warmup'),
+      main: mappedSlots.filter(s => s.phase_type === 'main'),
+      cardio: (() => {
+        const items = mappedSlots.filter(s => s.phase_type === 'cardio')
+        return items[0] || null
+      })(),
+      stretch: mappedSlots.filter(s => s.phase_type === 'stretch'),
     }
   })
+
+  /** 当天变化摘要统计 */
+  const changeSummary = computed(() => {
+    const day = currentDay.value
+    if (!day || !day.main.length) {
+      return { increased: 0, newExercise: 0, same: 0, decreased: 0, total: 0 }
+    }
+    let increased = 0
+    let newExercise = 0
+    let same = 0
+    let decreased = 0
+    for (const s of day.main) {
+      const ct = (s as any).change_type
+      if (ct === 'increased_weight' || ct === 'increased_reps') increased++
+      else if (ct === 'new_exercise') newExercise++
+      else if (ct === 'same' || ct === 'none') same++
+      else if (ct === 'decreased_weight') decreased++
+    }
+    return { increased, newExercise, same, decreased, total: day.main.length }
+  })
+
+  /** 为 slot 添加前端 UI 状态字段
+   *
+   *  _completed 从后端 actual_* 字段派生：
+   *  如果 actual_sets>0 或 actual_reps>0 或 rpe>0，认为该动作已完成。
+   *  这样打卡后重新拉取数据时 checkmark 不会消失。
+   */
+  function _mapSlot(s: any, dd: any) {
+    const completed = s.actual_sets > 0 || s.actual_reps > 0 || s.rpe > 0
+    let rpeQuick: RPEQuick | null = null
+    if (completed) {
+      if (s.rpe === 4) rpeQuick = 'easy'
+      else if (s.rpe === 7) rpeQuick = 'normal'
+      else if (s.rpe === 9) rpeQuick = 'hard'
+      else rpeQuick = 'normal'  // 其他 RPE 值默认 normal
+    }
+    return reactive({
+      ...s,
+      day_id: dd?.slots?.[0]?.day_id || s.day_id || 0,
+      _completed: completed,
+      _rpeQuick: rpeQuick,
+      _loading: false,
+      change_type: s.change_type || 'none',
+      weight_diff: s.weight_diff || 0,
+      prev_weight_kg: s.prev_weight_kg || 0,
+      prev_target_reps: s.prev_target_reps || 0,
+    })
+  }
 
   // selectedDate 变化时自动获取 day detail
   watch(selectedDate, async (date) => {
@@ -146,8 +194,14 @@ export const useWorkoutStore = defineStore('workout', () => {
         exercises,
       })
 
-      // 打卡后刷新
+      // 打卡后刷新日详情 + 日历数据
       dayDetail.value = await api.fetchDayDetail(selectedDate.value!)
+      // ★ 刷新日历，使已完成的日期显示出完成标记
+      const d = dayjs(selectedDate.value!)
+      const from = d.startOf('month').startOf('week').format('YYYY-MM-DD')
+      const to = d.endOf('month').endOf('week').format('YYYY-MM-DD')
+      const cycleStore = useCycleStore()
+      cycleStore.fetchCalendarData(from, to)
     } catch (e: any) {
       error.value = e.message
       throw e
@@ -160,6 +214,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     selectedDate, dayDetail, currentDay, todayStr,
     dayDetailLoading, checkinLoading, error,
     activePrimaryMuscles, activeSecondaryMuscles,
+    changeSummary,
     toggleExercise, setRPEQuick, rescheduleDay, submitCheckin, reloadDayDetail,
   }
 })

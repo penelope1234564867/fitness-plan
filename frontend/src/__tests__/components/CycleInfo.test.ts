@@ -3,9 +3,12 @@ import { mount } from '@vue/test-utils'
 import CycleInfo from '@/components/CycleInfo.vue'
 
 describe('CycleInfo', () => {
+  const baseProps = { completedDays: 0, totalDays: 3 }
+
   it('shows phase label and week progress', () => {
     const wrapper = mount(CycleInfo, {
       props: {
+        ...baseProps,
         phaseLabel: '基础适应期',
         weekNumber: 3,
         totalWeeks: 4,
@@ -21,6 +24,7 @@ describe('CycleInfo', () => {
   it('shows completion rate', () => {
     const wrapper = mount(CycleInfo, {
       props: {
+        ...baseProps,
         phaseLabel: '基础适应期',
         weekNumber: 1,
         totalWeeks: 4,
@@ -34,6 +38,7 @@ describe('CycleInfo', () => {
   it('shows generate button when week is complete', () => {
     const wrapper = mount(CycleInfo, {
       props: {
+        ...baseProps,
         phaseLabel: '基础适应期',
         weekNumber: 4,
         totalWeeks: 4,
@@ -41,7 +46,7 @@ describe('CycleInfo', () => {
         isWeekComplete: true,
       },
     })
-    const btn = wrapper.find('.generate-btn')
+    const btn = wrapper.find('.wp-generate-btn')
     expect(btn.exists()).toBe(true)
     expect(btn.attributes('disabled')).toBeFalsy()
   })
@@ -49,6 +54,7 @@ describe('CycleInfo', () => {
   it('disables generate button when week is not complete', () => {
     const wrapper = mount(CycleInfo, {
       props: {
+        ...baseProps,
         phaseLabel: '基础适应期',
         weekNumber: 2,
         totalWeeks: 4,
@@ -56,7 +62,7 @@ describe('CycleInfo', () => {
         isWeekComplete: false,
       },
     })
-    const btn = wrapper.find('.generate-btn')
+    const btn = wrapper.find('.wp-generate-btn')
     expect(btn.exists()).toBe(true)
     expect(btn.attributes('disabled')).toBeDefined()
   })
@@ -64,6 +70,7 @@ describe('CycleInfo', () => {
   it('emits generate on button click', async () => {
     const wrapper = mount(CycleInfo, {
       props: {
+        ...baseProps,
         phaseLabel: '基础适应期',
         weekNumber: 4,
         totalWeeks: 4,
@@ -71,21 +78,22 @@ describe('CycleInfo', () => {
         isWeekComplete: true,
       },
     })
-    await wrapper.find('.generate-btn').trigger('click')
+    await wrapper.find('.wp-generate-btn').trigger('click')
     expect(wrapper.emitted('generate')).toBeTruthy()
   })
 
-  it('shows deload indicator for deload phase', () => {
+  it('shows next phase info', () => {
     const wrapper = mount(CycleInfo, {
       props: {
-        phaseLabel: '减载周',
-        weekNumber: 1,
-        totalWeeks: 1,
-        completionRate: 0,
+        ...baseProps,
+        phaseLabel: '肌肥大期',
+        weekNumber: 3,
+        totalWeeks: 4,
+        completionRate: 50,
         isWeekComplete: false,
-        isDeload: true,
+        nextPhase: '力量提升期',
       },
     })
-    expect(wrapper.text()).toContain('恢复为主')
+    expect(wrapper.text()).toContain('力量提升期')
   })
 })

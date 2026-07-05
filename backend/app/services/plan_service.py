@@ -1,9 +1,18 @@
-"""健身计划服务 - Pipeline + Map-Reduce 编排层
+"""健身计划服务 — Agent 编排层
 
-架构:
-  Coordinator (PPL 排期) → Map (三天并行 exercise_agent → plan_agent) → Reduce (校验归并) → 存库
+架构（2026-07 重构）:
+  PlanService (总指挥)
+    → CoachAgent 分析用户画像
+    → ProgrammerAgent 搜索 + 精选动作
+    → PlanAssembler 组装每日训练（纯函数）
+    → CoachAgent 生成教练备注
 
-SSE 事件协议:
+  PlanService.analyze_week()
+    → AnalystAgent 分析打卡数据
+    → ProgrammerAgent 执行渐进超负荷
+    → CoachAgent 生成周总结
+
+SSE 事件协议（向后兼容）:
   progress     → {"day":N, "phase":"search|select|assemble", "text":"..."}
   llm_stream   → {"day":N, "phase":"select|assemble", "chunk":"..."}
   exercise_done → {"day":N, "exercise":{"name":"...","sets":4,"reps":8,"wger_id":123}}
@@ -14,18 +23,49 @@ SSE 事件协议:
 import json
 import asyncio
 import traceback
-from typing import AsyncGenerator, Tuple
+from typing import AsyncGenerator, Optional, Callable
 
 from sqlalchemy.orm import Session
 
-from app.models.schemas import PlanRequest
-from app.models.orm_models import FitnessPlan
-from app.agents import exercise_agent
-from app.agents import plan_agent
+from app.models.schemas import InitPlanRequest
+from app.models.orm_models import FitnessPlan, Macrocycle, Mesocycle, Week, Day
+from app.agents.coach_agent import CoachAgent
+from app.agents.programmer_agent import ProgrammerAgent
+from app.agents.analyst_agent import AnalystAgent
 
 
 # ═══════════════════════════════════════════════════════════════
-#  PPL 分化方案（Coordinator 核心数据）
+#  Agent 实例（单例）
+# ═══════════════════════════════════════════════════════════════
+
+_coach: Optional[CoachAgent] = None
+_programmer: Optional[ProgrammerAgent] = None
+_analyst: Optional[AnalystAgent] = None
+
+
+def get_coach() -> CoachAgent:
+    global _coach
+    if _coach is None:
+        _coach = CoachAgent()
+    return _coach
+
+
+def get_programmer() -> ProgrammerAgent:
+    global _programmer
+    if _programmer is None:
+        _programmer = ProgrammerAgent()
+    return _programmer
+
+
+def get_analyst() -> AnalystAgent:
+    global _analyst
+    if _analyst is None:
+        _analyst = AnalystAgent()
+    return _analyst
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PPL 分化方案
 # ═══════════════════════════════════════════════════════════════
 
 PPL_SPLITS = {
@@ -34,9 +74,12 @@ PPL_SPLITS = {
         "days": 3,
         "per_group": 3,
         "schedule": [
-            {"day": "第1天 · 推", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "desc": "训练胸大肌、三角肌和肱三头肌，以推类复合动作为主"},
-            {"day": "第2天 · 拉", "focus": "背部 + 二头", "muscles": [12, 1], "desc": "训练背阔肌、菱形肌和肱二头肌，以拉类复合动作为主"},
-            {"day": "第3天 · 腿", "focus": "腿部 + 臀部 + 腹部", "muscles": [10, 11, 8, 6], "desc": "训练股四头肌、腘绳肌、臀大肌和腹部"},
+            {"day": "第1天 · 推", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "day_label": "推",
+             "desc": "训练胸大肌、三角肌和肱三头肌，以推类复合动作为主"},
+            {"day": "第2天 · 拉", "focus": "背部 + 二头", "muscles": [12, 1], "day_label": "拉",
+             "desc": "训练背阔肌、菱形肌和肱二头肌，以拉类复合动作为主"},
+            {"day": "第3天 · 腿", "focus": "腿部 + 臀部 + 腹部", "muscles": [10, 11, 8, 6], "day_label": "腿",
+             "desc": "训练股四头肌、腘绳肌、臀大肌和腹部"},
         ],
     },
     "ppl_4": {
@@ -44,10 +87,10 @@ PPL_SPLITS = {
         "days": 4,
         "per_group": 2,
         "schedule": [
-            {"day": "第1天 · 推", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "desc": "力量日：胸肩三头推类复合动作"},
-            {"day": "第2天 · 拉", "focus": "背部 + 二头", "muscles": [12, 1], "desc": "力量日：背和二头拉类复合动作"},
-            {"day": "第3天 · 腿", "focus": "腿部 + 臀部", "muscles": [10, 11, 8], "desc": "力量日：下肢综合训练"},
-            {"day": "第4天 · 全身", "focus": "全身轻量 + 腹部", "muscles": [4, 12, 6], "desc": "补充日：轻重量全身训练，侧重腹部肌群"},
+            {"day": "第1天 · 推", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "day_label": "推"},
+            {"day": "第2天 · 拉", "focus": "背部 + 二头", "muscles": [12, 1], "day_label": "拉"},
+            {"day": "第3天 · 腿", "focus": "腿部 + 臀部", "muscles": [10, 11, 8], "day_label": "腿"},
+            {"day": "第4天 · 全身", "focus": "全身轻量 + 腹部", "muscles": [4, 12, 6], "day_label": "全身"},
         ],
     },
     "ppl_5": {
@@ -55,11 +98,11 @@ PPL_SPLITS = {
         "days": 5,
         "per_group": 2,
         "schedule": [
-            {"day": "第1天 · 推(主)", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "desc": "主推日：大重量复合动作，5-8RM力量训练"},
-            {"day": "第2天 · 拉(主)", "focus": "背部 + 二头", "muscles": [12, 1], "desc": "主拉日：大重量复合动作，5-8RM力量训练"},
-            {"day": "第3天 · 腿", "focus": "腿部 + 臀部 + 腹部", "muscles": [10, 11, 8, 6], "desc": "完整腿日：股四、腘绳、臀大肌和腹部"},
-            {"day": "第4天 · 推(辅)", "focus": "肩部 + 三头 + 胸部轻量", "muscles": [2, 5, 4], "desc": "辅助推日：肩和三头强化，胸部轻容量"},
-            {"day": "第5天 · 拉(辅)", "focus": "二头 + 斜方肌 + 背部轻量", "muscles": [1, 9, 12], "desc": "辅助拉日：二头和斜方肌强化，背部轻容量"},
+            {"day": "第1天 · 推(主)", "focus": "胸部 + 肩部 + 三头", "muscles": [4, 2, 5], "day_label": "推"},
+            {"day": "第2天 · 拉(主)", "focus": "背部 + 二头", "muscles": [12, 1], "day_label": "拉"},
+            {"day": "第3天 · 腿", "focus": "腿部 + 臀部 + 腹部", "muscles": [10, 11, 8, 6], "day_label": "腿"},
+            {"day": "第4天 · 推(辅)", "focus": "肩部 + 三头 + 胸部轻量", "muscles": [2, 5, 4], "day_label": "推"},
+            {"day": "第5天 · 拉(辅)", "focus": "二头 + 斜方肌 + 背部轻量", "muscles": [1, 9, 12], "day_label": "拉"},
         ],
     },
     "ppl_6": {
@@ -67,27 +110,191 @@ PPL_SPLITS = {
         "days": 6,
         "per_group": 2,
         "schedule": [
-            {"day": "第1天 · 推(重)", "focus": "胸部 + 肩部 + 三头（大重量）", "muscles": [4, 2, 5], "desc": "大重量推日：5-8RM力量训练"},
-            {"day": "第2天 · 拉(重)", "focus": "背部 + 二头（大重量）", "muscles": [12, 1], "desc": "大重量拉日：5-8RM力量训练"},
-            {"day": "第3天 · 腿(重)", "focus": "腿部 + 臀部（大重量）", "muscles": [10, 11, 8], "desc": "大重量腿日：5-8RM力量训练"},
-            {"day": "第4天 · 推(轻)", "focus": "胸部 + 肩部 + 三头（增肌容量）", "muscles": [4, 2, 5], "desc": "容量推日：10-15RM增肌训练"},
-            {"day": "第5天 · 拉(轻)", "focus": "背部 + 二头（增肌容量）", "muscles": [12, 1], "desc": "容量拉日：10-15RM增肌训练"},
-            {"day": "第6天 · 腿(轻)", "focus": "腿部 + 腹部（增肌容量）", "muscles": [10, 11, 6], "desc": "容量腿日：10-15RM增肌训练，加腹部"},
+            {"day": "第1天 · 推(重)", "focus": "胸部 + 肩部 + 三头（大重量）", "muscles": [4, 2, 5], "day_label": "推"},
+            {"day": "第2天 · 拉(重)", "focus": "背部 + 二头（大重量）", "muscles": [12, 1], "day_label": "拉"},
+            {"day": "第3天 · 腿(重)", "focus": "腿部 + 臀部（大重量）", "muscles": [10, 11, 8], "day_label": "腿"},
+            {"day": "第4天 · 推(轻)", "focus": "胸部 + 肩部 + 三头（增肌容量）", "muscles": [4, 2, 5], "day_label": "推"},
+            {"day": "第5天 · 拉(轻)", "focus": "背部 + 二头（增肌容量）", "muscles": [12, 1], "day_label": "拉"},
+            {"day": "第6天 · 腿(轻)", "focus": "腿部 + 腹部（增肌容量）", "muscles": [10, 11, 6], "day_label": "腿"},
         ],
     },
 }
 
 
-def get_ppl_schedule(days_per_week: int) -> dict:
-    """根据用户每周天数返回对应的 PPL 分化方案。"""
-    key = f"ppl_{days_per_week}"
-    if key not in PPL_SPLITS:
-        key = "ppl_3"
-    return PPL_SPLITS[key]
+# ═══════════════════════════════════════════════════════════════
+#  PlanService — 编排器
+# ═══════════════════════════════════════════════════════════════
+
+class PlanService:
+    """训练计划编排服务。
+
+    职责：
+      1. 首次生成：CoachAgent(画像) → ProgrammerAgent(选动作+组装) → CoachAgent(备注)
+      2. 每周调整：AnalystAgent(分析) → ProgrammerAgent(渐进) → CoachAgent(总结)
+      3. SSE 流式推送
+    """
+
+    def __init__(self):
+        self.coach = get_coach()
+        self.programmer = get_programmer()
+        self.analyst = get_analyst()
+
+    # ═══════════════════════════════════════════════════════════
+    #  首次生成（新 Agent 编排方式）
+    # ═══════════════════════════════════════════════════════════
+
+    async def generate_plan(
+        self,
+        request: InitPlanRequest,
+        emit: Callable,
+    ) -> dict:
+        """完整链路生成：CoachAgent → ProgrammerAgent → PlanAssembler → CoachAgent。
+
+        Args:
+            request: InitPlanRequest 用户请求
+            emit: SSE 事件发送函数 f(event_type, data)
+
+        Returns:
+            dict: {profile, weekly_plans: [{week, days}], ...}
+        """
+        loop = asyncio.get_running_loop()
+
+        # ── Step 1: CoachAgent 分析用户画像 ──
+        emit("progress", {"phase": "coach",
+                           "text": "🤖 CoachAgent 正在分析用户画像..."})
+
+        profile = await loop.run_in_executor(
+            None, self.coach.analyze_user, request,
+        )
+        emit("progress", {"phase": "coach",
+                           "text": f"✅ 画像分析完成：{profile.get('profile_summary', '')}"})
+
+        # ── Step 2: 确定分化方案 ──
+        ppl_key = f"ppl_{request.days_per_week}"
+        split = PPL_SPLITS.get(ppl_key, PPL_SPLITS["ppl_3"])
+        schedule = split["schedule"]
+        user_desc = self._build_user_desc(request)
+
+        emit("progress", {"phase": "programmer",
+                           "text": f"📋 分化方案：{split['name']}，{len(schedule)} 天"})
+
+        # ── Step 3: ProgrammerAgent 选动作 + PlanAssembler 组装 ──
+        week_plans = await loop.run_in_executor(
+            None, self.programmer.build_week_plan,
+            schedule, profile, request.goal, request.experience_level,
+            request.workout_location, emit, user_desc,
+        )
+
+        # ── Step 4: CoachAgent 为每天加教练备注 ──
+        for idx, day_plan in enumerate(week_plans):
+            if day_plan.get("main"):
+                emit("progress", {
+                    "day": idx + 1, "phase": "coach",
+                    "text": f"🤖 正在为第{idx+1}天生成教练备注...",
+                })
+                day_plan = await loop.run_in_executor(
+                    None, self.coach.add_reasoning,
+                    day_plan, profile, request.goal,
+                )
+                week_plans[idx] = day_plan
+
+        # ── 返回结果 ──
+        return {
+            "profile": profile,
+            "weekly_plans": [{"week": 1, "days": week_plans}],
+            "split_name": split["name"],
+        }
+
+    # ═══════════════════════════════════════════════════════════
+    #  周分析和调整
+    # ═══════════════════════════════════════════════════════════
+
+    async def analyze_week_and_adjust(
+        self,
+        days: list,
+        profile: dict,
+        emit: Callable,
+    ) -> dict:
+        """分析一周打卡 + 生成调整建议。
+
+        Args:
+            days: 本周所有 Day 对象（含 slots）
+            profile: 用户画像
+            emit: SSE 事件发送函数（同步回调）
+
+        Returns:
+            dict: {analysis, adjustments, summary}
+        """
+        loop = asyncio.get_running_loop()
+
+        emit("progress", {"phase": "analyst",
+                           "text": "📊 AnalystAgent 正在分析本周打卡数据..."})
+
+        analysis = await loop.run_in_executor(
+            None, self.analyst.analyze_week_checkins, days, profile,
+        )
+        adjustments = await loop.run_in_executor(
+            None, self.analyst.determine_adjustments, analysis,
+        )
+
+        emit("progress", {"phase": "analyst",
+                           "text": f"✅ 分析完成：{analysis.get('overall_assessment', '')}"})
+
+        return {"analysis": analysis, "adjustments": adjustments}
+
+    # ═══════════════════════════════════════════════════════════
+    #  周总结生成
+    # ═══════════════════════════════════════════════════════════
+
+    async def generate_weekly_summary(
+        self,
+        profile: dict,
+        week_data: dict,
+        emit: Callable,
+    ) -> dict:
+        """生成周训练总结。
+
+        Args:
+            profile: 用户画像
+            week_data: 周数据（含 completion_rate, days 等）
+            emit: SSE 事件发送函数（同步回调）
+
+        Returns:
+            dict: CoachAgent 生成的周总结
+        """
+        loop = asyncio.get_running_loop()
+
+        emit("progress", {"phase": "summary",
+                           "text": "📝 CoachAgent 正在生成周总结..."})
+
+        summary = await loop.run_in_executor(
+            None, self.coach.generate_weekly_summary, profile, week_data,
+        )
+        return summary
+
+    # ═══════════════════════════════════════════════════════════
+    #  内部方法
+    # ═══════════════════════════════════════════════════════════
+
+    @staticmethod
+    def _build_user_desc(request: InitPlanRequest) -> str:
+        parts = []
+        if request.height:
+            parts.append(f"身高={request.height}cm")
+        if request.weight:
+            parts.append(f"体重={request.weight}kg")
+        if request.age:
+            parts.append(f"年龄={request.age}岁")
+        if request.gender:
+            gender_cn = "男" if request.gender == "male" else "女"
+            parts.append(f"性别={gender_cn}")
+        if request.city:
+            parts.append(f"城市={request.city}")
+        return ", ".join(parts)
 
 
 # ═══════════════════════════════════════════════════════════════
-#  SSE 事件工具
+#  旧版 SSE 流式生成入口（向后兼容）
 # ═══════════════════════════════════════════════════════════════
 
 def _sse_event(event: str, data: str) -> str:
@@ -95,273 +302,102 @@ def _sse_event(event: str, data: str) -> str:
     return f"event: {event}\ndata: {data}\n\n"
 
 
-# ═══════════════════════════════════════════════════════════════
-#  Pipeline: 单天 Pipeline（Map 阶段的基本单元）
-# ═══════════════════════════════════════════════════════════════
-
-async def _run_one_day(
-    day_spec: dict,
-    day_index: int,
-    goal: str,
-    experience: str,
-    location: str,
-    split_name: str,
-    per_group: int,
-    emit,
-) -> dict:
-    """单天 Pipeline: 搜索 → 过滤 → LLM 精选 → 组装，沿途 emit SSE 事件。
-
-    Returns:
-        day_plan dict，失败时返回带 error 标志的 dict
-    """
-    try:
-        # ── 2a. Search ──
-        await emit("progress", {"day": day_index, "phase": "search",
-                                "text": f"正在搜索 {day_spec['focus']} 相关动作..."})
-
-        loop = asyncio.get_running_loop()
-        muscle_ids = day_spec["muscles"]
-
-        # 搜索（同步，走线程池）
-        grouped = await loop.run_in_executor(
-            None, exercise_agent.search_all_muscles, muscle_ids,
-        )
-        total_found = sum(len(v) for v in grouped.values())
-        await emit("progress", {"day": day_index, "phase": "search",
-                                "text": f"搜索到 {total_found} 个候选动作"})
-
-        # ── 2b. Filter ──
-        filtered = exercise_agent.filter_by_equipment(grouped, experience)
-
-        # ── 2c. LLM Select ──
-        await emit("progress", {"day": day_index, "phase": "select",
-                                "text": f"LLM 正在精选最优动作..."})
-
-        selected = await loop.run_in_executor(
-            None, exercise_agent.llm_select,
-            filtered, goal, experience, location, split_name, per_group,
-        )
-
-        if not selected:
-            await emit("progress", {"day": day_index, "phase": "select",
-                                    "text": "⚠️ 未找到合适的动作"})
-            return {"day": day_spec.get("day", ""), "focus": day_spec.get("focus", ""),
-                    "warmup": [], "main": [], "cooldown": [], "_error": "no_exercises"}
-
-        # ── 2d. LLM Assemble ──
-        await emit("progress", {"day": day_index, "phase": "assemble",
-                                "text": f"正在组装 {day_spec['focus']} 训练计划..."})
-
-        day_plan = await loop.run_in_executor(
-            None, plan_agent.assemble_one_day,
-            day_spec, selected, goal, experience, location,
-        )
-
-        if day_plan is None:
-            return {"day": day_spec.get("day", ""), "focus": day_spec.get("focus", ""),
-                    "warmup": [], "main": [], "cooldown": [], "_error": "assemble_failed"}
-
-        # ── 逐条推送 exercise_done ──
-        for ex in day_plan.get("main", []):
-            exercise_item = {
-                "name": ex.get("name", ""),
-                "sets": ex.get("sets", 3),
-                "reps": ex.get("reps", 10),
-                "wger_id": ex.get("wger_id"),
-                "target_muscle": ex.get("target_muscle", ""),
-                "rest_seconds": ex.get("rest_seconds", 60),
-                "exercise_type": ex.get("exercise_type", "compound"),
-            }
-            await emit("exercise_done", {"day": day_index, "exercise": exercise_item})
-
-        main_count = len(day_plan.get("main", []))
-        await emit("day_done", {"day": day_index,
-                                "focus": day_spec.get("focus", ""),
-                                "main_count": main_count})
-
-        return day_plan
-
-    except Exception as e:
-        print(f"[Day {day_index}] 生成失败: {e}")
-        traceback.print_exc()
-        await emit("progress", {"day": day_index, "phase": "error",
-                                "text": f"⚠️ 该天生成失败: {str(e)[:60]}"})
-        return {"day": day_spec.get("day", ""), "focus": day_spec.get("focus", ""),
-                "warmup": [], "main": [], "cooldown": [], "_error": str(e)}
+def get_ppl_schedule(days_per_week: int) -> dict:
+    """根据用户每周天数返回对应的 PPL 分化方案。"""
+    key = f"ppl_{days_per_week}"
+    return PPL_SPLITS.get(key, PPL_SPLITS["ppl_3"])
 
 
-# ═══════════════════════════════════════════════════════════════
-#  Reduce 阶段
-# ═══════════════════════════════════════════════════════════════
+# ── 旧版逻辑（兼容已有 fitness.py 引用） ──────────────────
 
-def reduce_to_weekly_plan(per_day_plans: list, schedule: list) -> dict:
-    """收集 → 校验 → 归并 → 输出周计划。
-
-    Args:
-        per_day_plans: 每天的生成结果（可能含 _error）
-        schedule: 原始 PPL 排期
-
-    Returns:
-        {weekly_plans: [{week: 1, days: [...]}]}
-    """
-    days = []
-    for i, plan in enumerate(per_day_plans):
-        day_entry = {
-            "day": schedule[i]["day"] if i < len(schedule) else plan.get("day", f"第{i+1}天"),
-            "focus": schedule[i]["focus"] if i < len(schedule) else plan.get("focus", ""),
-            "warmup": plan.get("warmup", []),
-            "main": plan.get("main", []),
-            "cooldown": plan.get("cooldown", []),
-        }
-        # 如果该天失败，给空数组
-        if plan.get("_error"):
-            day_entry["warmup"] = []
-            day_entry["main"] = []
-            day_entry["cooldown"] = []
-        days.append(day_entry)
-
-    return {
-        "weekly_plans": [{"week": 1, "days": days}]
-    }
-
-
-# ═══════════════════════════════════════════════════════════════
-#  主入口：generate_plan_stream
-# ═══════════════════════════════════════════════════════════════
-
-async def generate_plan_stream(request: PlanRequest, db: Session) -> AsyncGenerator[str, None]:
-    """SSE 流式生成入口。
-
-    Stage 1: Coordinator — 硬编码 PPL 排期
-    Stage 2: Map — 三天并行 (exercise_agent → plan_agent)
-    Stage 3: Reduce — 校验 + 归并
-    Stage 4: Persist — 存库 + done
-    """
-    event_queue: asyncio.Queue[Tuple[str, object]] = asyncio.Queue()
+async def generate_plan_stream(request, db: Session) -> AsyncGenerator[str, None]:
+    """（旧）SSE 流式生成入口 — 保留向后兼容。"""
+    event_queue: asyncio.Queue = asyncio.Queue()
 
     async def _emit(event_type: str, data: object):
-        """向 SSE 队列推送事件。"""
         await event_queue.put((event_type, data))
 
-    # ── Stage 1: Coordinator ──
-    print(f"\n{'='*50}")
-    print(f"[PlanService] 开始生成训练计划 (Pipeline + Map-Reduce)")
-    print(f"[PlanService] {request.goal} | {request.experience_level} | {request.workout_location} | {request.days_per_week}天/周")
+    # ── 简单转发到新版 PlanService ──
+    # 新版 adapt：用 CoachAgent 分析画像
+    ps = PlanService()
+    loop = asyncio.get_running_loop()
 
-    ppl_schedule = get_ppl_schedule(request.days_per_week)
-    split_name = ppl_schedule["name"]
-    per_group = ppl_schedule["per_group"]
-    schedule = ppl_schedule["schedule"]
+    # 构造 InitPlanRequest 兼容对象
+    class _CompatRequest:
+        goal = request.goal
+        experience_level = request.experience_level
+        workout_location = request.workout_location
+        days_per_week = request.days_per_week
+        height = getattr(request, 'height', None)
+        weight = getattr(request, 'weight', None)
+        age = getattr(request, 'age', None)
+        gender = getattr(request, 'gender', None)
+        city = getattr(request, 'city', None)
+        preferred_days = "1,3,5"
+        notes = getattr(request, 'notes', "")
+        duration_weeks = getattr(request, 'duration_weeks', 4)
 
-    print(f"[PlanService] PPL方案: {split_name}, {len(schedule)}天, 每肌群{per_group}个动作")
+    compat = _CompatRequest()
 
-    yield _sse_event("progress", json.dumps({
-        "day": 0, "phase": "coordinator",
-        "text": f"📋 开始生成 {split_name} 周计划..."
-    }, ensure_ascii=False))
+    try:
+        result = await ps.generate_plan(compat, _emit)
 
-    # ── 启动 Producer 后台任务 ──
-    async def _producers():
-        """并行执行所有天的生成，结果放入队列。"""
+        for day_idx, day_plan in enumerate(result.get("weekly_plans", [{"days": []}])[0]["days"]):
+            for ex in day_plan.get("main", []):
+                await _emit("exercise_done", {
+                    "day": day_idx,
+                    "exercise": {
+                        "name": ex.get("name", ""),
+                        "sets": ex.get("sets", 3),
+                        "reps": ex.get("reps", 10),
+                        "wger_id": ex.get("wger_id"),
+                        "target_muscle": ex.get("target_muscle", ""),
+                        "rest_seconds": ex.get("rest_seconds", 60),
+                    },
+                })
+            await _emit("day_done", {
+                "day": day_idx,
+                "focus": day_plan.get("focus", ""),
+                "main_count": len(day_plan.get("main", [])),
+            })
+
+        final_result = {
+            "weekly_plans": result["weekly_plans"],
+            "profile": result.get("profile", {}),
+        }
+
+        # 存库
         try:
-            async def run_one(day_spec, i):
-                return await _run_one_day(
-                    day_spec, i,
-                    request.goal, request.experience_level,
-                    request.workout_location,
-                    split_name, per_group,
-                    _emit,
-                )
+            plan = FitnessPlan(
+                goal=request.goal,
+                experience_level=request.experience_level,
+                workout_location=request.workout_location,
+                days_per_week=request.days_per_week or 3,
+                duration_weeks=request.duration_weeks or 4,
+                notes=request.notes or "",
+                plan_content=json.dumps(final_result, ensure_ascii=False),
+            )
+            db.add(plan)
+            db.commit()
+            db.refresh(plan)
+            final_result["id"] = plan.id
+        except Exception as e:
+            print(f"[PlanService] 存库失败: {e}")
+            db.rollback()
+            final_result["id"] = -1
 
-            tasks = [run_one(day_spec, i) for i, day_spec in enumerate(schedule)]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+        await _emit("done", final_result)
 
-            # 处理结果（过滤异常）
-            valid = []
-            for r in results:
-                if isinstance(r, Exception):
-                    print(f"[PlanService] 某天生成异常: {r}")
-                    valid.append({"_error": str(r), "warmup": [], "main": [], "cooldown": []})
-                else:
-                    valid.append(r)
+    except Exception as e:
+        print(f"[PlanService] 生成失败: {e}")
+        traceback.print_exc()
+        await _emit("error", {"text": f"生成失败: {str(e)}"})
 
-            return valid
-        finally:
-            # 通知 consumer 结束
-            await event_queue.put(("__END__", None))
+    await event_queue.put(("__END__", None))
 
-    producer_task = asyncio.create_task(_producers())
-
-    # ── Consumer: 从队列中逐个 yield SSE 事件 ──
+    # Consumer
     while True:
         event_type, data = await event_queue.get()
         if event_type == "__END__":
             break
         yield _sse_event(event_type, json.dumps(data, ensure_ascii=False))
-
-    # 等待 producer 完成，拿结果
-    per_day_plans = await producer_task
-
-    # ── Stage 3: Reduce ──
-    print(f"[PlanService] Reduce: {len(per_day_plans)} 天计划汇总")
-    final_plan = reduce_to_weekly_plan(per_day_plans, schedule)
-
-    # 统计成功天数
-    success_days = sum(1 for p in per_day_plans if not p.get("_error"))
-    if success_days == 0:
-        yield _sse_event("error", json.dumps({
-            "text": "所有天数生成失败，请重试"
-        }, ensure_ascii=False))
-        return
-
-    yield _sse_event("progress", json.dumps({
-        "day": 0, "phase": "reduce",
-        "text": f"✅ {success_days}/{len(schedule)} 天生成成功，正在汇总..."
-    }, ensure_ascii=False))
-
-    # ── Stage 4: Persist ──
-    yield _sse_event("progress", json.dumps({
-        "day": 0, "phase": "save",
-        "text": "💾 保存计划中..."
-    }, ensure_ascii=False))
-
-    try:
-        plan = FitnessPlan(
-            goal=request.goal,
-            experience_level=request.experience_level,
-            workout_location=request.workout_location,
-            days_per_week=request.days_per_week,
-            duration_weeks=request.duration_weeks,
-            notes=request.notes or "",
-            plan_content=json.dumps(final_plan, ensure_ascii=False),
-        )
-        db.add(plan)
-        db.commit()
-        db.refresh(plan)
-        print(f"[PlanService] 计划已存入数据库，ID: {plan.id}")
-
-        response = {
-            "id": plan.id,
-            "goal": plan.goal,
-            "experience_level": plan.experience_level,
-            "workout_location": plan.workout_location,
-            "days_per_week": plan.days_per_week,
-            "duration_weeks": plan.duration_weeks,
-            **final_plan,
-            "created_at": str(plan.created_at),
-        }
-
-        yield _sse_event("progress", json.dumps({
-            "day": 0, "phase": "done",
-            "text": "✅ 计划生成完成！"
-        }, ensure_ascii=False))
-
-        yield _sse_event("done", json.dumps(response, ensure_ascii=False))
-
-    except Exception as e:
-        print(f"[PlanService] 数据库写入失败: {e}")
-        traceback.print_exc()
-        db.rollback()
-        yield _sse_event("error", json.dumps({
-            "text": f"保存计划失败: {str(e)}"
-        }, ensure_ascii=False))

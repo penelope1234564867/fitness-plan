@@ -26,6 +26,9 @@ export type PhaseType = 'warmup' | 'main' | 'cardio' | 'stretch'
 
 export type RPEQuick = 'easy' | 'normal' | 'hard'
 
+/** 变化标记类型 — 与后端 change_type 对应 */
+export type ChangeType = 'none' | 'increased_weight' | 'increased_reps' | 'decreased_weight' | 'new_exercise' | 'same'
+
 export interface ExerciseSlot {
   id: number
   day_id: number
@@ -56,6 +59,15 @@ export interface ExerciseSlot {
   _completed: boolean
   _rpeQuick: RPEQuick | null
   _loading: boolean
+
+  // ── 变化标记（来自后端） ──
+  change_type: ChangeType
+  weight_diff: number                 // 重量差值
+  prev_weight_kg: number              // 上周重量
+  prev_target_reps: number            // 上周目标次数
+  prev_target_sets: number            // 上周目标组数
+  prev_exercise_name: string          // 上周/上周期动作名（替换时）
+  prev_phase: string                  // 上周期阶段（跨周期时）
 }
 
 // ═════════════════════════════════════════════════════════
@@ -117,6 +129,7 @@ export interface MesocycleSummary {
 
 export interface MesocycleDetail extends MesocycleSummary {
   weeks: WeekSummary[]
+  completion_rate?: number
 }
 
 export interface WeekSummary {
@@ -124,6 +137,8 @@ export interface WeekSummary {
   week_number: number
   status: WeekStatus
   day_count: number
+  completed_days?: number
+  completion_rate?: number
 }
 
 // ═════════════════════════════════════════════════════════
@@ -140,6 +155,95 @@ export interface MacrocycleSummary {
 
 export interface MacrocycleDetail extends MacrocycleSummary {
   mesocycles: MesocycleDetail[]
+}
+
+// ═════════════════════════════════════════════════════════
+//  路线图展示类型（中周期路线图用）
+// ═════════════════════════════════════════════════════════
+
+/** 各目标对应的阶段中文名 */
+export const PHASE_LABEL_MAP: Record<string, Record<string, string>> = {
+  '增肌': {
+    foundational: '基础适应期',
+    hypertrophy: '肌肥大期',
+    strength: '力量提升期',
+    deload: '减载恢复周',
+  },
+  '减脂': {
+    foundational: '基础适应期',
+    hypertrophy: '燃脂强化期',
+    strength: '代谢提升期',
+    deload: '减载恢复周',
+  },
+  '塑形': {
+    foundational: '基础适应期',
+    hypertrophy: '塑形雕刻期',
+    strength: '紧致提升期',
+    deload: '减载恢复周',
+  },
+  '保持健康': {
+    foundational: '基础适应期',
+    hypertrophy: '综合维持期',
+    strength: '活跃恢复期',
+    deload: '减载恢复周',
+  },
+}
+
+/** 阶段对应颜色 */
+export const PHASE_COLORS: Record<string, string> = {
+  foundational: '#3b82f6',
+  hypertrophy: '#22c55e',
+  strength: '#f97316',
+  deload: '#a855f7',
+}
+
+/** 各目标各阶段的大白话说明（做什么 + 达到什么目标） */
+export const PHASE_DESCRIPTIONS: Record<string, Record<string, { title: string; description: string }>> = {
+  '增肌': {
+    foundational: { title: '🤔 这个阶段练什么？', description: '用比较轻的重量先把动作学标准，重点练深蹲、卧推这些基础动作。这个阶段不用着急上大重量，先把姿势练对，以后的训练才能不受伤、效果更好。' },
+    hypertrophy: { title: '🤔 这个阶段练什么？', description: '用中等重量每组做 8-12 下，做到最后几下感觉吃力就对了。这样能给肌肉足够的刺激，让它变大变厚。每次要尝试比上周多做一下或者多加一点点重量，才能持续进步。' },
+    strength: { title: '🤔 这个阶段练什么？', description: '加重重量减少次数，每组做 4-6 下。目标是让神经更高效地调动肌肉，举起更重的重量。这阶段练出来的不只是肌肉，更是实打实的力量增长。' },
+    deload: { title: '🤔 这个阶段练什么？', description: '重量减轻一半，运动量也减少，让身体彻底恢复。连续练了几个月，身体和神经都很疲劳。这一周就是让身体「充充电」，休息好了下一轮才能练得更好。' },
+  },
+  '减脂': {
+    foundational: { title: '🤔 这个阶段练什么？', description: '用比较轻的重量先把动作学标准，重点练深蹲、卧推这些基础动作。这个阶段即使吃得少一点，身体也能同时长肌肉和减脂肪。先把姿势练对，后面才能全力燃脂。' },
+    hypertrophy: { title: '🤔 这个阶段练什么？', description: '用中等偏重的重量每组做 8-12 下，配合有氧运动。这样可以一边消耗热量一边给肌肉足够的刺激，不会因为少吃而掉肌肉。这个阶段最关键的是多吃蛋白质（肉蛋奶），才能保住练出来的肌肉。' },
+    strength: { title: '🤔 这个阶段练什么？', description: '一周里有几天练重一点、有几天练轻一点，配合高强度间歇运动来突破瓶颈。如果减脂速度变慢了，这就说明身体适应了，需要通过变化来重新激活代谢。太累的时候可以安排一两天正常吃饭补充能量。' },
+    deload: { title: '🤔 这个阶段练什么？', description: '运动量减半，重量也减轻，让身体彻底放松恢复。连续减脂好几个月，身体和神经都很疲劳。这一周就是让身体「充充电」，休息好了下一轮减脂效果才会更好。' },
+  },
+  '塑形': {
+    foundational: { title: '🤔 这个阶段练什么？', description: '用比较轻的重量先把动作学标准，把全身各部位都练一遍。这个阶段重点是找到肌肉发力的感觉，为后续的雕刻塑形打好基础。' },
+    hypertrophy: { title: '🤔 这个阶段练什么？', description: '中等重量每组做 10-15 下，重点打磨肩部、背部、臀腿这些部位。目标是让肌肉线条更好看，体态更挺拔。注意动作质量比重量更重要。' },
+    strength: { title: '🤔 这个阶段练什么？', description: '增加训练强度，复合动作和孤立动作搭配练。这个阶段要练出全身的紧致感，让肌肉轮廓更明显，皮肤看起来更紧实有弹性。' },
+    deload: { title: '🤔 这个阶段练什么？', description: '运动量减半，重点是拉伸和放松。让肌肉和关节好好恢复，下一轮练起来效果更好。' },
+  },
+  '保持健康': {
+    foundational: { title: '🤔 这个阶段练什么？', description: '从最简单的运动开始，主要以适应为主。不用追求强度，重点是让身体养成规律运动的习惯。每周练 2-3 次比一次练很猛更重要。' },
+    hypertrophy: { title: '🤔 这个阶段练什么？', description: '保持中等强度的训练，全身各部位都练到。这个阶段不求突破，主要是维持现有的力量和体能水平，让运动成为生活的一部分。' },
+    strength: { title: '🤔 这个阶段练什么？', description: '以轻松愉快的运动为主，增加一些户外活动和有氧运动。保持身体活跃度，享受运动带来的好心情，不给自己太大压力。' },
+    deload: { title: '🤔 这个阶段练什么？', description: '减少运动量，做一些简单的拉伸和散步。让身体休息一下，为下一轮训练做准备。' },
+  },
+}
+
+/** 路线图上单个阶段的显示数据 */
+export interface PhaseSegment {
+  phase: string
+  label: string
+  color: string
+  status: 'completed' | 'active' | 'pending'
+  weekCount: number
+  currentWeek?: number
+  completionRate: number
+  weeks: WeekSummary[]
+}
+
+/** 路线图全部数据 */
+export interface RoadmapData {
+  macrocycleId: number
+  goal: string
+  totalWeeks: number
+  currentWeekNumber: number
+  mesocycles: PhaseSegment[]
 }
 
 // ═════════════════════════════════════════════════════════
@@ -160,6 +264,18 @@ export interface UserCurrentStateUpdate {
   workout_location?: string
   days_per_week?: number
   preferred_days?: string
+}
+
+export interface ProfileCombined {
+  height?: number | null
+  weight?: number | null
+  age?: number | null
+  gender?: string | null
+  goal?: string | null
+  experience_level?: string | null
+  workout_location?: string | null
+  preferred_days?: string | null
+  days_per_week?: number | null
 }
 
 // ═════════════════════════════════════════════════════════
@@ -219,11 +335,16 @@ export interface CalendarEntryResponse {
 
 export interface DayDetailResponse {
   date: string
+  day_id: number                 // training_day id（has_plan = true 时有值）
   day_status: string             // pending / completed / future / no_plan
   day_label: string
   focus: string
   week_id: number
   mesocycle_phase: string
+  week_number: number                 // 当前是第几周
+  phase_label: string                 // 阶段中文名
+  phase_color: string                 // 阶段颜色
+  rpe_trend: string                   // rising/stable/falling
   is_rest_day: boolean
   has_plan: boolean
   slots: ExerciseSlot[]
@@ -240,6 +361,7 @@ export interface DayDetailResponse {
 export interface SSEProgressData {
   phase: string
   text: string
+  progress?: number       // 后端 v2+ 直接发送 0-100
   day?: number
 }
 

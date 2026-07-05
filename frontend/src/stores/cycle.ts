@@ -7,9 +7,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as api from '@/services/api'
-import { estimateProgress } from '@/services/sse'
+import { estimateProgress, getProgress } from '@/services/sse'
 import dayjs from 'dayjs'
-import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry } from '@/types'
+import type { WeekPlan, MacrocycleDetail, MacrocycleSummary, InitPlanRequest, CalendarEntry, PhaseSegment, RoadmapData } from '@/types'
+import { PHASE_LABEL_MAP, PHASE_COLORS } from '@/types'
 
 export const useCycleStore = defineStore('cycle', () => {
   // ── 状态 ──
@@ -22,6 +23,9 @@ export const useCycleStore = defineStore('cycle', () => {
   const generationProgress = ref(0)
   const generationStatus = ref('')
   const generationPhase = ref('')
+  /** 实时日志列表 { time, phase, text, day?, progress? } */
+  const generationLog = ref<{ time: string; phase: string; text: string; day?: number; progress: number }[]>([])
+  const MAX_LOG_ENTRIES = 200
 
   // 日历数据（按日期索引）
   const calendarEntries = ref<Map<string, CalendarEntry>>(new Map())
@@ -42,12 +46,8 @@ export const useCycleStore = defineStore('cycle', () => {
   const mesocycleTotalWeeks = computed(() => currentMesocycle.value?.week_count ?? 4)
 
   const mesocyclePhaseLabel = computed(() => {
-    const labels: Record<string, string> = {
-      foundational: '基础适应期',
-      hypertrophy: '肌肥大期',
-      strength: '力量期',
-      deload: '减载周',
-    }
+    const goal = macrocycle.value?.goal || '增肌'
+    const labels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
     return labels[currentWeek.value?.mesocycle_phase ?? ''] ?? ''
   })
 
@@ -62,36 +62,111 @@ export const useCycleStore = defineStore('cycle', () => {
     return currentWeek.value.days.every(d => d.is_completed)
   })
 
+  /** 路线图数据：转为前端展示格式 */
+  const roadmapData = computed<RoadmapData | null>(() => {
+    if (!macrocycle.value || !macrocycle.value.mesocycles.length) return null
+    const goal = macrocycle.value.goal || '增肌'
+    const phaseLabels = PHASE_LABEL_MAP[goal] || PHASE_LABEL_MAP['增肌']
+    const currentPhase = currentWeek.value?.mesocycle_phase ?? ''
+
+    let totalWeeksSum = 0
+    let currentWeekNumber = 0
+    let found = false
+
+    const segments: PhaseSegment[] = macrocycle.value.mesocycles.map(ms => {
+      totalWeeksSum += ms.week_count
+      let segStatus: 'completed' | 'active' | 'pending' = 'pending'
+      let weekInPhase = 0
+
+      if (ms.status === 'completed') {
+        segStatus = 'completed'
+      } else if (ms.phase === currentPhase && !found) {
+        segStatus = 'active'
+        weekInPhase = currentWeek.value?.week_number ?? 1
+        currentWeekNumber = totalWeeksSum - ms.week_count + weekInPhase
+        found = true
+      }
+
+      return {
+        phase: ms.phase,
+        label: phaseLabels[ms.phase] || ms.phase,
+        color: PHASE_COLORS[ms.phase] || '#999',
+        status: segStatus,
+        weekCount: ms.week_count,
+        currentWeek: segStatus === 'active' ? weekInPhase : undefined,
+        completionRate: ms.completion_rate ?? 0,
+        weeks: ms.weeks || [],
+      }
+    })
+
+    return {
+      macrocycleId: macrocycle.value.id,
+      goal,
+      totalWeeks: totalWeeksSum,
+      currentWeekNumber,
+      mesocycles: segments,
+    }
+  })
+
+  /** 当前阶段的下一个阶段名称 */
+  const nextPhaseLabel = computed<string | null>(() => {
+    if (!roadmapData.value) return null
+    const segs = roadmapData.value.mesocycles
+    const idx = segs.findIndex(s => s.status === 'active')
+    if (idx >= 0 && idx < segs.length - 1) return segs[idx + 1].label
+    return null
+  })
+
   // ── Actions ──
+
+  /** 添加一条日志 + 更新进度 */
+  function _addLog(data: { phase: string; text: string; progress?: number; day?: number }) {
+    const now = new Date()
+    const time = now.toLocaleTimeString('zh-CN', { hour12: false })
+    const pct = getProgress(data)
+    generationLog.value.push({ time, phase: data.phase, text: data.text, day: data.day, progress: pct })
+    if (generationLog.value.length > MAX_LOG_ENTRIES) {
+      generationLog.value = generationLog.value.slice(-MAX_LOG_ENTRIES)
+    }
+  }
 
   async function initPlan(req: InitPlanRequest) {
     isGenerating.value = true
     generationProgress.value = 0
     generationStatus.value = '🚀 开始初始化...'
+    generationLog.value = []
     error.value = null
+
+    _addLog({ phase: 'init', text: '🚀 开始生成训练计划...', progress: 0 })
 
     try {
       const result = await api.initPlan(req, {
         onProgress: (data) => {
           generationStatus.value = data.text
           generationPhase.value = data.phase
-          generationProgress.value = estimateProgress(data.phase)
+          const pct = getProgress(data)
+          generationProgress.value = pct
+          _addLog({ ...data, progress: pct })
         },
         onDayDone: (data) => {
           generationStatus.value = `✅ 第${data.day}天生成完成`
+          _addLog({ phase: 'day_done', text: `✅ 第${data.day}天 (${data.focus}) 完成 — ${data.main_count} 个主项`, day: data.day, progress: generationProgress.value })
         },
         onError: (data) => {
           error.value = data.text
+          _addLog({ phase: 'error', text: `❌ ${data.text}`, progress: generationProgress.value })
         },
       })
 
       currentWeek.value = result
       generationProgress.value = 100
       generationStatus.value = '✅ 计划生成成功！'
+      _addLog({ phase: 'done', text: '✅ 计划生成成功！', progress: 100 })
       await fetchMacrocycles()
       return result
     } catch (e: any) {
       error.value = e.message || '初始化失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
       throw e
     } finally {
       setTimeout(() => { isGenerating.value = false }, 500)
@@ -102,30 +177,39 @@ export const useCycleStore = defineStore('cycle', () => {
     isGenerating.value = true
     generationProgress.value = 0
     generationStatus.value = '📋 分析前一周打卡数据...'
+    generationLog.value = []
     error.value = null
+
+    _addLog({ phase: 'init', text: '📋 开始生成下周计划...', progress: 0 })
 
     try {
       const result = await api.generateNextWeek({
         onProgress: (data) => {
           generationStatus.value = data.text
           generationPhase.value = data.phase
-          generationProgress.value = estimateProgress(data.phase)
+          const pct = getProgress(data)
+          generationProgress.value = pct
+          _addLog({ ...data, progress: pct })
         },
         onDayDone: (data) => {
           generationStatus.value = `✅ 第${data.day}天已生成`
+          _addLog({ phase: 'day_done', text: `✅ 第${data.day}天 (${data.focus}) 写入完成 — ${data.main_count} 个主项`, day: data.day, progress: generationProgress.value })
         },
         onError: (data) => {
           error.value = data.text
+          _addLog({ phase: 'error', text: `❌ ${data.text}`, progress: generationProgress.value })
         },
       })
 
       currentWeek.value = result
       generationProgress.value = 100
       generationStatus.value = '✅ 下周计划已生成！'
+      _addLog({ phase: 'done', text: '✅ 下周计划生成成功！', progress: 100 })
       await fetchMacrocycles()
       return result
     } catch (e: any) {
       error.value = e.message || '生成失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
       throw e
     } finally {
       setTimeout(() => { isGenerating.value = false }, 500)
@@ -191,10 +275,11 @@ export const useCycleStore = defineStore('cycle', () => {
   return {
     currentWeek, macrocycle, macrocycles,
     calendarEntries, calendarRange,
-    isGenerating, generationProgress, generationStatus, generationPhase,
+    isGenerating, generationProgress, generationStatus, generationPhase, generationLog,
     loading, error,
     currentMesocycle, currentWeekNumber, mesocycleTotalWeeks,
     mesocyclePhaseLabel, weekCompletionRate, isWeekComplete,
+    roadmapData, nextPhaseLabel,
     initPlan, generateNextWeek, fetchCurrentWeek, fetchMacrocycles,
     fetchCalendarData, initCalendarRange,
   }

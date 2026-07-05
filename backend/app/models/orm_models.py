@@ -92,6 +92,15 @@ class UserCurrentState(Base):
     current_mesocycle_id = Column(Integer,
                                   ForeignKey("mesocycle.id", ondelete="SET NULL"),
                                   nullable=True)              # 当前所在的 mesocycle
+
+    # ── 压缩历史（generate_next_week 重构新增） ──
+    avg_completion_rate = Column(Float, default=0.0)          # 历史平均完成率
+    rpe_trend = Column(String(20), default="stable")          # 'rising' | 'stable' | 'falling'
+    consecutive_weeks_completed = Column(Integer, default=0)  # 连续完整打卡周数
+    exercise_blacklist = Column(Text, default="[]")            # JSON 数组，RPE 持续高的动作名
+    weekly_progress = Column(Text, default="[]")               # JSON 数组，每周汇总
+    pool_loaded = Column(Integer, default=0)                   # 当前中周期缓存池是否已加载
+
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # 关系 — 单用户场景，不强制 FK 关联 User 表
@@ -273,6 +282,39 @@ class ExerciseVariation(Base):
     __table_args__ = (
         UniqueConstraint("series_name", "exercise_id", name="uq_variation_series_exercise"),
         Index("idx_variation_series_order", "series_name", "sort_order"),
+    )
+
+
+# ═══════════════════════════════════════════════════════════════
+#  中周期缓存池（Mesocycle Exercise Pool）
+# ═══════════════════════════════════════════════════════════════
+
+class MesocycleExercisePool(Base):
+    """中周期内缓存的 wger 动作池。
+    中周期开始时从 Exercise 表（wger 缓存）填充，
+    中周期内每周 LLM 从池中选不同组合。
+    中周期结束时刷新。"""
+    __tablename__ = "mesocycle_exercise_pool"
+
+    id = Column(Integer, primary_key=True, index=True)
+    mesocycle_id = Column(Integer, ForeignKey("mesocycle.id", ondelete="CASCADE"),
+                          nullable=False, index=True)
+    wger_id = Column(Integer, nullable=False)
+    name = Column(String(200), default="")
+    target_muscle = Column(String(50), default="")
+    muscle_group_id = Column(Integer, nullable=True, index=True)
+    equipment = Column(String(50), default="")
+    image_url = Column(String(500), default="")
+    description = Column(Text, default="")
+    difficulty = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # 关系
+    mesocycle = relationship("Mesocycle")
+
+    __table_args__ = (
+        UniqueConstraint("mesocycle_id", "wger_id", name="uq_pool_mesocycle_wger"),
+        Index("idx_pool_muscle", "muscle_group_id"),
     )
 
 

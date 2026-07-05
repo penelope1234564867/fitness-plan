@@ -9,10 +9,10 @@
         :gender="gender || 'male'"
         :selected-primary-muscle-groups="primaryGroups"
         :selected-secondary-muscle-groups="secondaryGroups"
-        primary-highlight-color="#fb923c"
-        secondary-highlight-color="#fdba74"
-        default-muscle-color="#e5e5e5"
-        background-color="#ffffff"
+        :primary-highlight-color="muscleColors.primaryHighlightColor"
+        :secondary-highlight-color="muscleColors.secondaryHighlightColor"
+        :default-muscle-color="muscleColors.defaultMuscleColor"
+        :background-color="muscleColors.backgroundColor"
         :primary-opacity="0.8"
         :secondary-opacity="0.5"
       />
@@ -36,6 +36,9 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { HumanMuscleAnatomy as HumanAnatomy } from '@lucawahlen/vue-human-muscle-anatomy'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
 
 const props = defineProps<{
   gender?: 'male' | 'female'
@@ -159,6 +162,13 @@ function toGroups(muscles: { id: number }[]): string[] {
 const primaryGroups = computed(() => toGroups(props.primaryMuscles || []))
 const secondaryGroups = computed(() => toGroups(props.secondaryMuscles || []))
 
+const muscleColors = computed(() => ({
+  primaryHighlightColor: themeStore.isDark ? '#d97706' : '#fb923c',
+  secondaryHighlightColor: themeStore.isDark ? '#92400e' : '#fdba74',
+  defaultMuscleColor: themeStore.isDark ? '#3a3a3a' : '#e5e5e5',
+  backgroundColor: themeStore.isDark ? '#1f1f1f' : '#ffffff',
+}))
+
 // ── 挂载后绑定悬浮事件 ──
 
 onMounted(async () => {
@@ -183,10 +193,10 @@ onUnmounted(() => {
 
 <style scoped>
 .muscle-diagram {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border: 1px solid #e8e8e8;
+  box-shadow: var(--shadow-card-lg);
+  border: 1px solid var(--border-color);
   padding: 12px;
   margin-top: auto;
   display: flex;
@@ -203,7 +213,7 @@ onUnmounted(() => {
 .diagram-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
 }
 
 .diagram-body {
@@ -211,7 +221,7 @@ onUnmounted(() => {
   justify-content: center;
   padding: 4px 0;
   overflow: hidden;
-  position: relative;  /* tooltip 定位锚点 */
+  position: relative;
 }
 
 .muscle-tooltip {

@@ -67,10 +67,10 @@ const localData = reactive<PersonalData>({ ...props.data, experience: props.data
 
 <style scoped>
 .step-card { }
-.step-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin: 0 0 4px 0; }
-.step-desc { font-size: 14px; color: #888; margin: 0 0 24px 0; }
+.step-title { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.step-desc { font-size: 14px; color: var(--text-muted); margin: 0 0 24px 0; }
 .step-form { }
 .step-actions { margin-top: 24px; }
-.next-btn { height: 48px; border-radius: 12px; font-size: 16px; font-weight: 600; background: #f97316; border: none; box-shadow: none; }
-.next-btn:hover { background: #ea580c; }
+.next-btn { height: 48px; border-radius: 12px; font-size: 16px; font-weight: 600; background: var(--brand-orange); border: none; box-shadow: none; }
+.next-btn:hover { background: var(--brand-orange-deep); }
 </style>

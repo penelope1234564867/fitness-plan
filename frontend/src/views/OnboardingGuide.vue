@@ -85,6 +85,19 @@ async function onGenerate(data: any) {
     days_per_week: formData.days || 3,
   })
 
+  // ★ 提前保存 UserCurrentState（首次生成前就让后端有用户日程选择）
+  //   这样 GeneratingPlan 的 fetchCurrentState() 能返回正确天数，而非默认 3 天
+  try {
+    await userStore.saveCurrentState({
+      experience_level: formData.experience,
+      workout_location: formData.locations[0] || '居家',
+      days_per_week: formData.days || 3,
+      preferred_days: formData.preferredDays,
+    })
+  } catch (e) {
+    console.warn('[Onboarding] saveCurrentState 失败（首次可能无记录，跳过）', e)
+  }
+
   // ⚡markOnboardingDone() 移到 GeneratingPlan.vue——生成成功后才标记
   // 跳转到生成直播间（含个人信息）
   router.push({
@@ -115,7 +128,7 @@ onMounted(() => {
 <style scoped>
 .onboarding-container {
   min-height: calc(100vh - 64px);
-  background: #f5f7fa;
+  background: var(--bg-page);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,16 +150,16 @@ onMounted(() => {
 .logo-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .card-wrapper {
   width: 100%;
   max-width: 480px;
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-card-lg);
   padding: 36px 32px;
 }
 

@@ -1,0 +1,188 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6] [cursor=pointer]:
+        - generic [ref=e7]: 💪
+        - heading "AI 智能健身助手" [level=1] [ref=e8]
+      - generic [ref=e11] [cursor=pointer]: ♂
+  - generic [ref=e13]:
+    - complementary [ref=e14]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: 🌱
+            - generic [ref=e150]: 基础适应期
+            - generic [ref=e20]: · 第1周/共4周
+          - generic [ref=e21]: 0%
+        - generic [ref=e24]:
+          - generic [ref=e26]: 📋 本周 0/3 天已完成
+          - button "⚡ 生成下周" [disabled] [ref=e27]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - button "‹" [ref=e31] [cursor=pointer]
+          - heading "2026年7月" [level=3] [ref=e32]
+          - button "›" [ref=e33] [cursor=pointer]
+          - button "今天" [ref=e34] [cursor=pointer]
+        - generic [ref=e35]:
+          - generic [ref=e36]: 日
+          - generic [ref=e37]: 一
+          - generic [ref=e38]: 二
+          - generic [ref=e39]: 三
+          - generic [ref=e40]: 四
+          - generic [ref=e41]: 五
+          - generic [ref=e42]: 六
+        - generic [ref=e43]:
+          - generic [ref=e45]: "28"
+          - generic [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]: "29"
+            - generic "胸部 + 肩部 + 三头" [ref=e151]: 🏋️
+          - generic [ref=e49]: "30"
+          - generic [ref=e50] [cursor=pointer]:
+            - generic [ref=e51]: "1"
+            - generic "背部 + 二头" [ref=e153]: 🏋️
+          - generic [ref=e53] [cursor=pointer]: "2"
+          - generic [ref=e54] [cursor=pointer]:
+            - generic [ref=e55]: "3"
+            - generic "腿部 + 臀部" [ref=e155]: 🦵
+          - generic [ref=e57]: "4"
+          - generic [ref=e59]: "5"
+          - generic [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]: "6"
+            - generic "全身力量基础" [ref=e157]: 💪
+          - generic [ref=e63]: "7"
+          - generic [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]: "8"
+            - generic "核心强化" [ref=e159]: 🔥
+          - generic [ref=e67]: "9"
+          - generic [ref=e68] [cursor=pointer]:
+            - generic [ref=e69]: "10"
+            - generic "全身协调" [ref=e161]: 💪
+          - generic [ref=e71]: "11"
+          - generic [ref=e73]: "12"
+          - generic [ref=e74] [cursor=pointer]:
+            - generic [ref=e75]: "13"
+            - generic "上肢推动" [ref=e163]: 💪
+          - generic [ref=e77]: "14"
+          - generic [ref=e78] [cursor=pointer]:
+            - generic [ref=e79]: "15"
+            - generic "下肢拉动" [ref=e165]: 🦵
+          - generic [ref=e81]: "16"
+          - generic [ref=e82] [cursor=pointer]:
+            - generic [ref=e83]: "17"
+            - generic "核心旋转" [ref=e167]: 🔥
+          - generic [ref=e85]: "18"
+          - generic [ref=e87]: "19"
+          - generic [ref=e88] [cursor=pointer]:
+            - generic [ref=e89]: "20"
+            - generic "综合测试" [ref=e169]: 💪
+          - generic [ref=e91]: "21"
+          - generic [ref=e92] [cursor=pointer]:
+            - generic [ref=e93]: "22"
+            - generic "耐力维持" [ref=e171]: 💪
+          - generic [ref=e95]: "23"
+          - generic [ref=e96] [cursor=pointer]:
+            - generic [ref=e97]: "24"
+            - generic "灵活提升" [ref=e173]: 💪
+          - generic [ref=e99]: "25"
+          - generic [ref=e101]: "26"
+          - generic [ref=e103]: "27"
+          - generic [ref=e105]: "28"
+          - generic [ref=e107]: "29"
+          - generic [ref=e109]: "30"
+          - generic [ref=e111]: "31"
+          - generic [ref=e113]: "1"
+      - generic [ref=e115]:
+        - generic [ref=e117]: 💪 肌肉分布
+        - img [ref=e119]
+    - main [ref=e145]:
+      - generic [ref=e175]:
+        - generic [ref=e176]:
+          - heading "6月29日 周一" [level=2] [ref=e177]
+          - generic [ref=e178]: 胸部 + 肩部 + 三头
+        - generic [ref=e179]:
+          - heading "🔥 热身" [level=3] [ref=e180]
+          - generic [ref=e181]:
+            - generic [ref=e186] [cursor=pointer]: 10秒 · 向前向后各绕 10 圈
+            - generic [ref=e191] [cursor=pointer]: 10秒 · 由小到大画圈
+            - generic [ref=e196] [cursor=pointer]: 10秒 · 转动手腕和脚踝各 10 圈
+            - generic [ref=e201] [cursor=pointer]: 15秒 · 手脚同步打开再收回
+            - generic [ref=e206] [cursor=pointer]: 15秒 · 膝盖抬高至腰部，保持核心收紧
+            - generic [ref=e211] [cursor=pointer]: 15秒 · 抬腿至胯高，双手在大腿下击掌
+            - generic [ref=e216] [cursor=pointer]: 15秒 · 脚跟尽量踢到臀部
+            - generic [ref=e221] [cursor=pointer]: 8秒 · 前腿弓步同时上半身向同侧转
+            - generic [ref=e226] [cursor=pointer]: 8秒 · 向侧方迈步屈膝，另一腿伸直
+            - generic [ref=e231] [cursor=pointer]: 8秒 · 单腿抱膝上提，同时另一脚踮起
+        - generic [ref=e232]:
+          - heading "💪 主训练" [level=3] [ref=e233]
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - generic [ref=e238] [cursor=pointer]:
+                - generic [ref=e239]: 史密斯机微上斜推胸
+                - generic [ref=e240]: 3组×10次
+              - generic [ref=e241]:
+                - button "😊" [ref=e242] [cursor=pointer]
+                - button "✔" [ref=e243] [cursor=pointer]
+                - button "😰" [ref=e244] [cursor=pointer]
+            - generic [ref=e245]:
+              - generic [ref=e248] [cursor=pointer]:
+                - generic [ref=e249]: 哑铃肩推
+                - generic [ref=e250]: 3组×10次
+              - generic [ref=e251]:
+                - button "😊" [ref=e252] [cursor=pointer]
+                - button "✔" [ref=e253] [cursor=pointer]
+                - button "😰" [ref=e254] [cursor=pointer]
+            - generic [ref=e255]:
+              - generic [ref=e258] [cursor=pointer]:
+                - generic [ref=e259]: 史密斯机窄距卧推
+                - generic [ref=e260]: 3组×10次
+              - generic [ref=e261]:
+                - button "😊" [ref=e262] [cursor=pointer]
+                - button "✔" [ref=e263] [cursor=pointer]
+                - button "😰" [ref=e264] [cursor=pointer]
+            - generic [ref=e265]:
+              - generic [ref=e268] [cursor=pointer]:
+                - generic [ref=e269]: 器械飞鸟
+                - generic [ref=e270]: 3组×10次
+              - generic [ref=e271]:
+                - button "😊" [ref=e272] [cursor=pointer]
+                - button "✔" [ref=e273] [cursor=pointer]
+                - button "😰" [ref=e274] [cursor=pointer]
+            - generic [ref=e275]:
+              - generic [ref=e278] [cursor=pointer]:
+                - generic [ref=e279]: 器械侧平举
+                - generic [ref=e280]: 3组×10次
+              - generic [ref=e281]:
+                - button "😊" [ref=e282] [cursor=pointer]
+                - button "✔" [ref=e283] [cursor=pointer]
+                - button "😰" [ref=e284] [cursor=pointer]
+            - generic [ref=e285]:
+              - generic [ref=e288] [cursor=pointer]:
+                - generic [ref=e289]: 哑铃颈后臂屈伸
+                - generic [ref=e290]: 3组×10次
+              - generic [ref=e291]:
+                - button "😊" [ref=e292] [cursor=pointer]
+                - button "✔" [ref=e293] [cursor=pointer]
+                - button "😰" [ref=e294] [cursor=pointer]
+            - generic [ref=e295]:
+              - generic [ref=e298] [cursor=pointer]:
+                - generic [ref=e299]: 哑铃后束划船
+                - generic [ref=e300]: 3组×10次
+              - generic [ref=e301]:
+                - button "😊" [ref=e302] [cursor=pointer]
+                - button "✔" [ref=e303] [cursor=pointer]
+                - button "😰" [ref=e304] [cursor=pointer]
+        - generic [ref=e305]:
+          - heading "🏃 有氧收尾" [level=3] [ref=e306]
+          - generic [ref=e312] [cursor=pointer]: 1组×20次 · 跑步机慢跑 20 分钟，心率保持在最大心率的 60-70%
+        - generic [ref=e313]:
+          - heading "🧘 拉伸" [level=3] [ref=e314]
+          - generic [ref=e315]:
+            - generic [ref=e320] [cursor=pointer]: 1秒 · 单手扶门框，身体向前倾，保持 20 秒，换边
+            - generic [ref=e325] [cursor=pointer]: 1秒 · 背后双手合十，指尖向上，保持 15 秒
+            - generic [ref=e330] [cursor=pointer]: 1秒 · 手臂水平交叉胸前，另一手辅助固定，保持 20 秒，换边
+            - generic [ref=e335] [cursor=pointer]: 1秒 · 手臂横过胸前，对侧手辅助向身体拉，保持 15 秒
+        - generic [ref=e336]:
+          - generic [ref=e337]: ℹ️
+          - generic [ref=e338]: 😊 太轻松 → 加重量 | ✔ 正常完成 → 加次数 | 😰 太重了 → 减量
+        - button "📝 提交打卡" [disabled] [ref=e339]
+        - paragraph [ref=e340]: 请至少完成一个动作再提交

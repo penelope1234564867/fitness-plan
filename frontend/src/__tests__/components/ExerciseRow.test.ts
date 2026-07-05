@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { setActivePinia, createPinia } from 'pinia'
 import ExerciseRow from '@/components/ExerciseRow.vue'
 import type { ExerciseSlot } from '@/types'
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+})
 
 function makeSlot(overrides: Partial<ExerciseSlot> = {}): ExerciseSlot {
   return {
@@ -13,6 +18,8 @@ function makeSlot(overrides: Partial<ExerciseSlot> = {}): ExerciseSlot {
     actual_sets: 0, actual_reps: 0, rpe: 0, notes: '', actual_weight_kg: 0,
     exercise: null,
     _completed: false, _rpeQuick: null, _loading: false,
+    change_type: 'none', weight_diff: 0, prev_weight_kg: 0, prev_target_reps: 0,
+    prev_target_sets: 0, prev_exercise_name: '', prev_phase: '',
     ...overrides,
   }
 }

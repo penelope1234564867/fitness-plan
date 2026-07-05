@@ -85,7 +85,7 @@ describe('estimateProgress', () => {
     expect(estimateProgress('done')).toBe(100)
   })
 
-  it('returns 55 for unknown phase', () => {
-    expect(estimateProgress('unknown_phase')).toBe(55)
+  it('returns 50 for unknown phase', () => {
+    expect(estimateProgress('unknown_phase')).toBe(50)
   })
 })

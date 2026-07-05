@@ -1,0 +1,42 @@
+{
+  "name": "Step Jack",
+  "images": [
+    "https://wger.de/media/exercise-images/1962/74041371-1019-4f89-9ebe-cec792484a46.png"
+  ],
+  "description": "踏步开合跳是一种低冲击增强式运动，既能提供心血管益处，又不会给关节带来跳跃时的压力。它能锻炼全身，尤其针对腿部、核心和肩部。该动作非常适合初学者、关节敏感人群，或作为逐步提升心率的动态热身。\n\n动作说明：\n- 直立站立，双脚并拢，双臂放在身体两侧。\n- 右脚向右侧迈出一步，同时双臂向上摆动至头顶上方。\n- 将右脚收回中心位置，双臂放下。\n- 立即重复动作，左脚向左侧迈出。\n- 以稳定、有节奏的速度继续交替两侧。",
+  "target_muscle": "股四头肌",
+  "equipment": "自重",
+  "muscle_group": "有氧",
+  "primary_muscles": [
+    {
+      "id": 10,
+      "name_en": "Quadriceps femoris",
+      "name_cn": "股四头肌"
+    }
+  ],
+  "secondary_muscles": [
+    {
+      "id": 2,
+      "name_en": "Anterior deltoid",
+      "name_cn": "三角肌"
+    },
+    {
+      "id": 8,
+      "name_en": "Gluteus maximus",
+      "name_cn": "臀大肌"
+    },
+    {
+      "id": 14,
+      "name_en": "Obliquus externus abdominis",
+      "name_cn": "腹外斜肌"
+    },
+    {
+      "id": 6,
+      "name_en": "Rectus abdominis",
+      "name_cn": "腹直肌"
+    }
+  ],
+  "equipment_list": [
+    "自重"
+  ]
+}

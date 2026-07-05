@@ -25,6 +25,7 @@ import type {
   RecordResponse,
   UserProfile,
   UserProfileResponse,
+  ProfileCombined,
 } from '@/types'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
@@ -119,6 +120,11 @@ export async function fetchCurrentState(): Promise<UserCurrentState> {
 /** 更新用户当前状态 */
 export async function updateCurrentState(data: UserCurrentStateUpdate): Promise<void> {
   await apiClient.put('/api/fitness/current-state', data)
+}
+
+/** 合并保存用户个人信息 + 训练状态 */
+export async function saveProfileCombined(data: ProfileCombined): Promise<void> {
+  await apiClient.put('/api/user/profile-combined', data)
 }
 
 /** 调整训练日到新的 day_of_week */
