@@ -101,6 +101,12 @@ export async function fetchTaskStatus(taskId: string): Promise<TaskStatusRespons
   return res.data
 }
 
+/** 创建下周生成任务，返回 task_id */
+export async function createNextWeekTask(): Promise<{ task_id: string }> {
+  const res = await apiClient.post('/api/fitness/generate-next-task')
+  return res.data
+}
+
 // ── REST 接口 ─────────────────────────────────────────
 
 /** 获取当前活跃周（含完整 days → slots → exercise） */

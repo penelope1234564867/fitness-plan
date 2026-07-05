@@ -11,7 +11,7 @@ from app.engine.generator import generate_init_week, generate_next_week, _sse_ev
 from app.engine.diff_calculator import compute_slot_diffs
 from app.engine.exercise_cache import get_or_fetch_exercise
 from app.services.plan_service import PlanService
-from app.services.task_manager import store, run_generation
+from app.services.task_manager import store, run_generation, run_generate_next
 from typing import Optional
 import asyncio
 
@@ -232,6 +232,27 @@ async def get_task_status(task_id: str, db: Session = Depends(get_db)):
 # ═══════════════════════════════════════════════════════════════
 #  （旧）SSE 流式接口 — 保留以兼容现有前端
 # ═══════════════════════════════════════════════════════════════
+
+@router.post("/generate-next-task")
+async def create_generate_next_task():
+    """创建下周生成任务，立即返回 task_id（后台异步生成）。"""
+    import uuid
+    task_id = uuid.uuid4().hex[:12]
+    store._tasks[task_id] = {
+        "task_id": task_id,
+        "status": "pending",
+        "progress": 0,
+        "phase": "",
+        "text": "等待开始...",
+        "logs": [],
+        "result": None,
+        "error": None,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+    }
+    asyncio.create_task(run_generate_next(task_id))
+    return {"task_id": task_id, "status": "created"}
+
 
 @router.post("/generate-next", response_class=StreamingResponse)
 async def generate_next(db: Session = Depends(get_db)):

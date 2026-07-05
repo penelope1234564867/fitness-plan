@@ -18,9 +18,10 @@ from datetime import datetime
 from typing import Optional
 
 from app.models.schemas import InitPlanRequest
-from app.engine.generator import generate_init_week
+from app.engine.generator import generate_init_week, generate_next_week
 from app.models.orm_models import (
-    Macrocycle, Mesocycle, UserCurrentState, User,
+    Macrocycle, Mesocycle, UserCurrentState, User, Week as WeekModel,
+    Day, ExerciseSlot,
 )
 from app.database import SessionLocal
 
@@ -220,6 +221,100 @@ async def run_generation(task_id: str, request: InitPlanRequest):
         t["progress"] = 100
         t["updated_at"] = datetime.now().isoformat()
         # 不要把整个 Week ORM 对象存进去，前端会从 DB 重新读取
+
+    except Exception as e:
+        db.rollback()
+        traceback.print_exc()
+        t = store._tasks[task_id]
+        t["status"] = "error"
+        t["error"] = str(e)
+        t["updated_at"] = datetime.now().isoformat()
+        await store.add_log(task_id, "error", f"❌ {str(e)}")
+    finally:
+        await event_queue.put(("__END__", None))
+        await consumer
+        db.close()
+
+
+async def run_generate_next(task_id: str):
+    """后台执行 generate-next 逻辑（基于前一周打卡生成下一周）。"""
+    t = store._tasks[task_id]
+    t["status"] = "running"
+    await store.add_log(task_id, "init", "📋 开始生成下周计划...", 0)
+
+    db = SessionLocal()
+    event_queue: asyncio.Queue = asyncio.Queue()
+
+    async def consume_events():
+        while True:
+            event, data = await event_queue.get()
+            if event == "__END__":
+                break
+            if event == "progress":
+                p = data.get("progress")
+                await store.add_log(
+                    task_id, data.get("phase", ""),
+                    data.get("text", ""),
+                    p if isinstance(p, (int, float)) else None,
+                )
+
+    consumer = asyncio.create_task(consume_events())
+
+    try:
+        # 1. 查找当前活跃周
+        await store.add_log(task_id, "init", "🔍 查找当前活跃周...", 2)
+        current_week = db.query(WeekModel).filter(
+            WeekModel.status == "active",
+        ).order_by(WeekModel.id.desc()).first()
+
+        if not current_week:
+            raise Exception("没有活跃的周计划，请先生成初始计划")
+
+        await store.add_log(
+            task_id, "init",
+            f"📋 当前: 第{current_week.week_number}周", 5,
+        )
+        current_week.status = "completed"
+
+        # 2. AnalysAgent 分析（可选，失败不影响生成）
+        try:
+            from app.services.plan_service import PlanService
+            plan_service = PlanService()
+            days = db.query(Day).filter(
+                Day.week_id == current_week.id
+            ).order_by(Day.day_order).all()
+            for d in days:
+                d.slots = db.query(ExerciseSlot).filter(
+                    ExerciseSlot.day_id == d.id
+                ).all()
+
+            user_info = db.query(User).first()
+            profile = {
+                "profile_summary": f"{user_info.experience or '新手'}{user_info.goal or '健身'}"
+                if user_info else "用户健身",
+            }
+            await plan_service.analyze_week_and_adjust(
+                days, profile,
+                lambda e, d: event_queue.put_nowait((e, d)),
+            )
+            await store.add_log(task_id, "analysis", "✅ AnalystAgent 分析完成", 10)
+        except Exception as e:
+            await store.add_log(task_id, "analysis", f"⚠️ 分析跳过: {e}", 10)
+
+        # 3. 生成下一周
+        await store.add_log(task_id, "generate", "🚀 生成下一周...", 15)
+        new_week = await generate_next_week(current_week, db, event_queue)
+
+        if new_week is None:
+            raise Exception("下一周生成失败（返回 None）")
+
+        db.commit()
+
+        await store.add_log(task_id, "done", "✅ 下周计划生成完成！", 100)
+        t = store._tasks[task_id]
+        t["status"] = "done"
+        t["progress"] = 100
+        t["updated_at"] = datetime.now().isoformat()
 
     except Exception as e:
         db.rollback()

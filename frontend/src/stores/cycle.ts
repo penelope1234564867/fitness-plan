@@ -264,6 +264,40 @@ export const useCycleStore = defineStore('cycle', () => {
     }
   }
 
+  async function generateNextWeekPolling() {
+    stopPolling()
+    isGenerating.value = true
+    generationProgress.value = 0
+    generationStatus.value = '📋 创建生成任务...'
+    generationLog.value = []
+    error.value = null
+
+    _addLog({ phase: 'init', text: '📋 开始生成下周计划...', progress: 0 })
+
+    try {
+      const { task_id } = await api.createNextWeekTask()
+      _pollTaskId.value = task_id
+      _addLog({ phase: 'init', text: `📋 任务已创建: ${task_id}`, progress: 2 })
+
+      const status = await _pollUntilDone(task_id)
+
+      if (status.week) {
+        currentWeek.value = status.week
+      }
+      generationProgress.value = 100
+      generationStatus.value = '✅ 下周计划已生成！'
+      _addLog({ phase: 'done', text: '✅ 下周计划生成成功！', progress: 100 })
+      await fetchMacrocycles()
+      return status.week
+    } catch (e: any) {
+      error.value = e.message || '生成失败'
+      _addLog({ phase: 'error', text: `❌ ${e.message}`, progress: generationProgress.value })
+      throw e
+    } finally {
+      setTimeout(() => { isGenerating.value = false }, 500)
+    }
+  }
+
   async function generateNextWeek() {
     isGenerating.value = true
     generationProgress.value = 0
@@ -371,7 +405,7 @@ export const useCycleStore = defineStore('cycle', () => {
     mesocyclePhaseLabel, weekCompletionRate, isWeekComplete,
     roadmapData, nextPhaseLabel,
     initPlan, initPlanPolling, stopPolling,
-    generateNextWeek, fetchCurrentWeek, fetchMacrocycles,
+    generateNextWeek, generateNextWeekPolling, fetchCurrentWeek, fetchMacrocycles,
     fetchCalendarData, initCalendarRange,
   }
 })

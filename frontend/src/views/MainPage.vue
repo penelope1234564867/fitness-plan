@@ -124,7 +124,7 @@ function onDateSelect(date: string) { selectedDate.value = date }
 /** 生成下周计划（测试用，模拟多周训练） */
 async function handleGenerateNext() {
   try {
-    await cycleStore.generateNextWeek()
+    await cycleStore.generateNextWeekPolling()
     // 刷新日历数据
     const { start, end } = cycleStore.calendarRange
     if (start && end) {
