@@ -5,17 +5,9 @@
   多 Agent 协作 · 健身科学引擎 · wger 集成 · Vue 3 日历界面
 </p>
 
-<div align="center">
-
-| 日历主页 | 动作详情 | 个人资料 |
-|---|---|---|
-| ![日历主页](screenshots/主页.png) | ![动作详情页](screenshots/动作详情页.png) | ![个人信息页](screenshots/个人信息页.png) |
-
-**夜间模式**
-
-![夜间模式](screenshots/夜间模式.png)
-
-</div>
+<p align="center">
+  <img src="screenshots/主页.png" width="720" alt="Fitness Plan 日历主页" />
+</p>
 
 ---
 
@@ -33,6 +25,19 @@
 - [API 概览](#-api-概览)
 - [技术亮点](#-技术亮点)
 - [许可证](#-许可证)
+
+---
+
+## 📸 界面预览
+
+![动作详情页](screenshots/动作详情页.png)
+*动作详情 — 肌肉高亮图解、动作要领、训练建议*
+
+![个人信息页](screenshots/个人信息页.png)
+*个人资料 — 健身目标、经验水平、训练日程设置*
+
+![夜间模式](screenshots/夜间模式.png)
+*夜间模式 — 深色主题，护眼舒适*
 
 ---
 
