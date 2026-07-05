@@ -379,8 +379,6 @@ async def generate_plan_stream(request, db: Session) -> AsyncGenerator[str, None
             )
             db.add(plan)
             db.commit()
-            db.expire_all()
-            plan = db.query(FitnessPlan).filter(FitnessPlan.id == plan.id).first()
             final_result["id"] = plan.id
         except Exception as e:
             print(f"[PlanService] 存库失败: {e}")
