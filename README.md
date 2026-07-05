@@ -30,14 +30,32 @@
 
 ## 📸 界面预览
 
-![动作详情页](screenshots/动作详情页.png)
-*动作详情 — 肌肉高亮图解、动作要领、训练建议*
-
-![个人信息页](screenshots/个人信息页.png)
-*个人资料 — 健身目标、经验水平、训练日程设置*
-
-![夜间模式](screenshots/夜间模式.png)
-*夜间模式 — 深色主题，护眼舒适*
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <b>📋 动作详情</b><br>
+      <sub>肌肉高亮图解、动作要领、训练建议</sub><br>
+      <img src="screenshots/动作详情页.png" width="300" />
+    </td>
+    <td width="50%" align="center">
+      <b>👤 个人资料</b><br>
+      <sub>健身目标、经验水平、个人偏好</sub><br>
+      <img src="screenshots/个人信息页.png" width="300" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <b>📅 每周安排</b><br>
+      <sub>训练日程设置、周期规划</sub><br>
+      <img src="screenshots/个人信息-每周安排4.png" width="300" />
+    </td>
+    <td width="50%" align="center">
+      <b>🌙 夜间模式</b><br>
+      <sub>深色主题，护眼舒适</sub><br>
+      <img src="screenshots/夜间模式.png" width="300" />
+    </td>
+  </tr>
+</table>
 
 ---
 
