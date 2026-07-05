@@ -59,3 +59,11 @@ backend/memory/traces/
 
 # Reference source project (original trip-planner)
 helloagents-trip-planner/
+
+# Only frontend/ and backend/ are tracked on main; all other dirs are ancillary
+.superpowers/
+.playwright-mcp/
+0-docs/
+docs/
+test/
+wger-mcp-server/
